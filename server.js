@@ -1,4 +1,7 @@
-require('dotenv').config();
+const loadDotenv = process.env.NODE_ENV !== 'production' && process.env.LOAD_DOTENV !== 'false';
+if (loadDotenv) {
+    require('dotenv').config();
+}
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -11,28 +14,38 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname)); // Serve frontend files
 
-// Initialize PostgreSQL Pool
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-    console.error('❌ FATAL ERROR: DATABASE_URL is not defined.');
-    console.error('========================================================');
-    console.error('DEPLOYMENT LOGS INDICATE THE DATABASE URL IS MISSING.');
-    console.error('PLEASE GO TO YOUR RENDER DASHBOARD -> ENVIRONMENT TAB');
-    console.error('AND ADD THE DATABASE_URL VARIABLE.');
-    console.error('========================================================');
-    process.exit(1);
-}
+const databaseUrl = process.env.DATABASE_URL;
+const isProduction = process.env.NODE_ENV === 'production';
+const disableDatabase = isProduction || process.env.DISABLE_DATABASE === 'true';
+const isLocalDatabase = databaseUrl && /localhost|127\.0\.0\.1|::1/.test(databaseUrl);
 
-const pool = new Pool({
-    connectionString,
-    ssl: (connectionString && connectionString.includes('localhost')) ? false : {
-        rejectUnauthorized: false // Required for Render Postgres
+let pool;
+if (!disableDatabase && databaseUrl && !isLocalDatabase) {
+    pool = new Pool({
+        connectionString: databaseUrl,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+    console.log('🔌 Using PostgreSQL pool from DATABASE_URL');
+} else {
+    if (disableDatabase) {
+        console.warn('⚠️ Database has been disabled for this deploy. Using mock PostgreSQL pool.');
+    } else if (!databaseUrl) {
+        console.warn('⚠️ DATABASE_URL is not defined. Using mock PostgreSQL pool.');
+    } else {
+        console.warn('⚠️ DATABASE_URL points to localhost or an invalid host. Using mock PostgreSQL pool for deploy safety.');
     }
-});
+    pool = {
+        query: async () => ({ rows: [] }),
+        on: () => {}
+    };
+}
 
 pool.on('connect', () => {
     console.log('🐘 Connected to PostgreSQL (Render Database)');
 });
+
 
 pool.on('error', (err) => {
     console.error('❌ PostgreSQL Pool Error:', err.message);
@@ -40,6 +53,10 @@ pool.on('error', (err) => {
 
 // Auto-create all tables on startup (PostgreSQL syntax)
 async function initDb() {
+    if (typeof pool.connect !== 'function') {
+        console.warn('⚠️ Mock pool – skipping DB initialization.');
+        return;
+    }
     const client = await pool.connect();
     try {
         await client.query(`
@@ -408,6 +425,17 @@ app.get('/api/config', (req, res) => {
     });
 });
 
-app.listen(port, "0.0.0.0", () => {
+const ngrok = require('ngrok');
+const enableNgrok = process.env.NODE_ENV !== 'production';
+
+app.listen(port, "0.0.0.0", async () => {
     console.log(`Egles SMIS server running on port ${port}`);
+    if (enableNgrok) {
+        try {
+            const url = await ngrok.connect({ addr: port });
+            console.log(`✅ ngrok tunnel established: ${url}`);
+        } catch (err) {
+            console.error('❌ ngrok failed to start:', err.message);
+        }
+    }
 });

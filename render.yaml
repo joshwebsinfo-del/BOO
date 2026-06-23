@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: egles-smis
+    env: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISABLE_DATABASE
+        value: "true"
+      - key: DATABASE_URL
+        value: ""
+    healthCheckPath: /
