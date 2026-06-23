@@ -425,17 +425,6 @@ app.get('/api/config', (req, res) => {
     });
 });
 
-const ngrok = require('ngrok');
-const enableNgrok = process.env.NODE_ENV !== 'production';
-
-app.listen(port, "0.0.0.0", async () => {
+app.listen(port, "0.0.0.0", () => {
     console.log(`Egles SMIS server running on port ${port}`);
-    if (enableNgrok) {
-        try {
-            const url = await ngrok.connect({ addr: port });
-            console.log(`✅ ngrok tunnel established: ${url}`);
-        } catch (err) {
-            console.error('❌ ngrok failed to start:', err.message);
-        }
-    }
 });
