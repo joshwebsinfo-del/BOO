@@ -36,8 +36,27 @@ if (!disableDatabase && databaseUrl && !isLocalDatabase) {
     } else {
         console.warn('⚠️ DATABASE_URL points to localhost or an invalid host. Using mock PostgreSQL pool for deploy safety.');
     }
+    
+    // Demo data for mock pool
+    const demoUsers = [
+        { id: 1, username: 'admin', password: 'admin123', role: 'Admin', name: 'System Administrator' },
+        { id: 2, username: 'teacher', password: 'teacher123', role: 'Teacher', name: 'Demo Teacher' },
+        { id: 3, username: 'student', password: 'student123', role: 'Student', name: 'Demo Student' }
+    ];
+    
     pool = {
-        query: async () => ({ rows: [] }),
+        query: async (sql, params) => {
+            // Return demo user data for login queries
+            if (sql.includes('SELECT') && sql.includes('users')) {
+                if (sql.includes('WHERE username = $1') && params && params[0]) {
+                    const user = demoUsers.find(u => u.username === params[0]);
+                    return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
+                }
+                return { rows: demoUsers, rowCount: demoUsers.length };
+            }
+            // Return empty rows for all other queries (mock data)
+            return { rows: [], rowCount: 0 };
+        },
         on: () => {}
     };
 }
