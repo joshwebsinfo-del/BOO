@@ -1,5 +1,0 @@
-[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
-📦 Connected with local SQLite database (lodge.db)
-🔨 Initializing Mountain View Lodge database schema on [sqlite]
-✅ SQLite schema and seed data initialized successfully.
- Kurichong Eco Lodge API server running on port 3000 [sqlite]
