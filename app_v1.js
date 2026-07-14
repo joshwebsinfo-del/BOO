@@ -1,7 +1,7 @@
 /**
  * ==========================================================================
- * KURICHONG ECO LODGE CLIENT APP CONTROLLER (app_v1.js)
- * High-performance SPA controller for booking, reviews, and admin dashboard
+ * MOUNTAIN VIEW LODGE CLIENT APP CONTROLLER (app_v1.js)
+ * SPA controller for Booking Engine & Operations Panel
  * ==========================================================================
  */
 
@@ -11,11 +11,12 @@ class LodgeApp {
         this.currentAdminTab = 'bookings';
         this.adminSession = null;
 
-        // Cache room pricing state
+        // Cache room pricing in USD
         this.roomPrices = {
-            standard: 2500,
-            deluxe: 3500,
-            executive: 5500
+            ensuite_std: 10,
+            ensuite_premium: 15,
+            overnight_std: 20,
+            overnight_premium: 25
         };
 
         this.bookings = [];
@@ -23,15 +24,12 @@ class LodgeApp {
     }
 
     async init() {
-        console.log("🚀 Initializing Kurichong Eco Lodge Web App...");
+        console.log("🚀 Initializing Mountain View Lodge Web App...");
 
-        // Setup initial default date constraints
         this.initDatePickerLimits();
 
-        // Initial setup for navigation listener
         window.addEventListener('scroll', () => this.handleHeaderScroll());
 
-        // Check for active admin session in localStorage
         const storedSession = localStorage.getItem('lodge_admin_session');
         if (storedSession) {
             try {
@@ -42,18 +40,14 @@ class LodgeApp {
             }
         }
 
-        // Fetch fresh state from API database
         await this.syncStateWithDB();
 
-        // Initialize dynamic calculations
         this.calcBookingPrice();
         this.calcManualBookingPrice();
     }
 
     initDatePickerLimits() {
         const todayStr = new Date().toISOString().split('T')[0];
-
-        // Set min dates on date picker inputs
         const checkinInputs = ['qb-checkin', 'book-checkin', 'mb-checkin'];
         const checkoutInputs = ['qb-checkout', 'book-checkout', 'mb-checkout'];
 
@@ -67,11 +61,10 @@ class LodgeApp {
             if (el) el.min = todayStr;
         });
 
-        // Seed some defaults
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const dayAfterTomorrow = new Date();
-        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 3);
+        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
 
         const checkinDefault = tomorrow.toISOString().split('T')[0];
         const checkoutDefault = dayAfterTomorrow.toISOString().split('T')[0];
@@ -95,7 +88,6 @@ class LodgeApp {
         }
     }
 
-    // Toggle slide-out menu drawer
     toggleMobileMenu() {
         const sidebar = document.getElementById('mobile-sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -103,11 +95,9 @@ class LodgeApp {
         overlay.classList.toggle('open');
     }
 
-    // SPA View Switcher
     showSection(sectionId) {
         this.currentView = sectionId;
 
-        // Hide all sections, display target
         document.querySelectorAll('.view-section').forEach(sec => {
             sec.classList.remove('active');
         });
@@ -116,7 +106,6 @@ class LodgeApp {
             targetSection.classList.add('active');
         }
 
-        // Update Nav Menu Links Classes
         document.querySelectorAll('.desktop-nav .nav-link').forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('data-section') === sectionId) {
@@ -130,10 +119,8 @@ class LodgeApp {
             }
         });
 
-        // Scroll to top of body
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // If admin section requested, update statistics
         if (sectionId === 'admin') {
             this.syncStateWithDB().then(() => {
                 this.updateAdminDashboardUI();
@@ -141,27 +128,23 @@ class LodgeApp {
         }
     }
 
-    // SYNC STATE FROM REST DATABASE
     async syncStateWithDB() {
         this.showLoader(true);
         try {
-            // Load bookings
             this.bookings = await db.bookings.toArray();
-
-            // Load messages
             this.messages = await db.messages.toArray();
 
-            // Load settings and adjust tariffs if configured
             const settings = await db.settings.toArray();
-            const stdSetting = settings.find(s => s.key === 'tariff_standard');
-            const dlxSetting = settings.find(s => s.key === 'tariff_deluxe');
-            const exeSetting = settings.find(s => s.key === 'tariff_executive');
+            const stdSetting = settings.find(s => s.key === 'tariff_ensuite_std');
+            const premiumSetting = settings.find(s => s.key === 'tariff_ensuite_premium');
+            const overnightStdSetting = settings.find(s => s.key === 'tariff_overnight_std');
+            const overnightPremiumSetting = settings.find(s => s.key === 'tariff_overnight_premium');
 
-            if (stdSetting) this.roomPrices.standard = parseFloat(stdSetting.value);
-            if (dlxSetting) this.roomPrices.deluxe = parseFloat(dlxSetting.value);
-            if (exeSetting) this.roomPrices.executive = parseFloat(exeSetting.value);
+            if (stdSetting) this.roomPrices.ensuite_std = parseFloat(stdSetting.value);
+            if (premiumSetting) this.roomPrices.ensuite_premium = parseFloat(premiumSetting.value);
+            if (overnightStdSetting) this.roomPrices.overnight_std = parseFloat(overnightStdSetting.value);
+            if (overnightPremiumSetting) this.roomPrices.overnight_premium = parseFloat(overnightPremiumSetting.value);
 
-            // Seed initial state in localStorage fallback for offline client demonstration
             this.seedLocalMockIfNeeded();
 
         } catch (err) {
@@ -174,13 +157,13 @@ class LodgeApp {
     seedLocalMockIfNeeded() {
         const localKey = 'lodge_db_bookings';
         if (!localStorage.getItem(localKey)) {
-            // Seed localStorage fallback with initial bookings
             localStorage.setItem(localKey, JSON.stringify(this.bookings));
             localStorage.setItem('lodge_db_messages', JSON.stringify(this.messages));
             localStorage.setItem('lodge_db_settings', JSON.stringify([
-                { key: 'tariff_standard', value: this.roomPrices.standard },
-                { key: 'tariff_deluxe', value: this.roomPrices.deluxe },
-                { key: 'tariff_executive', value: this.roomPrices.executive }
+                { key: 'tariff_ensuite_std', value: this.roomPrices.ensuite_std },
+                { key: 'tariff_ensuite_premium', value: this.roomPrices.ensuite_premium },
+                { key: 'tariff_overnight_std', value: this.roomPrices.overnight_std },
+                { key: 'tariff_overnight_premium', value: this.roomPrices.overnight_premium }
             ]));
         }
     }
@@ -196,22 +179,31 @@ class LodgeApp {
         const date1 = new Date(checkinVal);
         const date2 = new Date(checkoutVal);
 
-        // Calculate nights
         const timeDiff = date2.getTime() - date1.getTime();
         const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        const finalNights = nights > 0 ? nights : 0;
+        const finalNights = nights > 0 ? nights : 1; // Default to at least 1 unit duration
 
         const rate = this.roomPrices[roomType] || 0;
-        const totalPrice = finalNights * rate;
+        const isHourly = roomType.startsWith('ensuite');
 
-        // Render to modal
+        // Dynamic labels based on short stay vs overnight stay
+        let durationLabel = '';
+        let totalPrice = 0;
+        if (isHourly) {
+            durationLabel = "2-Hour Ensuite Block";
+            totalPrice = rate; // Flat price per block
+        } else {
+            durationLabel = `${finalNights} Night${finalNights !== 1 ? 's' : ''} Overnight Stay`;
+            totalPrice = finalNights * rate;
+        }
+
         const nightsText = document.getElementById('booking-nights-count');
         const rateText = document.getElementById('booking-room-rate');
         const totalText = document.getElementById('booking-total-price');
 
-        if (nightsText) nightsText.innerText = `${finalNights} Night${finalNights !== 1 ? 's' : ''} Stay`;
-        if (rateText) rateText.innerText = `Rate: Nu. ${rate.toLocaleString()}/night`;
-        if (totalText) totalText.innerText = `Nu. ${totalPrice.toLocaleString()}.00`;
+        if (nightsText) nightsText.innerText = durationLabel;
+        if (rateText) rateText.innerText = `Rate: $${rate.toLocaleString()}`;
+        if (totalText) totalText.innerText = `$${totalPrice.toLocaleString()}.00`;
     }
 
     calcManualBookingPrice() {
@@ -226,20 +218,29 @@ class LodgeApp {
 
         const timeDiff = date2.getTime() - date1.getTime();
         const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        const finalNights = nights > 0 ? nights : 0;
+        const finalNights = nights > 0 ? nights : 1;
 
         const rate = this.roomPrices[roomType] || 0;
-        const totalPrice = finalNights * rate;
+        const isHourly = roomType.startsWith('ensuite');
+
+        let durationLabel = '';
+        let totalPrice = 0;
+        if (isHourly) {
+            durationLabel = "2-Hour short block";
+            totalPrice = rate;
+        } else {
+            durationLabel = `${finalNights} night${finalNights !== 1 ? 's' : ''}`;
+            totalPrice = finalNights * rate;
+        }
 
         const nightsText = document.getElementById('mb-nights-count');
         const totalText = document.getElementById('mb-total-price');
 
-        if (nightsText) nightsText.innerText = `${finalNights} night${finalNights !== 1 ? 's' : ''}`;
-        if (totalText) totalText.innerText = `Nu. ${totalPrice.toLocaleString()}.00`;
+        if (nightsText) nightsText.innerText = durationLabel;
+        if (totalText) totalText.innerText = `$${totalPrice.toLocaleString()}.00`;
     }
 
-    // Modal Control Modals
-    openBookingModal(preselectedRoom = 'deluxe') {
+    openBookingModal(preselectedRoom = 'overnight_premium') {
         const modal = document.getElementById('booking-modal');
         const roomSelector = document.getElementById('book-room-type');
 
@@ -263,19 +264,17 @@ class LodgeApp {
         if (modal) modal.classList.add('hidden');
     }
 
-    // Check overlap helper for double booking prevention
+    // Prevent double booking dates
     hasBookingOverlap(roomType, newIn, newOut) {
         const inDate = new Date(newIn);
         const outDate = new Date(newOut);
 
-        // Filter active bookings of the same room type
         const matches = this.bookings.filter(b => b.roomType === roomType && b.status === 'Confirmed');
 
         for (const b of matches) {
             const bIn = new Date(b.checkIn);
             const bOut = new Date(b.checkOut);
 
-            // Check overlap: (NewCheckIn < ExistingCheckOut) AND (NewCheckOut > ExistingCheckIn)
             if (inDate < bOut && outDate > bIn) {
                 return true;
             }
@@ -283,7 +282,6 @@ class LodgeApp {
         return false;
     }
 
-    // FORM HANDLERS
     async handleBookingSubmit(event) {
         event.preventDefault();
 
@@ -296,26 +294,27 @@ class LodgeApp {
         const phone = document.getElementById('book-phone').value;
         const requests = document.getElementById('book-requests').value;
 
-        // Perform validations
         const date1 = new Date(checkin);
         const date2 = new Date(checkout);
 
         if (date2 <= date1) {
-            this.showToast("Check-out date must be after the check-in date.", "error");
+            this.showToast("Check-out date must succeed check-in date.", "error");
             return;
         }
 
-        // Prevent booking overlap for a polished experience!
         if (this.hasBookingOverlap(roomType, checkin, checkout)) {
-            this.showToast(`Sorry, the selected dates have booking conflicts for the ${roomType.toUpperCase()} Room. Please try other dates.`, "error");
+            this.showToast(`Selected dates overlap with an active reservation for the ${roomType.toUpperCase().replace('_', ' ')}. Please select other dates.`, "error");
             return;
         }
 
         const nights = Math.ceil((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
         const rate = this.roomPrices[roomType] || 0;
-        const totalPrice = nights * rate;
 
-        const bookingRef = `KEL-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+        // Price matches hourly or overnight stay
+        const isHourly = roomType.startsWith('ensuite');
+        const totalPrice = isHourly ? rate : (nights * rate);
+
+        const bookingRef = `MVL-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
         const bookingData = {
             bookingId: bookingRef,
@@ -336,7 +335,6 @@ class LodgeApp {
         try {
             const saved = await db.bookings.add(bookingData);
 
-            // Sync up and show confirmation
             await this.syncStateWithDB();
             this.closeBookingModal();
             this.showConfirmationSuccess(saved);
@@ -344,7 +342,7 @@ class LodgeApp {
             this.initDatePickerLimits();
 
         } catch (e) {
-            this.showToast("An error occurred. Booking saved offline.", "warning");
+            this.showToast("Saved offline locally.", "warning");
         } finally {
             this.showLoader(false);
         }
@@ -356,7 +354,6 @@ class LodgeApp {
         const checkout = document.getElementById('qb-checkout').value;
         const roomType = document.getElementById('qb-room-type').value;
 
-        // Prepopulate booking modal
         if (document.getElementById('book-checkin')) document.getElementById('book-checkin').value = checkin;
         if (document.getElementById('book-checkout')) document.getElementById('book-checkout').value = checkout;
 
@@ -385,11 +382,11 @@ class LodgeApp {
         this.showLoader(true);
         try {
             await db.messages.add(messageData);
-            this.showToast("Your inquiry message was successfully sent! We will reach out shortly.", "success");
+            this.showToast("Your message was successfully received! We will reach out shortly.", "success");
             document.getElementById('contact-form').reset();
             await this.syncStateWithDB();
         } catch (e) {
-            this.showToast("Failed sending, saved locally.", "warning");
+            this.showToast("Saved locally.", "warning");
         } finally {
             this.showLoader(false);
         }
@@ -406,9 +403,9 @@ class LodgeApp {
 
         if (confRef) confRef.innerText = b.bookingId;
         if (confName) confName.innerText = b.guestName;
-        if (confRoom) confRoom.innerText = b.roomType.toUpperCase();
+        if (confRoom) confRoom.innerText = b.roomType.toUpperCase().replace('_', ' ');
         if (confDates) confDates.innerText = `${b.checkIn} to ${b.checkOut}`;
-        if (confPrice) confPrice.innerText = `Nu. ${parseFloat(b.totalPrice).toLocaleString()}.00`;
+        if (confPrice) confPrice.innerText = `$${parseFloat(b.totalPrice).toLocaleString()}.00`;
 
         if (modal) modal.classList.remove('hidden');
     }
@@ -432,28 +429,26 @@ class LodgeApp {
                 const data = await res.json();
                 this.adminSession = data.user;
                 localStorage.setItem('lodge_admin_session', JSON.stringify(data.user));
-                this.showToast("Welcome Administrator! Access Granted.", "success");
+                this.showToast("Access Granted. Welcome back!", "success");
                 this.updateAdminDashboardUI();
             } else {
-                // Client-side fallback for static Cloudflare Pages / Offline demonstration
                 if (user === 'admin' && pass === 'admin123') {
-                    this.adminSession = { username: 'admin', name: 'Kurichong Admin', role: 'Admin' };
+                    this.adminSession = { username: 'admin', name: 'Mountain View Admin', role: 'Admin' };
                     localStorage.setItem('lodge_admin_session', JSON.stringify(this.adminSession));
-                    this.showToast("Access Granted (Local Mode)", "success");
+                    this.showToast("Access Granted (Local Session)", "success");
                     this.updateAdminDashboardUI();
                 } else {
-                    this.showToast("Invalid administrative username or password.", "error");
+                    this.showToast("Invalid admin credentials.", "error");
                 }
             }
         } catch (e) {
-            // Offline fallback
             if (user === 'admin' && pass === 'admin123') {
-                this.adminSession = { username: 'admin', name: 'Kurichong Admin (Offline)', role: 'Admin' };
+                this.adminSession = { username: 'admin', name: 'Mountain View Admin (Offline)', role: 'Admin' };
                 localStorage.setItem('lodge_admin_session', JSON.stringify(this.adminSession));
-                this.showToast("Access Granted (Offline Fallback)", "success");
+                this.showToast("Access Granted (Offline Mode)", "success");
                 this.updateAdminDashboardUI();
             } else {
-                this.showToast("Authentication server unavailable. Admin credentials failed.", "error");
+                this.showToast("Server unreachable. Authentication failed.", "error");
             }
         } finally {
             this.showLoader(false);
@@ -463,9 +458,8 @@ class LodgeApp {
     handleAdminLogout() {
         this.adminSession = null;
         localStorage.removeItem('lodge_admin_session');
-        this.showToast("Administrator signed out successfully.", "success");
+        this.showToast("Admin session closed cleanly.", "success");
 
-        // Return back to credentials card
         document.getElementById('admin-login-card')?.classList.remove('hidden');
         document.getElementById('admin-dashboard-console')?.classList.add('hidden');
         document.getElementById('admin-login-form')?.reset();
@@ -474,27 +468,22 @@ class LodgeApp {
     updateAdminDashboardUI() {
         if (!this.adminSession) return;
 
-        // Hide login form, display dashboard
         document.getElementById('admin-login-card')?.classList.add('hidden');
         document.getElementById('admin-dashboard-console')?.classList.remove('hidden');
 
         const adminNameLabel = document.getElementById('admin-display-name');
         if (adminNameLabel) adminNameLabel.innerText = this.adminSession.name;
 
-        // Compile operational stats
         this.renderStats();
-
-        // Render current active tab
         this.switchAdminTab(this.currentAdminTab);
     }
 
     renderStats() {
-        // Calculate revenue
         const confirmedBookings = this.bookings.filter(b => b.status === 'Confirmed');
         const revenue = confirmedBookings.reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
 
         const revEl = document.getElementById('stat-revenue');
-        if (revEl) revEl.innerText = `Nu. ${revenue.toLocaleString()}.00`;
+        if (revEl) revEl.innerText = `$${revenue.toLocaleString()}.00`;
 
         const totalActive = this.bookings.filter(b => b.status !== 'Cancelled').length;
         const activeBookingsEl = document.getElementById('stat-bookings');
@@ -502,22 +491,20 @@ class LodgeApp {
 
         const pendingCount = this.bookings.filter(b => b.status === 'Pending').length;
         const pendEl = document.getElementById('stat-pending-indicator');
-        if (pendEl) pendEl.innerText = `${pendingCount} Reservation${pendingCount !== 1 ? 's' : ''} Pending`;
+        if (pendEl) pendEl.innerText = `${pendingCount} Booking${pendingCount !== 1 ? 's' : ''} Pending`;
 
-        // Calculate current room category occupancies (occupied standard rooms vs total 5)
-        const stdOcc = confirmedBookings.filter(b => b.roomType === 'standard').length;
-        const dlxOcc = confirmedBookings.filter(b => b.roomType === 'deluxe').length;
-        const exeOcc = confirmedBookings.filter(b => b.roomType === 'executive').length;
+        const stdOcc = confirmedBookings.filter(b => b.roomType === 'ensuite_std').length;
+        const dlxOcc = confirmedBookings.filter(b => b.roomType === 'ensuite_premium').length;
+        const exeOcc = confirmedBookings.filter(b => b.roomType === 'overnight_premium').length;
 
         const stdEl = document.getElementById('stat-std-occupancy');
         const dlxEl = document.getElementById('stat-dlx-occupancy');
         const exeEl = document.getElementById('stat-exe-occupancy');
 
         if (stdEl) stdEl.innerText = `${stdOcc} / 5 occupied`;
-        if (dlxEl) dlxEl.innerText = `${dlxOcc} / 5 occupied`;
-        if (exeEl) exeEl.innerText = `${exeOcc} / 2 occupied`;
+        if (dlxEl) dlxEl.innerText = `${dlxOcc} / 3 occupied`;
+        if (exeEl) exeEl.innerText = `${exeOcc} / 5 occupied`;
 
-        // Messages count
         const unreadMsg = this.messages.filter(m => m.status === 'Unread').length;
         const unreadCountEl = document.getElementById('unread-msg-count');
         if (unreadCountEl) unreadCountEl.innerText = unreadMsg;
@@ -526,7 +513,6 @@ class LodgeApp {
     switchAdminTab(tabName) {
         this.currentAdminTab = tabName;
 
-        // Update menu buttons active class
         document.querySelectorAll('.admin-tabs-nav .tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if (btn.getAttribute('data-tab') === tabName) {
@@ -534,7 +520,6 @@ class LodgeApp {
             }
         });
 
-        // Hide all contents, show target
         document.querySelectorAll('.admin-tab-content').forEach(cont => {
             cont.classList.remove('active');
         });
@@ -543,7 +528,6 @@ class LodgeApp {
             targetTab.classList.add('active');
         }
 
-        // Render contents based on active tab
         if (tabName === 'bookings') {
             this.renderBookingsTable();
         } else if (tabName === 'messages') {
@@ -553,7 +537,6 @@ class LodgeApp {
         }
     }
 
-    // Render bookings log
     renderBookingsTable(filterStatus = 'all') {
         const tbody = document.getElementById('bookings-table-body');
         if (!tbody) return;
@@ -565,22 +548,20 @@ class LodgeApp {
             filtered = filtered.filter(b => b.status === filterStatus);
         }
 
-        // Sort descending by creation
         filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted)">No reservations logged in this category.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted)">No bookings logged in this category.</td></tr>`;
             return;
         }
 
         filtered.forEach(b => {
             const tr = document.createElement('tr');
 
-            // Build action buttons depending on booking status
             let actionButtons = '';
             if (b.status === 'Pending') {
                 actionButtons = `
-                    <button class="btn-action-confirm" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">Approve</button>
+                    <button class="btn-action-confirm" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">Confirm</button>
                     <button class="btn-action-cancel" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">Cancel</button>
                 `;
             } else if (b.status === 'Confirmed') {
@@ -600,18 +581,18 @@ class LodgeApp {
             const statusClass = b.status.toLowerCase();
 
             tr.innerHTML = `
-                <td style="font-family: monospace; font-weight: 700; color: var(--primary)">${b.bookingId}</td>
+                <td style="font-family: monospace; font-weight: 700; color: var(--accent)">${b.bookingId}</td>
                 <td>
-                    <div class="guest-cell-name">${b.guestName}</div>
+                    <div class="guest-cell-name" style="color: var(--text-light);">${b.guestName}</div>
                     <div class="guest-cell-meta">✉️ ${b.guestEmail} | 📞 ${b.guestPhone}</div>
-                    ${b.specialRequests ? `<div style="font-size: 0.75rem; font-style: italic; color: var(--accent-dark); margin-top: 0.25rem;">📝: "${b.specialRequests}"</div>` : ''}
+                    ${b.specialRequests ? `<div style="font-size: 0.75rem; font-style: italic; color: var(--accent-light); margin-top: 0.25rem;">📝: "${b.specialRequests}"</div>` : ''}
                 </td>
-                <td style="text-transform: capitalize; font-weight: 600;">${b.roomType}</td>
+                <td style="text-transform: capitalize; font-weight: 600;">${b.roomType.replace('_', ' ')}</td>
                 <td>
                     <div style="font-weight: 600;">${b.checkIn}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted)">to ${b.checkOut}</div>
                 </td>
-                <td style="font-weight: 700; color: var(--primary-dark)">Nu. ${parseFloat(b.totalPrice).toLocaleString()}.00</td>
+                <td style="font-weight: 700; color: var(--accent-light)">$${parseFloat(b.totalPrice).toLocaleString()}.00</td>
                 <td><span class="status-badge ${statusClass}">${b.status}</span></td>
                 <td><div style="display: flex; gap: 0.2rem;">${actionButtons}</div></td>
             `;
@@ -628,7 +609,7 @@ class LodgeApp {
         this.showLoader(true);
         try {
             await db.bookings.update(id, { status: newStatus });
-            this.showToast(`Reservation successfully ${newStatus}!`, "success");
+            this.showToast(`Booking ${newStatus}!`, "success");
             await this.syncStateWithDB();
             this.updateAdminDashboardUI();
         } catch (e) {
@@ -639,12 +620,12 @@ class LodgeApp {
     }
 
     async deleteBookingRecord(id) {
-        if (!confirm("Are you absolutely sure you want to permanently delete this reservation record from the database? This cannot be undone.")) return;
+        if (!confirm("Are you sure you want to delete this booking record?")) return;
 
         this.showLoader(true);
         try {
             await db.bookings.delete(id);
-            this.showToast("Reservation record permanently deleted.", "success");
+            this.showToast("Booking deleted successfully.", "success");
             await this.syncStateWithDB();
             this.updateAdminDashboardUI();
         } catch (e) {
@@ -654,7 +635,7 @@ class LodgeApp {
         }
     }
 
-    // Manual walks-in Injector
+    // Manual Walk-In
     async handleManualBooking(event) {
         event.preventDefault();
 
@@ -668,7 +649,6 @@ class LodgeApp {
         const status = document.getElementById('mb-status').value;
         const requests = document.getElementById('mb-requests').value;
 
-        // Validations
         const date1 = new Date(checkin);
         const date2 = new Date(checkout);
         if (date2 <= date1) {
@@ -677,9 +657,11 @@ class LodgeApp {
         }
 
         const nights = Math.ceil((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
-        const totalPrice = nights * (this.roomPrices[roomType] || 0);
+        const rate = this.roomPrices[roomType] || 0;
+        const isHourly = roomType.startsWith('ensuite');
+        const totalPrice = isHourly ? rate : (nights * rate);
 
-        const bookingRef = `KEL-WALK-${Math.floor(1000 + Math.random() * 9000)}`;
+        const bookingRef = `MVL-WALK-${Math.floor(1000 + Math.random() * 9000)}`;
 
         const data = {
             bookingId: bookingRef,
@@ -699,7 +681,7 @@ class LodgeApp {
         this.showLoader(true);
         try {
             await db.bookings.add(data);
-            this.showToast("Manual reservation successfully registered!", "success");
+            this.showToast("Walk-in stay successfully registered!", "success");
             document.getElementById('admin-manual-booking-form').reset();
             this.initDatePickerLimits();
             this.calcManualBookingPrice();
@@ -713,18 +695,15 @@ class LodgeApp {
         }
     }
 
-    // Message Inbox Render
     renderMessagesTable() {
         const tbody = document.getElementById('messages-table-body');
         if (!tbody) return;
 
         tbody.innerHTML = '';
-
-        // Sort descending by date
         const sorted = [...this.messages].sort((a,b) => new Date(b.date) - new Date(a.date));
 
         if (sorted.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted)">Inbox is empty. No inquiries received yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted)">Inbox is empty.</td></tr>`;
             return;
         }
 
@@ -733,9 +712,9 @@ class LodgeApp {
 
             let actions = '';
             if (m.status === 'Unread') {
-                actions += `<button class="btn-action-confirm" onclick="app.updateMessageStatus(${m.id}, 'Read')">Mark Read</button>`;
+                actions += `<button class="btn-action-confirm" onclick="app.updateMessageStatus(${m.id}, 'Read')">Read</button>`;
             } else if (m.status === 'Read') {
-                actions += `<button class="btn-action-cancel" onclick="app.updateMessageStatus(${m.id}, 'Replied')">Mark Replied</button>`;
+                actions += `<button class="btn-action-cancel" onclick="app.updateMessageStatus(${m.id}, 'Replied')">Replied</button>`;
             }
             actions += `<button class="btn-action-delete" onclick="app.deleteMessage(${m.id})">Delete</button>`;
 
@@ -744,10 +723,10 @@ class LodgeApp {
             tr.innerHTML = `
                 <td style="white-space: nowrap; font-weight: 600;">${dateStr}</td>
                 <td>
-                    <div style="font-weight: 700;">${m.name}</div>
+                    <div style="font-weight: 700; color: var(--text-light);">${m.name}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted)">✉️ ${m.email} | 📞 ${m.phone}</div>
                 </td>
-                <td style="font-weight: 600; color: var(--primary-glow)">${m.subject}</td>
+                <td style="font-weight: 600; color: var(--accent)">${m.subject}</td>
                 <td style="font-size: 0.8rem; max-width: 300px; word-wrap: break-word;">"${m.message}"</td>
                 <td><span class="status-badge ${m.status === 'Unread' ? 'pending' : (m.status === 'Read' ? 'confirmed' : 'cancelled')}" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">${m.status}</span></td>
                 <td><div style="display: flex; gap: 0.2rem;">${actions}</div></td>
@@ -761,11 +740,11 @@ class LodgeApp {
         this.showLoader(true);
         try {
             await db.messages.update(id, { status: newStatus });
-            this.showToast(`Inquiry status updated to ${newStatus}`, "success");
+            this.showToast(`Message marked as ${newStatus}`, "success");
             await this.syncStateWithDB();
             this.updateAdminDashboardUI();
         } catch (e) {
-            this.showToast("Failed updating message status", "error");
+            this.showToast("Failed updating message", "error");
         } finally {
             this.showLoader(false);
         }
@@ -786,15 +765,14 @@ class LodgeApp {
         }
     }
 
-    // System Settings & Tariffs
     populateSettingsForm() {
         const stdPriceInput = document.getElementById('set-std-price');
         const dlxPriceInput = document.getElementById('set-dlx-price');
         const exePriceInput = document.getElementById('set-exe-price');
 
-        if (stdPriceInput) stdPriceInput.value = this.roomPrices.standard;
-        if (dlxPriceInput) dlxPriceInput.value = this.roomPrices.deluxe;
-        if (exePriceInput) exePriceInput.value = this.roomPrices.executive;
+        if (stdPriceInput) stdPriceInput.value = this.roomPrices.ensuite_std;
+        if (dlxPriceInput) dlxPriceInput.value = this.roomPrices.ensuite_premium;
+        if (exePriceInput) exePriceInput.value = this.roomPrices.overnight_premium;
     }
 
     async handleSettingsSave(event) {
@@ -807,12 +785,11 @@ class LodgeApp {
 
         this.showLoader(true);
         try {
-            // Retrieve settings list to update correctly
             const settings = await db.settings.toArray();
 
-            const stdSet = settings.find(s => s.key === 'tariff_standard') || { key: 'tariff_standard' };
-            const dlxSet = settings.find(s => s.key === 'tariff_deluxe') || { key: 'tariff_deluxe' };
-            const exeSet = settings.find(s => s.key === 'tariff_executive') || { key: 'tariff_executive' };
+            const stdSet = settings.find(s => s.key === 'tariff_ensuite_std') || { key: 'tariff_ensuite_std' };
+            const dlxSet = settings.find(s => s.key === 'tariff_ensuite_premium') || { key: 'tariff_ensuite_premium' };
+            const exeSet = settings.find(s => s.key === 'tariff_overnight_premium') || { key: 'tariff_overnight_premium' };
 
             stdSet.value = std;
             dlxSet.value = dlx;
@@ -822,7 +799,6 @@ class LodgeApp {
             await db.settings.put(dlxSet);
             await db.settings.put(exeSet);
 
-            // Handle password updating if entered
             if (newPass.trim() !== '') {
                 const adminUser = (await db.users.toArray()).find(u => u.username === 'admin');
                 if (adminUser) {
@@ -831,11 +807,10 @@ class LodgeApp {
                 }
             }
 
-            this.showToast("Tariff configurations updated successfully!", "success");
+            this.showToast("Tariffs updated successfully!", "success");
             await this.syncStateWithDB();
             this.updateAdminDashboardUI();
 
-            // Re-render rooms rates on page
             this.calcBookingPrice();
             this.calcManualBookingPrice();
         } catch (e) {
@@ -845,7 +820,7 @@ class LodgeApp {
         }
     }
 
-    // UTILS: TOAST NOTIFICATIONS
+    // TOAST UTILS
     showToast(message, type = "success") {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -865,7 +840,6 @@ class LodgeApp {
 
         container.appendChild(toast);
 
-        // Auto remove
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(100%)';
@@ -882,7 +856,6 @@ class LodgeApp {
     }
 }
 
-// Instantiate Global Controller
 const app = new LodgeApp();
 window.addEventListener('DOMContentLoaded', () => {
     app.init();

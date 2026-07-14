@@ -1,4 +1,4 @@
--- Kurichong Eco Lodge Database Schema
+-- Mountain View Lodge Database Schema
 
 CREATE TABLE IF NOT EXISTS "bookings" (
     id SERIAL PRIMARY KEY,

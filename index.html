@@ -3,53 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kurichong Eco Lodge | Yelchen, Mongar, Bhutan</title>
+    <title>Mountain View Lodge | Affordable Luxury Getaway</title>
 
     <!-- PWA Metadata -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1b4332">
+    <meta name="theme-color" content="#0d0d0d">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kurichong Eco Lodge">
-    <meta name="description" content="Experience pristine serenity and traditional Bhutanese hospitality overlooking the Kurichhu River.">
+    <meta name="apple-mobile-web-app-title" content="Mountain View Lodge">
+    <meta name="description" content="A peaceful and affordable getaway offering comfortable accommodations, safe parking, mocktails, and cozy gazebo setups.">
 
     <!-- Stylesheets & Fonts -->
-    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="style.css?v=13">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dark-theme">
     <!-- Global Progress & Notifications -->
     <div id="global-loader" class="hidden"><div class="progress-bar"></div></div>
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Sticky Navigation Header -->
-    <header class="main-header" id="main-header">
+    <header class="main-header scrolled" id="main-header">
         <div class="header-container">
             <a href="#" class="logo-wrapper" onclick="app.showSection('home')">
-                <span class="logo-icon">🏔️</span>
+                <span class="logo-icon">🌅</span>
                 <div class="logo-text">
-                    <span class="logo-title">KURICHONG</span>
-                    <span class="logo-subtitle">ECO LODGE • BHUTAN</span>
+                    <span class="logo-title" style="color: var(--accent);">MOUNTAIN VIEW</span>
+                    <span class="logo-subtitle" style="color: var(--text-light); letter-spacing: 2px;">LODGE & GETAWAY</span>
                 </div>
             </a>
 
             <!-- Desktop Nav Links -->
             <nav class="desktop-nav">
                 <a href="#" class="nav-link active" data-section="home" onclick="app.showSection('home')">Home</a>
-                <a href="#" class="nav-link" data-section="rooms" onclick="app.showSection('rooms')">Rooms</a>
-                <a href="#" class="nav-link" data-section="dining" onclick="app.showSection('dining')">Dining</a>
-                <a href="#" class="nav-link" data-section="wellness" onclick="app.showSection('wellness')">Wellness & Spa</a>
-                <a href="#" class="nav-link" data-section="activities" onclick="app.showSection('activities')">Activities</a>
+                <a href="#" class="nav-link" data-section="rooms" onclick="app.showSection('rooms')">Accommodations</a>
+                <a href="#" class="nav-link" data-section="dining" onclick="app.showSection('dining')">Menu & Combos</a>
+                <a href="#" class="nav-link" data-section="gazebo" onclick="app.showSection('gazebo')">Chill Gazebo</a>
                 <a href="#" class="nav-link" data-section="contact" onclick="app.showSection('contact')">Contact</a>
                 <a href="#" class="nav-link admin-link-nav" data-section="admin" onclick="app.showSection('admin')">Admin Portal</a>
-                <button class="btn-book-nav" onclick="app.openBookingModal()">Book Now</button>
+                <button class="btn-book-nav" onclick="app.openBookingModal()">Book Stay</button>
             </nav>
 
             <!-- Mobile Menu Toggle Button -->
             <button class="mobile-menu-btn" onclick="app.toggleMobileMenu()" aria-label="Toggle Menu">
-                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                <span class="bar" style="background-color: var(--accent);"></span>
+                <span class="bar" style="background-color: var(--accent);"></span>
+                <span class="bar" style="background-color: var(--accent);"></span>
             </button>
         </div>
     </header>
@@ -58,20 +59,19 @@
     <div class="mobile-sidebar" id="mobile-sidebar">
         <div class="sidebar-header">
             <div class="logo-wrapper">
-                <span class="logo-icon">🏔️</span>
-                <span class="logo-title" style="color: var(--text-light)">KURICHONG</span>
+                <span class="logo-icon">🌅</span>
+                <span class="logo-title" style="color: var(--accent)">MOUNTAIN VIEW</span>
             </div>
             <button class="sidebar-close-btn" onclick="app.toggleMobileMenu()">✕</button>
         </div>
         <nav class="mobile-nav-links">
             <a href="#" class="mobile-link active" onclick="app.showSection('home'); app.toggleMobileMenu()">Home</a>
-            <a href="#" class="mobile-link" onclick="app.showSection('rooms'); app.toggleMobileMenu()">Rooms & Tariffs</a>
-            <a href="#" class="mobile-link" onclick="app.showSection('dining'); app.toggleMobileMenu()">Dining & Cuisine</a>
-            <a href="#" class="mobile-link" onclick="app.showSection('wellness'); app.toggleMobileMenu()">Wellness & Hot Stone Bath</a>
-            <a href="#" class="mobile-link" onclick="app.showSection('activities'); app.toggleMobileMenu()">Activities & Tours</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('rooms'); app.toggleMobileMenu()">Accommodations</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('dining'); app.toggleMobileMenu()">Menu & Combos</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('gazebo'); app.toggleMobileMenu()">Chill Gazebo</a>
             <a href="#" class="mobile-link" onclick="app.showSection('contact'); app.toggleMobileMenu()">Contact Us</a>
             <a href="#" class="mobile-link admin-link-nav" onclick="app.showSection('admin'); app.toggleMobileMenu()">Admin Dashboard</a>
-            <button class="btn-book-mobile" onclick="app.toggleMobileMenu(); app.openBookingModal()">Reserve a Room</button>
+            <button class="btn-book-mobile" onclick="app.toggleMobileMenu(); app.openBookingModal()">Reserve Now</button>
         </nav>
     </div>
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="app.toggleMobileMenu()"></div>
@@ -85,12 +85,12 @@
             <div class="hero-wrapper">
                 <div class="hero-overlay"></div>
                 <div class="hero-container">
-                    <span class="hero-badge animate-fade-in">🌿 PRISTINE ECO-SANCTUARY</span>
-                    <h1 class="hero-title animate-slide-up">Experience Serenity at Kurichong Eco Lodge</h1>
-                    <p class="hero-subtitle animate-slide-up-delay">Your gateway to peace, nestled along the Gyelpozhing-Nganglam highway in Yelchen, Mongar, Bhutan, overlooking the majestic Kurichhu River.</p>
+                    <span class="hero-badge animate-fade-in">✨ A PEACEFUL & AFFORDABLE GETAWAY</span>
+                    <h1 class="hero-title animate-slide-up" style="font-family: var(--font-heading);">MOUNTAIN VIEW LODGE</h1>
+                    <p class="hero-subtitle animate-slide-up-delay">Comfortable accommodations, safe & secure parking, refreshing hot showers, premium mocktails, and cozy outdoor gazebos designed for absolute relaxation.</p>
                     <div class="hero-actions animate-slide-up-delay-2">
-                        <button class="btn-primary-lg" onclick="app.openBookingModal()">Reserve Your Stay</button>
-                        <button class="btn-outline-lg" onclick="app.showSection('rooms')">Explore Rooms & Rates</button>
+                        <button class="btn-primary-lg" onclick="app.openBookingModal()">Book Your Stay</button>
+                        <button class="btn-outline-lg" onclick="app.showSection('rooms')">Accommodations & Rates</button>
                     </div>
                 </div>
             </div>
@@ -107,133 +107,149 @@
                         <input type="date" id="qb-checkout" required>
                     </div>
                     <div class="quick-input-group">
-                        <label for="qb-room-type">Room Category</label>
+                        <label for="qb-room-type">Stay Option</label>
                         <select id="qb-room-type">
-                            <option value="standard">Standard Room (Nu. 2,500/night)</option>
-                            <option value="deluxe" selected>Deluxe River View (Nu. 3,500/night)</option>
-                            <option value="executive">Executive Suite (Nu. 5,500/night)</option>
+                            <option value="ensuite_std">2-Hour Ensuite (Standard) - $10</option>
+                            <option value="ensuite_premium">2-Hour Ensuite (Premium) - $15</option>
+                            <option value="overnight_std">Overnight Stay (Standard) - $20/night</option>
+                            <option value="overnight_premium" selected>Overnight Stay (Premium) - $25/night</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-quick-search">Check Availability</button>
+                    <button type="submit" class="btn-quick-search" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Check Availability</button>
                 </form>
             </div>
 
-            <!-- Features Highlights Grid -->
+            <!-- Amenities Highlights -->
             <div class="section-container">
                 <div class="section-header">
-                    <span class="sub-heading">Welcome to Yelchen, Mongar</span>
-                    <h2 class="main-heading">A Sanctuary of Nature and Culture</h2>
+                    <span class="sub-heading">Why Choose Us</span>
+                    <h2 class="main-heading" style="color: var(--text-light);">Lodge Comforts & Security</h2>
                     <div class="heading-divider"></div>
                 </div>
 
                 <div class="highlights-grid">
                     <div class="highlight-card">
-                        <div class="highlight-icon">🏞️</div>
-                        <h3>Breathtaking River Views</h3>
-                        <p>Enjoy panoramic views of the curving Kurichhu River and surrounding mountains directly from your balcony or our dining patio.</p>
+                        <div class="highlight-icon">🚿</div>
+                        <h3 style="color: var(--accent);">Hot & Refreshing Showers</h3>
+                        <p>Wash away your travel weariness with unlimited hot water in all private ensuite bathrooms.</p>
                     </div>
                     <div class="highlight-card">
-                        <div class="highlight-icon">🥬</div>
-                        <h3>Farm-to-Table Freshness</h3>
-                        <p>Our restaurant serves delectable organic food, harvested directly from our local organic farm, orchard, and private gardens.</p>
+                        <div class="highlight-icon">🛏️</div>
+                        <h3 style="color: var(--accent);">Fresh & Clean Linen</h3>
+                        <p>Rest comfortably on crisp, premium quality sheets and super soft blankets prepared fresh daily.</p>
                     </div>
                     <div class="highlight-card">
-                        <div class="highlight-icon">🛁</div>
-                        <h3>Traditional Hot Stone Baths</h3>
-                        <p>Experience the medicinal healing powers of Bhutanese Menchu, using river stones heated by log fires and infused with wild herbs.</p>
+                        <div class="highlight-icon">📶</div>
+                        <h3 style="color: var(--accent);">High Speed WiFi</h3>
+                        <p>Stay connected with friends, family, or work seamlessly with high-speed internet covering the entire property.</p>
                     </div>
                     <div class="highlight-card">
-                        <div class="highlight-icon">⛵</div>
-                        <h3>Himalayan Adventures</h3>
-                        <p>From adrenaline-pumping river rafting to peaceful bird watching and scenic treks to historical ruins like Zhongar Dzong.</p>
+                        <div class="highlight-icon">🅿️</div>
+                        <h3 style="color: var(--accent);">Safe & Secure Parking</h3>
+                        <p>Enjoy peace of mind with 24/7 security and safe, fenced parking slots for all of our guests.</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- Special Bhutanese Quote Callout -->
-            <div class="quote-container">
-                <div class="quote-content">
-                    <p class="quote-text">"In Bhutan, we believe that happiness is a place, and harmony with nature is our greatest treasure. Welcome to our sanctuary."</p>
-                    <span class="quote-author">— Kurichong Eco Lodge Team, Mongar</span>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: ROOMS -->
+        <!-- SECTION: ACCOMMODATIONS -->
         <section id="section-rooms" class="view-section">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="sub-heading">Accommodations & Tariffs</span>
-                    <h2 class="main-heading">Luxurious, Nature-Inspired Comfort</h2>
-                    <p class="heading-description">Choose from our elegantly decorated rooms featuring local Bhutanese crafts, warm wooden finishes, and beautiful modern amenities.</p>
+                    <span class="sub-heading">Our Stay Options</span>
+                    <h2 class="main-heading" style="color: var(--text-light)">Comfortable Accommodations & Tariffs</h2>
+                    <p class="heading-description">Affordable, private, and cozy ensuite rooms designed for both quick touch-and-go refreshes and relaxing overnight escapes.</p>
                     <div class="heading-divider"></div>
                 </div>
 
                 <div class="rooms-grid" id="rooms-container">
-                    <!-- Standard Room Card -->
+                    <!-- Ensuite Short Stay Standard Card -->
                     <div class="room-card">
                         <div class="room-image-placeholder room-std">
-                            <span class="room-badge">Nu. 2,500 / Night</span>
+                            <span class="room-badge">$10 / 2 Hours</span>
                         </div>
                         <div class="room-details-content">
-                            <h3>Standard Room</h3>
-                            <p class="room-desc">A cozy retreat featuring comfortable interiors, locally inspired artwork, and all essential modern conveniences for solo travelers or couples.</p>
+                            <h3>2-Hour Ensuite (Standard)</h3>
+                            <p class="room-desc">Ideal private ensuite setup for short stays, quick refreshes, clothing changes, or a brief restorative nap during road trips.</p>
                             <div class="room-amenity-badges">
+                                <span>2-Hour Private Block</span>
                                 <span>Attached Bathroom</span>
-                                <span>Hot Water Shower</span>
-                                <span>Free Wi-Fi</span>
-                                <span>Writing Desk</span>
-                                <span>Housekeeping</span>
+                                <span>Hot Showers</span>
+                                <span>Fresh Linen</span>
+                                <span>High-Speed Wi-Fi</span>
                             </div>
                             <div class="room-footer-row">
                                 <span class="room-capacity">👥 Max Guests: 2</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('standard')">Reserve Room</button>
+                                <button class="btn-book-now" onclick="app.openBookingModal('ensuite_std')">Reserve Block</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Deluxe Room Card -->
+                    <!-- Ensuite Short Stay Premium Card -->
                     <div class="room-card">
                         <div class="room-image-placeholder room-deluxe">
-                            <span class="room-badge">Nu. 3,500 / Night</span>
+                            <span class="room-badge">$15 / 2 Hours</span>
                         </div>
                         <div class="room-details-content">
-                            <h3>Deluxe Room</h3>
-                            <p class="room-desc">Spacious, elegant room with handcrafted wooden accents and a private balcony overlooking the breathtaking Kurichhu River and the pristine Yelchen valley.</p>
+                            <h3>2-Hour Ensuite (Premium)</h3>
+                            <p class="room-desc">Premium short stay private ensuite featuring high-end linens, spacious luxury hot showers, and priority dining/mocktail bar table delivery.</p>
                             <div class="room-amenity-badges">
-                                <span>Private Balcony</span>
-                                <span>Scenic River View</span>
-                                <span>King Bed</span>
-                                <span>Smart LED TV</span>
-                                <span>Coffee Maker</span>
-                                <span>Free Wi-Fi</span>
+                                <span>2-Hour Block</span>
+                                <span>Attached Premium Bath</span>
+                                <span>Hot Showers</span>
+                                <span>Luxury Fresh Linen</span>
+                                <span>Wi-Fi</span>
+                                <span>Beverage Delivery</span>
+                            </div>
+                            <div class="room-footer-row">
+                                <span class="room-capacity">👥 Max Guests: 2</span>
+                                <button class="btn-book-now" onclick="app.openBookingModal('ensuite_premium')">Reserve Block</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overnight Stay Standard Card -->
+                    <div class="room-card">
+                        <div class="room-image-placeholder room-std">
+                            <span class="room-badge">$20 / Night</span>
+                        </div>
+                        <div class="room-details-content">
+                            <h3>Overnight Stay (Standard)</h3>
+                            <p class="room-desc">An affordable and deeply peaceful overnight accommodation option. Complete with premium beds, safe parking, and absolute privacy.</p>
+                            <div class="room-amenity-badges">
+                                <span>Overnight Stay</span>
+                                <span>Attached Bathroom</span>
+                                <span>Refreshing Hot Shower</span>
+                                <span>Fresh Linen</span>
+                                <span>High-Speed Wi-Fi</span>
+                                <span>Safe Parking</span>
+                            </div>
+                            <div class="room-footer-row">
+                                <span class="room-capacity">👥 Max Guests: 2</span>
+                                <button class="btn-book-now" onclick="app.openBookingModal('overnight_std')">Reserve Room</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overnight Stay Premium Card -->
+                    <div class="room-card">
+                        <div class="room-image-placeholder room-suite">
+                            <span class="room-badge">$25 / Night</span>
+                        </div>
+                        <div class="room-details-content">
+                            <h3>Overnight Stay (Premium)</h3>
+                            <p class="room-desc">Our ultimate overnight escape. Enjoy beautiful scenic mountain views, large spacious configurations, and priority booking at our outdoor gazebo.</p>
+                            <div class="room-amenity-badges">
+                                <span>Overnight Stay</span>
+                                <span>Mountain View View</span>
+                                <span>Attached Premium Bath</span>
+                                <span>Premium Linen</span>
+                                <span>Wi-Fi</span>
+                                <span>Priority Gazebo Access</span>
                             </div>
                             <div class="room-footer-row">
                                 <span class="room-capacity">👥 Max Guests: 3</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('deluxe')">Reserve Room</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Executive Suite Card -->
-                    <div class="room-card">
-                        <div class="room-image-placeholder room-suite">
-                            <span class="room-badge">Nu. 5,500 / Night</span>
-                        </div>
-                        <div class="room-details-content">
-                            <h3>Executive Suite</h3>
-                            <p class="room-desc">Our premier accommodation boasting luxurious traditional Bhutanese woodwork, a grand separate living area, a private viewing deck, and deluxe custom services.</p>
-                            <div class="room-amenity-badges">
-                                <span>Living Lounge</span>
-                                <span>Viewing Deck</span>
-                                <span>King Bed</span>
-                                <span>Smart TV</span>
-                                <span>Hot Stone access</span>
-                                <span>Espresso Bar</span>
-                            </div>
-                            <div class="room-footer-row">
-                                <span class="room-capacity">👥 Max Guests: 4</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('executive')">Reserve Room</button>
+                                <button class="btn-book-now" onclick="app.openBookingModal('overnight_premium')">Reserve Room</button>
                             </div>
                         </div>
                     </div>
@@ -241,118 +257,74 @@
             </div>
         </section>
 
-        <!-- SECTION: DINING -->
+        <!-- SECTION: DINING & MENU -->
         <section id="section-dining" class="view-section">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="sub-heading">Culinary Experiences</span>
-                    <h2 class="main-heading">Organic Farm-to-Table Dining</h2>
+                    <span class="sub-heading">Mocktails & Burgers</span>
+                    <h2 class="main-heading" style="color: var(--text-light)">Our Signature Combos & Promos</h2>
                     <div class="heading-divider"></div>
                 </div>
 
                 <div class="split-row">
                     <div class="text-column">
-                        <h3>A Culinary Tribute to Bhutan</h3>
-                        <p>At Kurichong Eco Lodge, we pride ourselves on serving fresh, wholesome, and authentic dishes. Over 80% of our vegetables, herbs, and fruits are harvested directly from our own organic gardens and orange orchards in Yelchen, Mongar.</p>
+                        <h3 style="color: var(--accent);">Our Signature Combo — $5.00</h3>
+                        <p style="font-style: italic; font-size: 1.1rem; color: var(--accent-light);">"Try it and you will thank us... Perfect Combo!"</p>
+                        <p>Enjoy our juicy, freshly grilled burger served alongside a refreshing, custom-blended fruity mocktail of your choice. A premium culinary delight at an incredibly affordable price.</p>
 
                         <div class="dining-features">
                             <div class="feature-item">
-                                <span class="feature-icon">🌶️</span>
+                                <span class="feature-icon">🍹</span>
                                 <div>
-                                    <h4>Authentic Bhutanese Delicacies</h4>
-                                    <p>Try the legendary <strong>Ema Datshi</strong> (chili and local cheese), Phaksha Paa (pork with red radish), and hearty red rice grown in the valley.</p>
+                                    <h4 style="color: var(--accent-light);">Refreshing Mocktails — $3.00</h4>
+                                    <p>Our custom mocktails are fruity, refreshing, and personalized to your unique taste buds. Made with fresh ingredients daily.</p>
                                 </div>
                             </div>
                             <div class="feature-item">
-                                <span class="feature-icon">🍯</span>
+                                <span class="feature-icon">📆</span>
                                 <div>
-                                    <h4>Local Ara Brew</h4>
-                                    <p>Experience traditional Bhutanese hospitality with locally brewed <strong>Ara</strong> (warm rice wine), served in beautifully carved wooden cups.</p>
-                                </div>
-                            </div>
-                            <div class="feature-item">
-                                <span class="feature-icon">🍲</span>
-                                <div>
-                                    <h4>Multi-Cuisine Options</h4>
-                                    <p>Our experienced local chefs also prepare exceptional Indian, Continental, and Chinese dishes tailored to your preferences.</p>
+                                    <h4 style="color: var(--accent-light);">Our Weekly Promo — Free!</h4>
+                                    <p>Choose your day and visit us to explore exclusive, rotating weekly surprise promos, mocktail discounts, or free appetizer pairings.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="visual-column">
-                        <div class="visual-collage">
-                            <div class="visual-placeholder dining-bg">
-                                <div class="dining-caption">Our Outdoor River-View Dining Terrace</div>
-                            </div>
+                        <div class="visual-placeholder dining-bg">
+                            <div class="dining-caption" style="border: 1px solid var(--accent); color: var(--accent-light);">Our Legendary Burger & Mocktail Signature Combo ($5)</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: WELLNESS & SPA -->
-        <section id="section-wellness" class="view-section">
+        <!-- SECTION: CHILL GAZEBO -->
+        <section id="section-gazebo" class="view-section">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="sub-heading">Healing & Relaxation</span>
-                    <h2 class="main-heading">Traditional Hot Stone Baths & Wellness</h2>
+                    <span class="sub-heading">Outdoor Relaxation</span>
+                    <h2 class="main-heading" style="color: var(--text-light);">Our Cozy Chill-Out Gazebo</h2>
                     <div class="heading-divider"></div>
                 </div>
 
                 <div class="split-row reverse">
                     <div class="text-column">
-                        <h3>Bhutanese Menchu (Hot Stone Bath)</h3>
-                        <p>The traditional Bhutanese Hot Stone Bath is an ancient healing ritual practiced for centuries. It uses pristine mountain river stones that are heated on log fires until they glow red hot. The stones are then placed into a wooden tub filled with mountain water, releasing rich therapeutic minerals.</p>
+                        <h3 style="color: var(--accent);">The Perfect Spot to Unwind</h3>
+                        <p>Looking for the perfect spot to relax with friends and family? Our beautiful outdoor wooden gazebo is designed for deep chilling, laughing, and memory making.</p>
 
-                        <p>We infuse our hot stone baths with fresh <strong>Mugwort leaves</strong> (Khempa), which releases a sweet medicinal aroma. This helps relieve joint pains, muscle stiffness, skin diseases, and deep-seated mental fatigue.</p>
+                        <p>Nestled in a peaceful corner of our gardens with a sweeping vista of the surrounding mountains, you can order mocktails, signature combos, or coffee straight to your table while enjoying the cool mountain breeze.</p>
 
                         <div class="wellness-amenities">
-                            <div class="wellness-badge">🪵 River Stones Heated by Log Fires</div>
-                            <div class="wellness-badge">🌿 Medicinal Mugwort Herbs</div>
-                            <div class="wellness-badge">💆 Therapeutic massages</div>
-                            <div class="wellness-badge">🧘 Yoga & Meditation Lounge</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🪵 Beautiful Handcrafted Wood Gazebo</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🍹 Dedicated Drink Serving Staff</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🎵 Smooth Chill-Out Acoustic Playlists</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🌌 Fairy Light Night Setting for Star Gazing</div>
                         </div>
-                        <p style="margin-top: 1.5rem; font-style: italic; color: var(--primary)">*Note: Traditional Hot Stone Bath reservations can be requested in advance via your booking or at the front reception.</p>
                     </div>
                     <div class="visual-column">
                         <div class="visual-placeholder spa-bg">
-                            <div class="dining-caption">The Wooden Tub Hot Stone Bath Ritual</div>
+                            <div class="dining-caption" style="border: 1px solid var(--accent); color: var(--accent-light)">Our Garden Chill-Out Gazebo</div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION: ACTIVITIES -->
-        <section id="section-activities" class="view-section">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="sub-heading">Unforgettable Adventures</span>
-                    <h2 class="main-heading">Activities & Cultural Tours</h2>
-                    <p class="heading-description">Mongar and the Kurichhu River offer a treasure trove of scenic hiking trails, biodiversity, and historical landmarks.</p>
-                    <div class="heading-divider"></div>
-                </div>
-
-                <div class="activities-grid">
-                    <div class="activity-card">
-                        <div class="activity-icon">⛵</div>
-                        <h4>River Rafting & Kayaking</h4>
-                        <p>Feel the rush of adrenaline with professional guided river rafting sessions along the rapids of the pristine Kurichhu River.</p>
-                    </div>
-                    <div class="activity-card">
-                        <div class="activity-icon">🦉</div>
-                        <h4>Bird Watching</h4>
-                        <p>Mongar is highly regarded for its dense, diverse subtropical forests. Join our local guides to spot colorful exotic birds and Himalayan wildlife.</p>
-                    </div>
-                    <div class="activity-card">
-                        <div class="activity-icon">🥾</div>
-                        <h4>Hiking & Treks</h4>
-                        <p>Embark on nature trails, visit nearby traditional weaving villages, and view historical ruins like the legendary <strong>Zhongar Dzong</strong>.</p>
-                    </div>
-                    <div class="activity-card">
-                        <div class="activity-icon">🍊</div>
-                        <h4>Organic Farm Visits</h4>
-                        <p>Tour our organic vegetable farms and lush orange orchards. Learn about sustainable farming in Bhutan and pick your own fresh fruits.</p>
                     </div>
                 </div>
             </div>
@@ -363,76 +335,76 @@
             <div class="section-container">
                 <div class="section-header">
                     <span class="sub-heading">Reach Out to Us</span>
-                    <h2 class="main-heading">Plan Your Escape</h2>
+                    <h2 class="main-heading" style="color: var(--text-light)">Plan Your Mountain Getaway</h2>
                     <div class="heading-divider"></div>
                 </div>
 
                 <div class="contact-row">
                     <!-- Contact Form -->
-                    <div class="contact-form-wrapper">
-                        <h3>Send an Inquiry</h3>
+                    <div class="contact-form-wrapper" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                        <h3 style="color: var(--accent);">Send an Inquiry</h3>
                         <form id="contact-form" onsubmit="app.handleContactSubmit(event)">
                             <div class="form-group-row">
                                 <div class="form-group">
-                                    <label for="contact-name">Full Name</label>
-                                    <input type="text" id="contact-name" required placeholder="Tashi Dorji">
+                                    <label for="contact-name" style="color: var(--accent);">Full Name</label>
+                                    <input type="text" id="contact-name" required placeholder="John Doe" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="contact-email">Email Address</label>
-                                    <input type="email" id="contact-email" required placeholder="tashi@gmail.com">
+                                    <label for="contact-email" style="color: var(--accent);">Email Address</label>
+                                    <input type="email" id="contact-email" required placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
                             <div class="form-group-row">
                                 <div class="form-group">
-                                    <label for="contact-phone">Phone Number</label>
-                                    <input type="tel" id="contact-phone" required placeholder="+975 17730113">
+                                    <label for="contact-phone" style="color: var(--accent);">Phone Number</label>
+                                    <input type="tel" id="contact-phone" required placeholder="+1 (555) 123-4567" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="contact-subject">Subject</label>
-                                    <input type="text" id="contact-subject" required placeholder="Inquiry about hot stone baths">
+                                    <label for="contact-subject" style="color: var(--accent);">Subject</label>
+                                    <input type="text" id="contact-subject" required placeholder="Inquiry about Gazebo Booking" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="contact-message">Message</label>
-                                <textarea id="contact-message" rows="5" required placeholder="Hi Kurichong Eco Lodge team, I would like to know if..."></textarea>
+                                <label for="contact-message" style="color: var(--accent);">Message</label>
+                                <textarea id="contact-message" rows="5" required placeholder="Hi Mountain View Lodge, I would like to..." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
                             </div>
-                            <button type="submit" class="btn-primary">Send Message</button>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Send Message</button>
                         </form>
                     </div>
 
                     <!-- Contact details -->
-                    <div class="contact-details-panel">
-                        <h3>Lodge Contacts</h3>
+                    <div class="contact-details-panel" style="border: 1px solid var(--accent); background-color: var(--primary-dark);">
+                        <h3 style="color: var(--accent);">Lodge Contacts</h3>
 
                         <div class="contact-item">
                             <span class="contact-icon">📍</span>
                             <div>
-                                <h4>Location</h4>
-                                <p>Yelchen, Mongar, Bhutan<br>(Along the Gyelpozhing-Nganglam highway)</p>
+                                <h4 style="color: var(--accent);">Location</h4>
+                                <p style="color: var(--text-light);">Scenic Mountain View, Countryside</p>
                             </div>
                         </div>
 
                         <div class="contact-item">
                             <span class="contact-icon">📞</span>
                             <div>
-                                <h4>Phone Numbers</h4>
-                                <p><a href="tel:+97517730113">+975 17730113</a><br><a href="tel:+97577730113">+975 77730113</a></p>
+                                <h4 style="color: var(--accent);">Phone Number</h4>
+                                <p style="color: var(--text-light);"><a href="tel:+15558319023" style="color: var(--text-light)">+1 (555) 831-9023</a></p>
                             </div>
                         </div>
 
                         <div class="contact-item">
                             <span class="contact-icon">✉️</span>
                             <div>
-                                <h4>Email Address</h4>
-                                <p><a href="mailto:kurichongecolodge@gmail.com">kurichongecolodge@gmail.com</a></p>
+                                <h4 style="color: var(--accent);">Email Address</h4>
+                                <p style="color: var(--text-light);"><a href="mailto:bookings@mountainviewlodge.com" style="color: var(--text-light)">bookings@mountainviewlodge.com</a></p>
                             </div>
                         </div>
 
                         <div class="contact-item">
-                            <span class="contact-icon">💬</span>
+                            <span class="contact-icon">🛡️</span>
                             <div>
-                                <h4>Social Connection</h4>
-                                <p>Facebook: Kurichong Eco Lodge</p>
+                                <h4 style="color: var(--accent);">Security Guard</h4>
+                                <p style="color: var(--text-light);">Fenced Area, 24/7 Security Patrol</p>
                             </div>
                         </div>
                     </div>
@@ -445,24 +417,24 @@
             <div class="section-container">
 
                 <!-- Admin LOGIN Form -->
-                <div id="admin-login-card" class="admin-login-card">
+                <div id="admin-login-card" class="admin-login-card" style="background-color: var(--primary-dark); border-color: var(--accent);">
                     <div class="login-header">
                         <span style="font-size: 2.5rem;">🔐</span>
-                        <h3>Admin Portal Access</h3>
-                        <p>Authorized access only. Please sign in with your administrator credentials.</p>
+                        <h3 style="color: var(--accent);">Admin Operations Console</h3>
+                        <p style="color: var(--text-muted)">Please enter administrative credentials to proceed.</p>
                     </div>
                     <form id="admin-login-form" onsubmit="app.handleAdminLogin(event)">
                         <div class="form-group">
-                            <label for="login-username">Username</label>
-                            <input type="text" id="login-username" required placeholder="admin">
+                            <label for="login-username" style="color: var(--accent)">Username</label>
+                            <input type="text" id="login-username" required placeholder="admin" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                         </div>
                         <div class="form-group">
-                            <label for="login-password">Password</label>
-                            <input type="password" id="login-password" required placeholder="••••••••">
+                            <label for="login-password" style="color: var(--accent)">Password</label>
+                            <input type="password" id="login-password" required placeholder="••••••••" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                         </div>
-                        <button type="submit" class="btn-primary" style="width: 100%">Authenticate Session</button>
+                        <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Authenticate Session</button>
                     </form>
-                    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">Demo Credentials: admin / admin123</p>
+                    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1.5rem;">Demo: admin / admin123</p>
                 </div>
 
                 <!-- Admin DASHBOARD Console (Hidden by default) -->
@@ -471,60 +443,60 @@
                     <!-- Dashboard Header -->
                     <div class="admin-dashboard-header">
                         <div>
-                            <span class="admin-badge">⚡ ONLINE CONTROL CONSOLE</span>
-                            <h2 style="margin: 0.2rem 0 0 0;">Lodge Operations Panel</h2>
+                            <span class="admin-badge" style="background-color: var(--accent); color: var(--primary-dark);">⚡ CONTROL CONSOLE</span>
+                            <h2 style="margin: 0.2rem 0 0 0; color: var(--text-light)">Lodge Operational Panel</h2>
                         </div>
                         <div class="admin-user-info">
-                            <span>Welcome, <strong id="admin-display-name">Kurichong Admin</strong></span>
+                            <span style="color: var(--text-light);">Active: <strong id="admin-display-name" style="color: var(--accent);">Mountain View Admin</strong></span>
                             <button class="btn-signout" onclick="app.handleAdminLogout()">Sign Out</button>
                         </div>
                     </div>
 
                     <!-- Statistics Panel Cards -->
                     <div class="admin-stats-grid">
-                        <div class="stat-card">
-                            <span class="stat-label">Total Lodge Revenue</span>
-                            <span class="stat-val" id="stat-revenue">Nu. 0.00</span>
-                            <span class="stat-indicator">💰 Earnings from Confirmed bookings</span>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">Total Revenue ($)</span>
+                            <span class="stat-val" id="stat-revenue" style="color: var(--text-light)">$0.00</span>
+                            <span class="stat-indicator">💰 Earnings from Confirmed stays</span>
                         </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Active Bookings</span>
-                            <span class="stat-val" id="stat-bookings">0</span>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">Active Bookings</span>
+                            <span class="stat-val" id="stat-bookings" style="color: var(--text-light)">0</span>
                             <span class="stat-indicator" id="stat-pending-indicator">0 Pending Approval</span>
                         </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Standard Rooms occupied</span>
-                            <span class="stat-val" id="stat-std-occupancy">0 / 5</span>
-                            <span class="stat-indicator">🌿 Nu. 2,500 Base Rate</span>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">2H Ensuite (Standard)</span>
+                            <span class="stat-val" id="stat-std-occupancy" style="color: var(--text-light)">0 / 5</span>
+                            <span class="stat-indicator">🚿 $10 hourly rate</span>
                         </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Deluxe Rooms occupied</span>
-                            <span class="stat-val" id="stat-dlx-occupancy">0 / 5</span>
-                            <span class="stat-indicator">🌅 Nu. 3,500 Balcony Rate</span>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">2H Ensuite (Premium)</span>
+                            <span class="stat-val" id="stat-dlx-occupancy" style="color: var(--text-light)">0 / 3</span>
+                            <span class="stat-indicator">🍹 $15 hourly rate</span>
                         </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Executive Suites occupied</span>
-                            <span class="stat-val" id="stat-exe-occupancy">0 / 2</span>
-                            <span class="stat-indicator">👑 Nu. 5,500 Premium Rate</span>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">Overnight (Premium)</span>
+                            <span class="stat-val" id="stat-exe-occupancy" style="color: var(--text-light)">0 / 5</span>
+                            <span class="stat-indicator">👑 $25 overnight rate</span>
                         </div>
                     </div>
 
                     <!-- Dashboard Tabs -->
                     <div class="admin-tabs-nav">
-                        <button class="tab-btn active" data-tab="bookings" onclick="app.switchAdminTab('bookings')">Bookings Management</button>
-                        <button class="tab-btn" data-tab="walkin" onclick="app.switchAdminTab('walkin')">Inject Manual Booking</button>
-                        <button class="tab-btn" data-tab="messages" onclick="app.switchAdminTab('messages')">Feedback Inbox (<span id="unread-msg-count">0</span>)</button>
-                        <button class="tab-btn" data-tab="settings" onclick="app.switchAdminTab('settings')">Settings & Tariffs</button>
+                        <button class="tab-btn active" data-tab="bookings" onclick="app.switchAdminTab('bookings')" style="color: var(--text-light);">Reservations Log</button>
+                        <button class="tab-btn" data-tab="walkin" onclick="app.switchAdminTab('walkin')" style="color: var(--text-light);">Manual Walk-In</button>
+                        <button class="tab-btn" data-tab="messages" onclick="app.switchAdminTab('messages')" style="color: var(--text-light);">Feedback (<span id="unread-msg-count">0</span>)</button>
+                        <button class="tab-btn" data-tab="settings" onclick="app.switchAdminTab('settings')" style="color: var(--text-light);">Tariffs & Prices</button>
                     </div>
 
                     <!-- TAB CONTENT: BOOKINGS -->
                     <div id="admin-tab-bookings" class="admin-tab-content active">
                         <div class="tab-header-row">
-                            <h3>Active Reservation Log</h3>
+                            <h3 style="color: var(--accent);">Active Booking Catalog</h3>
                             <div class="filter-group">
-                                <label for="booking-filter">Filter Status:</label>
-                                <select id="booking-filter" onchange="app.filterBookings(this.value)">
-                                    <option value="all">All Reservations</option>
+                                <label for="booking-filter" style="color: var(--text-light);">Filter:</label>
+                                <select id="booking-filter" onchange="app.filterBookings(this.value)" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light);">
+                                    <option value="all">All Bookings</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Confirmed">Confirmed</option>
                                     <option value="Cancelled">Cancelled</option>
@@ -532,20 +504,20 @@
                             </div>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
                             <table class="admin-table">
-                                <thead>
+                                <thead style="background-color: var(--primary-dark);">
                                     <tr>
-                                        <th>Booking ID</th>
-                                        <th>Guest Details</th>
-                                        <th>Room Type</th>
-                                        <th>Check-In / Out</th>
-                                        <th>Total Price</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th style="color: var(--accent);">ID</th>
+                                        <th style="color: var(--accent);">Guest Details</th>
+                                        <th style="color: var(--accent);">Option Type</th>
+                                        <th style="color: var(--accent);">Stay Date / Range</th>
+                                        <th style="color: var(--accent);">Total Price</th>
+                                        <th style="color: var(--accent);">Status</th>
+                                        <th style="color: var(--accent);">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="bookings-table-body">
+                                <tbody id="bookings-table-body" style="color: var(--text-light)">
                                     <!-- Dynamic rows from app_v1.js -->
                                 </tbody>
                             </table>
@@ -554,87 +526,88 @@
 
                     <!-- TAB CONTENT: WALKIN BOOKING INJECTOR -->
                     <div id="admin-tab-walkin" class="admin-tab-content">
-                        <h3>Inject Offline / Manual Reservation</h3>
-                        <p class="tab-description">Manually add phone reservations, walk-in bookings, or offline reservations straight into the database system.</p>
+                        <h3 style="color: var(--accent);">Inject Walk-In Stay</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Register phone or direct walk-in overnight/hourly stays in the control base.</p>
 
-                        <form id="admin-manual-booking-form" onsubmit="app.handleManualBooking(event)" class="admin-dashboard-form">
+                        <form id="admin-manual-booking-form" onsubmit="app.handleManualBooking(event)" class="admin-dashboard-form" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
                             <div class="form-row-three">
                                 <div class="form-group">
-                                    <label for="mb-guest-name">Guest Name</label>
-                                    <input type="text" id="mb-guest-name" required placeholder="Kinley Wangchuk">
+                                    <label for="mb-guest-name" style="color: var(--accent);">Guest Name</label>
+                                    <input type="text" id="mb-guest-name" required placeholder="Sara Connor" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="mb-guest-email">Email</label>
-                                    <input type="email" id="mb-guest-email" required placeholder="kinley@example.com">
+                                    <label for="mb-guest-email" style="color: var(--accent)">Email</label>
+                                    <input type="email" id="mb-guest-email" required placeholder="sara@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="mb-guest-phone">Phone</label>
-                                    <input type="tel" id="mb-guest-phone" required placeholder="+975 17888888">
+                                    <label for="mb-guest-phone" style="color: var(--accent)">Phone</label>
+                                    <input type="tel" id="mb-guest-phone" required placeholder="+1 (555) 123-4567" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
                             <div class="form-row-three">
                                 <div class="form-group">
-                                    <label for="mb-checkin">Check-In Date</label>
-                                    <input type="date" id="mb-checkin" required onchange="app.calcManualBookingPrice()">
+                                    <label for="mb-checkin" style="color: var(--accent)">Check-In Date</label>
+                                    <input type="date" id="mb-checkin" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="mb-checkout">Check-Out Date</label>
-                                    <input type="date" id="mb-checkout" required onchange="app.calcManualBookingPrice()">
+                                    <label for="mb-checkout" style="color: var(--accent)">Check-Out Date</label>
+                                    <input type="date" id="mb-checkout" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="mb-guests">Number of Guests</label>
-                                    <input type="number" id="mb-guests" min="1" max="4" required value="2">
+                                    <label for="mb-guests" style="color: var(--accent)">Guests</label>
+                                    <input type="number" id="mb-guests" min="1" max="4" required value="2" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
                             <div class="form-row-two">
                                 <div class="form-group">
-                                    <label for="mb-room-type">Room Type</label>
-                                    <select id="mb-room-type" required onchange="app.calcManualBookingPrice()">
-                                        <option value="standard">Standard Room (Nu. 2,500/night)</option>
-                                        <option value="deluxe" selected>Deluxe Room (Nu. 3,500/night)</option>
-                                        <option value="executive">Executive Suite (Nu. 5,500/night)</option>
+                                    <label for="mb-room-type" style="color: var(--accent)">Option Type</label>
+                                    <select id="mb-room-type" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                        <option value="ensuite_std">2-Hour Ensuite (Standard) - $10</option>
+                                        <option value="ensuite_premium">2-Hour Ensuite (Premium) - $15</option>
+                                        <option value="overnight_std">Overnight Stay (Standard) - $20</option>
+                                        <option value="overnight_premium" selected>Overnight Stay (Premium) - $25</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="mb-status">Initial Status</label>
-                                    <select id="mb-status" required>
-                                        <option value="Confirmed" selected>Confirmed (Paid/Reserved)</option>
-                                        <option value="Pending">Pending Approval</option>
+                                    <label for="mb-status" style="color: var(--accent)">Reservation Status</label>
+                                    <select id="mb-status" required style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                        <option value="Confirmed" selected>Confirmed (Paid)</option>
+                                        <option value="Pending">Pending</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="mb-requests">Special Requests / Administrative Notes</label>
-                                <textarea id="mb-requests" rows="3" placeholder="Booked via telephone. Requesting hot stone bath on day 2."></textarea>
+                                <label for="mb-requests" style="color: var(--accent)">Special Notes</label>
+                                <textarea id="mb-requests" rows="3" placeholder="Arriving by motorcycle. Need secure parking." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
                             </div>
 
-                            <div class="pricing-summary-row">
-                                <span class="pricing-label">Calculated Price: <strong id="mb-nights-count">0 nights</strong></span>
-                                <span class="pricing-value" id="mb-total-price">Nu. 0.00</span>
+                            <div class="pricing-summary-row" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                                <span class="pricing-label" style="color: var(--accent)">Calculated Duration: <strong id="mb-nights-count" style="color: var(--text-light)">0 nights</strong></span>
+                                <span class="pricing-value" id="mb-total-price" style="color: var(--accent)">$0.00</span>
                             </div>
 
-                            <button type="submit" class="btn-primary">Save Reservation Record</button>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Register Stay</button>
                         </form>
                     </div>
 
                     <!-- TAB CONTENT: MESSAGES INBOX -->
                     <div id="admin-tab-messages" class="admin-tab-content">
-                        <h3>Guest Inquiries Inbox</h3>
-                        <p class="tab-description">Review contact messages, general queries, and Hot Stone bath reservation inquiries submitted through the contact page.</p>
+                        <h3 style="color: var(--accent);">Customer Inquiries Inbox</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Review feedback, burger combo reservations, or gazebo booking inquiries.</p>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
                             <table class="admin-table">
-                                <thead>
+                                <thead style="background-color: var(--primary-dark);">
                                     <tr>
-                                        <th>Date Sent</th>
-                                        <th>Sender Contact</th>
-                                        <th>Subject</th>
-                                        <th>Inquiry Message</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th style="color: var(--accent);">Date</th>
+                                        <th style="color: var(--accent);">Sender Contact</th>
+                                        <th style="color: var(--accent);">Subject</th>
+                                        <th style="color: var(--accent);">Message</th>
+                                        <th style="color: var(--accent);">Status</th>
+                                        <th style="color: var(--accent);">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="messages-table-body">
+                                <tbody id="messages-table-body" style="color: var(--text-light)">
                                     <!-- Dynamic rows from app_v1.js -->
                                 </tbody>
                             </table>
@@ -643,31 +616,31 @@
 
                     <!-- TAB CONTENT: SETTINGS & TARIFFS -->
                     <div id="admin-tab-settings" class="admin-tab-content">
-                        <h3>System Configuration & Tariff Adjuster</h3>
-                        <p class="tab-description">Modify lodge details, contact info, seasonal tariff pricing, or customize administrative credentials.</p>
+                        <h3 style="color: var(--accent);">Base Tariffs & Prices</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Configure room base rates or update administrative credentials.</p>
 
-                        <form id="admin-settings-form" onsubmit="app.handleSettingsSave(event)" class="admin-dashboard-form">
+                        <form id="admin-settings-form" onsubmit="app.handleSettingsSave(event)" class="admin-dashboard-form" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
                             <div class="form-row-two">
                                 <div class="form-group">
-                                    <label for="set-std-price">Standard Room Base Price (Nu.)</label>
-                                    <input type="number" id="set-std-price" required value="2500">
+                                    <label for="set-std-price" style="color: var(--accent)">2H Ensuite (Standard) Rate ($)</label>
+                                    <input type="number" id="set-std-price" required value="10" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="set-dlx-price">Deluxe Room Base Price (Nu.)</label>
-                                    <input type="number" id="set-dlx-price" required value="3500">
+                                    <label for="set-dlx-price" style="color: var(--accent)">2H Ensuite (Premium) Rate ($)</label>
+                                    <input type="number" id="set-dlx-price" required value="15" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
                             <div class="form-row-two">
                                 <div class="form-group">
-                                    <label for="set-exe-price">Executive Suite Base Price (Nu.)</label>
-                                    <input type="number" id="set-exe-price" required value="5500">
+                                    <label for="set-exe-price" style="color: var(--accent)">Overnight Stay (Premium) Rate ($)</label>
+                                    <input type="number" id="set-exe-price" required value="25" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
-                                    <label for="set-admin-pass">Change Admin password</label>
-                                    <input type="password" id="set-admin-pass" placeholder="Enter new password (optional)">
+                                    <label for="set-admin-pass" style="color: var(--accent)">Change Admin Password</label>
+                                    <input type="password" id="set-admin-pass" placeholder="Enter new password" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
-                            <button type="submit" class="btn-primary">Apply Settings Adjustments</button>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Apply Rate Adjustments</button>
                         </form>
                     </div>
 
@@ -679,140 +652,140 @@
 
     <!-- FLOATING BOOKING MODAL (DOCK PANEL OVERLAY) -->
     <div class="modal-backdrop hidden" id="booking-modal">
-        <div class="booking-modal-card">
-            <div class="modal-header">
-                <h3>Reserve Your Stay</h3>
+        <div class="booking-modal-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent);">
+            <div class="modal-header" style="border-bottom-color: var(--accent-dark);">
+                <h3 style="color: var(--accent); font-family: var(--font-heading);">Book Your Stay</h3>
                 <button class="modal-close-btn" onclick="app.closeBookingModal()">✕</button>
             </div>
 
             <form id="booking-reservation-form" onsubmit="app.handleBookingSubmit(event)">
                 <div class="form-row-two">
                     <div class="form-group">
-                        <label for="book-checkin">Check-In Date</label>
-                        <input type="date" id="book-checkin" required onchange="app.calcBookingPrice()">
+                        <label for="book-checkin" style="color: var(--accent)">Check-In Date</label>
+                        <input type="date" id="book-checkin" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                     </div>
                     <div class="form-group">
-                        <label for="book-checkout">Check-Out Date</label>
-                        <input type="date" id="book-checkout" required onchange="app.calcBookingPrice()">
+                        <label for="book-checkout" style="color: var(--accent)">Check-Out Date</label>
+                        <input type="date" id="book-checkout" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                     </div>
                 </div>
 
                 <div class="form-row-two">
                     <div class="form-group">
-                        <label for="book-room-type">Room Category</label>
-                        <select id="book-room-type" required onchange="app.calcBookingPrice()">
-                            <option value="standard">Standard Room (Nu. 2,500/night)</option>
-                            <option value="deluxe">Deluxe River View Room (Nu. 3,500/night)</option>
-                            <option value="executive">Executive Suite Room (Nu. 5,500/night)</option>
+                        <label for="book-room-type" style="color: var(--accent)">Stay Option</label>
+                        <select id="book-room-type" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                            <option value="ensuite_std">2-Hour Ensuite (Standard) - $10</option>
+                            <option value="ensuite_premium">2-Hour Ensuite (Premium) - $15</option>
+                            <option value="overnight_std">Overnight Stay (Standard) - $20</option>
+                            <option value="overnight_premium" selected>Overnight Stay (Premium) - $25</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="book-guests">Guests Number</label>
-                        <select id="book-guests">
+                        <label for="book-guests" style="color: var(--accent)">Guests Number</label>
+                        <select id="book-guests" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                             <option value="1" selected>1 Guest</option>
                             <option value="2">2 Guests</option>
                             <option value="3">3 Guests</option>
-                            <option value="4">4 Guests</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="book-name">Guest Full Name</label>
-                    <input type="text" id="book-name" required placeholder="Dechen Wangmo">
+                    <label for="book-name" style="color: var(--accent)">Guest Full Name</label>
+                    <input type="text" id="book-name" required placeholder="John Doe" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                 </div>
 
                 <div class="form-row-two">
                     <div class="form-group">
-                        <label for="book-email">Email Address</label>
-                        <input type="email" id="book-email" required placeholder="dechen@outlook.com">
+                        <label for="book-email" style="color: var(--accent)">Email Address</label>
+                        <input type="email" id="book-email" required placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                     </div>
                     <div class="form-group">
-                        <label for="book-phone">Phone Number</label>
-                        <input type="tel" id="book-phone" required placeholder="+975 17123456">
+                        <label for="book-phone" style="color: var(--accent)">Phone Number</label>
+                        <input type="tel" id="book-phone" required placeholder="+1 (555) 123-4567" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="book-requests">Special Requests / Hot Stone Bath Reservation</label>
-                    <textarea id="book-requests" rows="3" placeholder="Specify food allergies, or if you wish to reserve a traditional Hot Stone bath on specific dates..."></textarea>
+                    <label for="book-requests" style="color: var(--accent)">Special Requests (e.g. Signature Combo orders, Gazebo slots)</label>
+                    <textarea id="book-requests" rows="3" placeholder="Order a Burger Signature Combo on arrival, please." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
                 </div>
 
                 <!-- Live Price Calculation Panel -->
-                <div class="modal-pricing-box">
+                <div class="modal-pricing-box" style="background-color: var(--primary-dark); border-color: var(--accent);">
                     <div class="pricing-label-row">
-                        <span id="booking-nights-count">0 Nights Stay</span>
-                        <span id="booking-room-rate">Rate: Nu. 0.00/night</span>
+                        <span id="booking-nights-count" style="color: var(--accent-light);">0 Night Stay</span>
+                        <span id="booking-room-rate" style="color: var(--accent-light);">Rate: $0.00</span>
                     </div>
                     <div class="pricing-total-row">
-                        <span>Total Tariff:</span>
-                        <span id="booking-total-price">Nu. 0.00</span>
+                        <span style="color: var(--text-light)">Total Stay Cost:</span>
+                        <span id="booking-total-price" style="color: var(--accent)">$0.00</span>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%">Confirm Booking Reservation</button>
+                <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Confirm Reservation Stay</button>
             </form>
         </div>
     </div>
 
     <!-- Booking Confirmation Success Dialog -->
     <div class="modal-backdrop hidden" id="confirmation-modal">
-        <div class="success-dialog-card">
-            <span class="success-icon">🏔️</span>
-            <h3>Reservation Successful!</h3>
-            <p>Kuzu Zangpo La! Your booking reservation request at Kurichong Eco Lodge has been logged and received. Our host will contact you shortly.</p>
+        <div class="success-dialog-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent)">
+            <span class="success-icon" style="color: var(--accent)">🌅</span>
+            <h3 style="color: var(--accent);">Stay Reservation Successful!</h3>
+            <p style="color: var(--text-muted)">Your booking reservation at Mountain View Lodge has been successfully logged. We look forward to hosting you!</p>
 
-            <div class="confirmation-summary-box">
-                <div class="summary-line"><span>Booking Reference:</span><strong id="conf-id">KEL-XXXX</strong></div>
-                <div class="summary-line"><span>Guest Name:</span><span id="conf-name">Dechen Wangmo</span></div>
-                <div class="summary-line"><span>Room Category:</span><span id="conf-room">Deluxe River View Room</span></div>
-                <div class="summary-line"><span>Dates Selected:</span><span id="conf-dates">2026-07-20 to 2026-07-22</span></div>
-                <div class="summary-line"><span>Total Cost:</span><span id="conf-price">Nu. 7,000.00</span></div>
+            <div class="confirmation-summary-box" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span>Booking Reference:</span><strong id="conf-id" style="color: var(--accent)">MVL-XXXX</strong></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Guest Name:</span><span id="conf-name" style="color: var(--text-light)">John Doe</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Stay Option:</span><span id="conf-room" style="color: var(--text-light)">Overnight Stay (Premium)</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Stay Dates:</span><span id="conf-dates" style="color: var(--text-light)">2026-07-20 to 2026-07-22</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Total Price:</span><span id="conf-price" style="color: var(--accent)">$75.00</span></div>
             </div>
 
-            <button class="btn-primary" onclick="app.closeConfirmationModal()" style="width: 100%">Close & Return</button>
+            <button class="btn-primary" onclick="app.closeConfirmationModal()" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Close & Return</button>
         </div>
     </div>
 
     <!-- PWA Installation Toast Banner -->
-    <div id="pwa-install-banner" class="pwa-banner hidden">
+    <div id="pwa-install-banner" class="pwa-banner hidden" style="border-color: var(--accent);">
         <div style="display:flex; align-items:center; gap:1rem;">
             <span style="font-size:1.8rem;">📱</span>
             <div>
-                <div style="font-weight:700; font-size:0.9rem;">Install Kurichong Eco Lodge App</div>
-                <div style="font-size:0.75rem; color:var(--text-muted)">Add to your home screen for quick offline access</div>
+                <div style="font-weight:700; font-size:0.9rem; color: var(--accent)">Install Mountain View Lodge App</div>
+                <div style="font-size:0.75rem; color:var(--text-light)">Access offline, book, and control operations instantly</div>
             </div>
         </div>
         <div style="display:flex; gap:0.5rem;">
-            <button id="pwa-install-btn" class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem;">Install</button>
+            <button id="pwa-install-btn" class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem; background-color: var(--accent); color: var(--primary-dark)">Install</button>
             <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1rem; padding: 0.2rem">✕</button>
         </div>
     </div>
 
     <!-- FOOTER -->
-    <footer class="main-footer">
+    <footer class="main-footer" style="background-color: var(--primary-dark); border-top-color: var(--accent);">
         <div class="footer-container">
             <div class="footer-info">
-                <h3>Kurichong Eco Lodge</h3>
-                <p>An exquisite, nature-first sanctuary promoting green eco-tourism, organic traditional dining, and holistic healing rituals in Yelchen, Mongar, Bhutan.</p>
+                <h3 style="color: var(--accent);">Mountain View Lodge</h3>
+                <p style="color: var(--text-light); opacity: 0.85;">A peaceful and affordable getaway offering comfortable accommodations, safe & secure parking, mocktails, burgers, and cozy outdoor gazebo relaxation slots.</p>
                 <div class="footer-links">
-                    <a href="#" onclick="app.showSection('home')">Home</a> •
-                    <a href="#" onclick="app.showSection('rooms')">Rooms</a> •
-                    <a href="#" onclick="app.showSection('dining')">Dining</a> •
-                    <a href="#" onclick="app.showSection('wellness')">Wellness</a> •
-                    <a href="#" onclick="app.showSection('contact')">Contact Us</a> •
-                    <a href="#" onclick="app.showSection('admin')">Admin Console</a>
+                    <a href="#" onclick="app.showSection('home')" style="color: var(--text-light)">Home</a> •
+                    <a href="#" onclick="app.showSection('rooms')" style="color: var(--text-light)">Accommodations</a> •
+                    <a href="#" onclick="app.showSection('dining')" style="color: var(--text-light)">Burgers & Drinks</a> •
+                    <a href="#" onclick="app.showSection('gazebo')" style="color: var(--text-light)">Gazebo</a> •
+                    <a href="#" onclick="app.showSection('contact')" style="color: var(--text-light)">Contact Us</a> •
+                    <a href="#" onclick="app.showSection('admin')" style="color: var(--text-light)">Admin Portal</a>
                 </div>
             </div>
             <div class="footer-credits">
-                <p>© 2026 Kurichong Eco Lodge. All Rights Reserved. Designed with ❤️ for Yelchen, Mongar, Bhutan.</p>
+                <p style="color: var(--text-muted); opacity: 0.5;">© 2026 Mountain View Lodge. All Rights Reserved. Comfort, refreshment, and peace under one roof.</p>
             </div>
         </div>
     </footer>
 
     <!-- Script binds -->
-    <script src="db.js?v=12"></script>
-    <script src="app_v1.js?v=12"></script>
+    <script src="db.js?v=13"></script>
+    <script src="app_v1.js?v=13"></script>
     <script>
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {

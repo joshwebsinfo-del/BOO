@@ -2,4 +2,4 @@
 📦 Connected with local SQLite database (lodge.db)
 🔨 Initializing Mountain View Lodge database schema on [sqlite]
 ✅ SQLite schema and seed data initialized successfully.
- Mountain View Lodge API server running on port 3000 [sqlite]
+ Kurichong Eco Lodge API server running on port 3000 [sqlite]

@@ -69,7 +69,6 @@ async function dbQuery(sql, params = []) {
         const res = await pgPool.query(sql, params);
         return { rows: res.rows, rowCount: res.rowCount };
     } else if (dbType === 'sqlite') {
-        // Convert PostgreSQL $1, $2, $3 style parameters to SQLite ?
         let sqliteSql = sql.replace(/\$\d+/g, '?');
 
         try {
@@ -84,7 +83,6 @@ async function dbQuery(sql, params = []) {
                     return { rows, rowCount: rows.length };
                 } else {
                     const info = stmt.run(params);
-                    // Mock RETURNING behavior by querying or returning id
                     const lastId = info.lastInsertRowid;
                     return { rows: [{ id: lastId }], rowCount: info.changes };
                 }
@@ -94,7 +92,6 @@ async function dbQuery(sql, params = []) {
             throw err;
         }
     } else {
-        // In-memory mock DB operations (very simple generic simulator)
         return simulateMockQuery(sql, params);
     }
 }
@@ -102,7 +99,6 @@ async function dbQuery(sql, params = []) {
 function simulateMockQuery(sql, params) {
     const query = sql.trim().toUpperCase();
     
-    // Parse table name
     let tableName = 'bookings';
     for (const name of ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings']) {
         if (query.includes(name.toUpperCase())) {
@@ -114,7 +110,6 @@ function simulateMockQuery(sql, params) {
     const table = mockDb[tableName];
 
     if (query.startsWith('SELECT')) {
-        // Check for specific row select
         if (query.includes('WHERE USERNAME =') || query.includes('WHERE USERNAME=')) {
             const username = params[0];
             const rows = table.filter(r => r.username === username);
@@ -133,8 +128,6 @@ function simulateMockQuery(sql, params) {
         return { rows: [...table], rowCount: table.length };
     } else if (query.startsWith('INSERT')) {
         const item = { id: table.length + 1 };
-        // Very basic mock parsing of keys and values from sql (for seeding)
-        // In actual usage, req.body is processed by POST route which appends to mockDb directly
         table.push(item);
         return { rows: [item], rowCount: 1 };
     } else if (query.startsWith('UPDATE')) {
@@ -147,7 +140,28 @@ function simulateMockQuery(sql, params) {
 
 // Auto-create and seed tables on startup
 async function initDb() {
-    console.log(`🔨 Initializing database schema on [${dbType}]`);
+    console.log(`🔨 Initializing Mountain View Lodge database schema on [${dbType}]`);
+
+    // In SQLite, clean old tables to perform clean seed matching new schema
+    if (dbType === 'sqlite') {
+        sqliteDb.exec(`
+            DROP TABLE IF EXISTS bookings;
+            DROP TABLE IF EXISTS rooms;
+            DROP TABLE IF EXISTS messages;
+            DROP TABLE IF EXISTS notifications;
+            DROP TABLE IF EXISTS users;
+            DROP TABLE IF EXISTS settings;
+        `);
+    } else if (dbType === 'postgres') {
+        const client = await pgPool.connect();
+        try {
+            await client.query('DROP TABLE IF EXISTS bookings CASCADE; DROP TABLE IF EXISTS rooms CASCADE; DROP TABLE IF EXISTS messages CASCADE; DROP TABLE IF EXISTS settings CASCADE;');
+        } catch (e) {
+            console.warn('Postgres drop warning:', e.message);
+        } finally {
+            client.release();
+        }
+    }
 
     if (dbType === 'postgres') {
         const client = await pgPool.connect();
@@ -214,63 +228,47 @@ async function initDb() {
             // Seed default admin account
             const adminRes = await client.query('SELECT id FROM users WHERE username = $1', ['admin']);
             if (adminRes.rowCount === 0) {
-                await client.query('INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4)', ['admin', 'admin123', 'Admin', 'Kurichong Admin']);
-                console.log('Default admin seeded.');
+                await client.query('INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4)', ['admin', 'admin123', 'Admin', 'Mountain View Admin']);
             }
 
             // Seed rooms
-            const roomRes = await client.query('SELECT COUNT(*) as count FROM rooms');
-            if (parseInt(roomRes.rows[0].count) === 0) {
-                await client.query(`
-                    INSERT INTO rooms ("type", "name", "price", "capacity", "totalRooms", "description", "amenities") VALUES
-                    ('standard', 'Standard Room', 2500.00, 2, 5, 'A cozy retreat featuring comfortable interiors, locally inspired artwork, and all essential modern conveniences for solo travelers or couples.', 'Attached Bathroom, Hot Water Shower, Free High-Speed Wi-Fi, Writing Desk, Daily Housekeeping'),
-                    ('deluxe', 'Deluxe Room', 3500.00, 3, 5, 'Spacious, elegant room with handcrafted wooden accents and a private balcony overlooking the breathtaking Kurichhu River and the pristine Yelchen valley.', 'Private Balcony, Scenic River View, King-Size Bed, Smart LED TV, Coffee/Tea Maker, High-Speed Wi-Fi'),
-                    ('executive', 'Executive Suite', 5500.00, 4, 2, 'Our premier accommodation boasting luxurious traditional Bhutanese woodwork, a grand separate living area, a private viewing deck, and deluxe custom services.', 'Separate Living Lounge, Private Viewing Deck, Premium King Bed, Traditional Wood Stove Setup, In-Suite Hot Stone Tub access, Espresso Bar')
-                `);
-                console.log('Room categories seeded.');
-            }
+            await client.query(`
+                INSERT INTO rooms ("type", "name", "price", "capacity", "totalRooms", "description", "amenities") VALUES
+                ('ensuite_std', '2-Hour Ensuite (Standard)', 10.00, 2, 5, 'Perfect private ensuite room for a quick 2-hour freshen-up, changes of clothes, or a brief rest.', 'Attached Bath, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Security'),
+                ('ensuite_premium', '2-Hour Ensuite (Premium)', 15.00, 2, 3, 'Premium short stay ensuite with luxury linen, priority mocktail bar delivery, and spacious hot shower.', 'Premium Attached Bath, Hot Shower, Luxury Fresh Linen, Fast Wi-Fi, Secure Parking'),
+                ('overnight_std', 'Overnight Stay (Standard)', 20.00, 2, 10, 'A peaceful and affordable standard overnight room. Wake up refreshed after a cozy night on fresh linen.', 'Standard Room, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Secure Parking'),
+                ('overnight_premium', 'Overnight Stay (Premium)', 25.00, 3, 5, 'A luxury overnight stay featuring scenic mountain views, spacious interior, and priority gazebo access.', 'Overnight Room, Scenic Mountain View, Hot Shower, Premium Linen, Fast Wi-Fi, Safe Parking, Priority Gazebo')
+            `);
 
             // Seed default settings
-            const settingsRes = await client.query('SELECT COUNT(*) as count FROM settings');
-            if (parseInt(settingsRes.rows[0].count) === 0) {
-                await client.query(`
-                    INSERT INTO settings ("key", "value") VALUES
-                    ('lodge_name', 'Kurichong Eco Lodge'),
-                    ('lodge_location', 'Yelchen, Mongar, Bhutan'),
-                    ('lodge_phone', '+975 17730113 / +975 77730113'),
-                    ('lodge_email', 'kurichongecolodge@gmail.com')
-                `);
-                console.log('Lodge settings seeded.');
-            }
+            await client.query(`
+                INSERT INTO settings ("key", "value") VALUES
+                ('lodge_name', 'Mountain View Lodge'),
+                ('lodge_location', 'Mountain View'),
+                ('lodge_phone', '+1 (555) 831-9023'),
+                ('lodge_email', 'bookings@mountainviewlodge.com')
+            `);
 
             // Seed some mock bookings
-            const bookingsRes = await client.query('SELECT COUNT(*) as count FROM bookings');
-            if (parseInt(bookingsRes.rows[0].count) === 0) {
-                const today = new Date();
-                const d1 = new Date(today); d1.setDate(today.getDate() + 2);
-                const d2 = new Date(today); d2.setDate(today.getDate() + 5);
-                const d3 = new Date(today); d3.setDate(today.getDate() - 4);
-                const d4 = new Date(today); d4.setDate(today.getDate() - 1);
+            const today = new Date();
+            const d1 = new Date(today); d1.setDate(today.getDate() + 2);
+            const d2 = new Date(today); d2.setDate(today.getDate() + 5);
+            const d3 = new Date(today); d3.setDate(today.getDate() - 4);
+            const d4 = new Date(today); d4.setDate(today.getDate() - 1);
 
-                await client.query(`
-                    INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES
-                    ('KEL-2026-0041', 'Tashi Dorji', 'tashi@gmail.com', '+975 17112233', 'deluxe', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 10500.00, 'Confirmed', 'Requesting top floor balcony.', '${new Date().toISOString()}'),
-                    ('KEL-2026-0028', 'Dr. Alistair Chen', 'achen@quantcompute.com', '+1 (555) 381-0192', 'executive', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 3, 16500.00, 'Confirmed', 'Arranged for traditional Hot Stone Bath.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
-                    ('KEL-2026-0099', 'Dechen Wangmo', 'dechen@outlook.com', '+975 77123456', 'standard', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 1, 5000.00, 'Pending', 'Vegetarian meals during stay.', '${new Date().toISOString()}')
-                `);
-                console.log('Mock bookings seeded.');
-            }
+            await client.query(`
+                INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES
+                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '+1 (555) 123-4567', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
+                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '+1 (555) 987-6543', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '+1 (555) 304-1928', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+            `);
 
             // Seed some mock feedback messages
-            const messagesRes = await client.query('SELECT COUNT(*) as count FROM messages');
-            if (parseInt(messagesRes.rows[0].count) === 0) {
-                await client.query(`
-                    INSERT INTO messages ("name", "email", "phone", "subject", "message", "date", "status") VALUES
-                    ('Pema Lhaden', 'pema.l@gmail.com', '+975 17543210', 'Hot Stone Bath Inquiry', 'Hello, do we need to book the traditional hot stone bath in advance, or can we request it upon arrival? Thank you!', '${new Date().toISOString()}', 'Unread'),
-                    ('Robert Miller', 'rmiller@yahoo.com', '+44 7911 123456', 'Rafting Availability', 'We are planning a visit next month and would love to experience river rafting on the Kurichhu. Are guided rafting sessions available daily?', '${new Date().toISOString()}', 'Unread')
-                `);
-                console.log('Mock messages seeded.');
-            }
+            await client.query(`
+                INSERT INTO messages ("name", "email", "phone", "subject", "message", "date", "status") VALUES
+                ('Emily Stone', 'emily@gmail.com', '+1 (555) 321-0987', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
+                ('Marcus Aurelius', 'marcus@philosophy.com', '+1 (555) 765-4321', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
+            `);
 
             await client.query('COMMIT');
             console.log('✅ PostgreSQL schema and seed data initialized successfully.');
@@ -342,65 +340,46 @@ async function initDb() {
             `);
 
             // Seed default admin user
-            const adminCheck = sqliteDb.prepare('SELECT id FROM users WHERE username = ?').get('admin');
-            if (!adminCheck) {
-                sqliteDb.prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)').run('admin', 'admin123', 'Admin', 'Kurichong Admin');
-                console.log('Default SQLite admin seeded.');
-            }
+            sqliteDb.prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)').run('admin', 'admin123', 'Admin', 'Mountain View Admin');
 
             // Seed rooms
-            const roomCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM rooms').get();
-            if (roomCheck.count === 0) {
-                sqliteDb.exec(`
-                    INSERT INTO rooms (type, name, price, capacity, totalRooms, description, amenities) VALUES
-                    ('standard', 'Standard Room', 2500.00, 2, 5, 'A cozy retreat featuring comfortable interiors, locally inspired artwork, and all essential modern conveniences for solo travelers or couples.', 'Attached Bathroom, Hot Water Shower, Free High-Speed Wi-Fi, Writing Desk, Daily Housekeeping'),
-                    ('deluxe', 'Deluxe Room', 3500.00, 3, 5, 'Spacious, elegant room with handcrafted wooden accents and a private balcony overlooking the breathtaking Kurichhu River and the pristine Yelchen valley.', 'Private Balcony, Scenic River View, King-Size Bed, Smart LED TV, Coffee/Tea Maker, High-Speed Wi-Fi'),
-                    ('executive', 'Executive Suite', 5500.00, 4, 2, 'Our premier accommodation boasting luxurious traditional Bhutanese woodwork, a grand separate living area, a private viewing deck, and deluxe custom services.', 'Separate Living Lounge, Private Viewing Deck, Premium King Bed, Traditional Wood Stove Setup, In-Suite Hot Stone Tub access, Espresso Bar')
-                `);
-                console.log('SQLite Room categories seeded.');
-            }
+            sqliteDb.exec(`
+                INSERT INTO rooms (type, name, price, capacity, totalRooms, description, amenities) VALUES
+                ('ensuite_std', '2-Hour Ensuite (Standard)', 10.00, 2, 5, 'Perfect private ensuite room for a quick 2-hour freshen-up, changes of clothes, or a brief rest.', 'Attached Bath, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Security'),
+                ('ensuite_premium', '2-Hour Ensuite (Premium)', 15.00, 2, 3, 'Premium short stay ensuite with luxury linen, priority mocktail bar delivery, and spacious hot shower.', 'Premium Attached Bath, Hot Shower, Luxury Fresh Linen, Fast Wi-Fi, Secure Parking'),
+                ('overnight_std', 'Overnight Stay (Standard)', 20.00, 2, 10, 'A peaceful and affordable standard overnight room. Wake up refreshed after a cozy night on fresh linen.', 'Standard Room, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Secure Parking'),
+                ('overnight_premium', 'Overnight Stay (Premium)', 25.00, 3, 5, 'A luxury overnight stay featuring scenic mountain views, spacious interior, and priority gazebo access.', 'Overnight Room, Scenic Mountain View, Hot Shower, Premium Linen, Fast Wi-Fi, Safe Parking, Priority Gazebo')
+            `);
 
             // Seed settings
-            const settingsCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM settings').get();
-            if (settingsCheck.count === 0) {
-                sqliteDb.exec(`
-                    INSERT INTO settings (key, value) VALUES
-                    ('lodge_name', 'Kurichong Eco Lodge'),
-                    ('lodge_location', 'Yelchen, Mongar, Bhutan'),
-                    ('lodge_phone', '+975 17730113 / +975 77730113'),
-                    ('lodge_email', 'kurichongecolodge@gmail.com')
-                `);
-                console.log('SQLite Lodge settings seeded.');
-            }
+            sqliteDb.exec(`
+                INSERT INTO settings (key, value) VALUES
+                ('lodge_name', 'Mountain View Lodge'),
+                ('lodge_location', 'Mountain View'),
+                ('lodge_phone', '+1 (555) 831-9023'),
+                ('lodge_email', 'bookings@mountainviewlodge.com')
+            `);
 
             // Seed mock bookings
-            const bookingsCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM bookings').get();
-            if (bookingsCheck.count === 0) {
-                const today = new Date();
-                const d1 = new Date(today); d1.setDate(today.getDate() + 2);
-                const d2 = new Date(today); d2.setDate(today.getDate() + 5);
-                const d3 = new Date(today); d3.setDate(today.getDate() - 4);
-                const d4 = new Date(today); d4.setDate(today.getDate() - 1);
+            const today = new Date();
+            const d1 = new Date(today); d1.setDate(today.getDate() + 2);
+            const d2 = new Date(today); d2.setDate(today.getDate() + 5);
+            const d3 = new Date(today); d3.setDate(today.getDate() - 4);
+            const d4 = new Date(today); d4.setDate(today.getDate() - 1);
 
-                sqliteDb.exec(`
-                    INSERT INTO bookings (bookingId, guestName, guestEmail, guestPhone, roomType, checkIn, checkOut, guests, totalPrice, status, specialRequests, createdAt) VALUES
-                    ('KEL-2026-0041', 'Tashi Dorji', 'tashi@gmail.com', '+975 17112233', 'deluxe', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 10500.00, 'Confirmed', 'Requesting top floor balcony.', '${new Date().toISOString()}'),
-                    ('KEL-2026-0028', 'Dr. Alistair Chen', 'achen@quantcompute.com', '+1 (555) 381-0192', 'executive', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 3, 16500.00, 'Confirmed', 'Arranged for traditional Hot Stone Bath.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
-                    ('KEL-2026-0099', 'Dechen Wangmo', 'dechen@outlook.com', '+975 77123456', 'standard', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 1, 5000.00, 'Pending', 'Vegetarian meals during stay.', '${new Date().toISOString()}')
-                `);
-                console.log('SQLite Mock bookings seeded.');
-            }
+            sqliteDb.exec(`
+                INSERT INTO bookings (bookingId, guestName, guestEmail, guestPhone, roomType, checkIn, checkOut, guests, totalPrice, status, specialRequests, createdAt) VALUES
+                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '+1 (555) 123-4567', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
+                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '+1 (555) 987-6543', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '+1 (555) 304-1928', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+            `);
 
             // Seed mock messages
-            const messagesCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM messages').get();
-            if (messagesCheck.count === 0) {
-                sqliteDb.exec(`
-                    INSERT INTO messages (name, email, phone, subject, message, date, status) VALUES
-                    ('Pema Lhaden', 'pema.l@gmail.com', '+975 17543210', 'Hot Stone Bath Inquiry', 'Hello, do we need to book the traditional hot stone bath in advance, or can we request it upon arrival? Thank you!', '${new Date().toISOString()}', 'Unread'),
-                    ('Robert Miller', 'rmiller@yahoo.com', '+44 7911 123456', 'Rafting Availability', 'We are planning a visit next month and would love to experience river rafting on the Kurichhu. Are guided rafting sessions available daily?', '${new Date().toISOString()}', 'Unread')
-                `);
-                console.log('SQLite Mock messages seeded.');
-            }
+            sqliteDb.exec(`
+                INSERT INTO messages (name, email, phone, subject, message, date, status) VALUES
+                ('Emily Stone', 'emily@gmail.com', '+1 (555) 321-0987', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
+                ('Marcus Aurelius', 'marcus@philosophy.com', '+1 (555) 765-4321', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
+            `);
 
             console.log('✅ SQLite schema and seed data initialized successfully.');
         } catch (err) {
@@ -408,15 +387,16 @@ async function initDb() {
         }
     } else {
         // Mock in-memory database seeding
-        mockDb.users.push({ id: 1, username: 'admin', password: 'admin123', role: 'Admin', name: 'Kurichong Admin' });
+        mockDb.users.push({ id: 1, username: 'admin', password: 'admin123', role: 'Admin', name: 'Mountain View Admin' });
         mockDb.rooms.push(
-            { id: 1, type: 'standard', name: 'Standard Room', price: 2500, capacity: 2, totalRooms: 5, description: 'Cozy eco-retreat', amenities: 'Attached Bath, Hot Shower, Wi-Fi' },
-            { id: 2, type: 'deluxe', name: 'Deluxe Room', price: 3500, capacity: 3, totalRooms: 5, description: 'River view and balcony', amenities: 'Balcony, View, Wi-Fi' },
-            { id: 3, type: 'executive', name: 'Executive Suite', price: 5500, capacity: 4, totalRooms: 2, description: 'Luxury suite', amenities: 'Living Lounge, View, Espresso' }
+            { id: 1, type: 'ensuite_std', name: '2-Hour Ensuite (Standard)', price: 10, capacity: 2, totalRooms: 5, description: 'Short stay ensuite', amenities: 'Attached Bath, Hot Shower, Fast Wi-Fi, Security' },
+            { id: 2, type: 'ensuite_premium', name: '2-Hour Ensuite (Premium)', price: 15, capacity: 2, totalRooms: 3, description: 'Premium short stay', amenities: 'Premium Bath, Hot Shower, Fast Wi-Fi, Security' },
+            { id: 3, type: 'overnight_std', name: 'Overnight Stay (Standard)', price: 20, capacity: 2, totalRooms: 10, description: 'Cozy overnight stay', amenities: 'Standard Room, Hot Shower, Wi-Fi' },
+            { id: 4, type: 'overnight_premium', name: 'Overnight Stay (Premium)', price: 25, capacity: 3, totalRooms: 5, description: 'Luxury overnight stay', amenities: 'Overnight Room, View, Hot Shower, Priority Gazebo' }
         );
         mockDb.settings.push(
-            { id: 1, key: 'lodge_name', value: 'Kurichong Eco Lodge' },
-            { id: 2, key: 'lodge_location', value: 'Yelchen, Mongar, Bhutan' }
+            { id: 1, key: 'lodge_name', value: 'Mountain View Lodge' },
+            { id: 2, key: 'lodge_location', value: 'Mountain View' }
         );
         console.log('✅ Mock In-Memory Database initialized and seeded.');
     }
@@ -443,7 +423,6 @@ app.get('/api/:table', async (req, res) => {
     try {
         if (dbType === 'mock') {
             let list = [...mockDb[table]];
-            // Simple in-memory filtering
             for (const [key, val] of Object.entries(filters)) {
                 list = list.filter(item => item[key] == val);
             }
@@ -633,6 +612,6 @@ app.get('/api/config', (req, res) => {
 
 initDb().then(() => {
     app.listen(port, "0.0.0.0", () => {
-        console.log(` Kurichong Eco Lodge API server running on port ${port} [${dbType}]`);
+        console.log(` Mountain View Lodge API server running on port ${port} [${dbType}]`);
     });
 });

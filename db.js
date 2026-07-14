@@ -312,4 +312,4 @@ const db = {
     settings: new TableProxy('settings')
 };
 
-console.log("Kurichong Eco Lodge DB adapter initialized with local localStorage fallback support");
+console.log("Mountain View Lodge DB adapter initialized with local localStorage fallback support");
