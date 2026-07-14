@@ -3,7 +3,6 @@ if (loadDotenv) {
     require('dotenv').config();
 }
 const express = require('express');
-const { Pool } = require('pg');
 const cors = require('cors');
 const path = require('path');
 
@@ -16,312 +15,415 @@ app.use(express.static(__dirname)); // Serve frontend files
 
 const databaseUrl = process.env.DATABASE_URL;
 const isProduction = process.env.NODE_ENV === 'production';
-const disableDatabase = isProduction || process.env.DISABLE_DATABASE === 'true';
 const isLocalDatabase = databaseUrl && /localhost|127\.0\.0\.1|::1/.test(databaseUrl);
 
-let pool;
-if (!disableDatabase && databaseUrl && !isLocalDatabase) {
-    pool = new Pool({
-        connectionString: databaseUrl,
-        ssl: {
-            rejectUnauthorized: false
-        }
-    });
-    console.log('🔌 Using PostgreSQL pool from DATABASE_URL');
-} else {
-    if (disableDatabase) {
-        console.warn('⚠️ Database has been disabled for this deploy. Using mock PostgreSQL pool.');
-    } else if (!databaseUrl) {
-        console.warn('⚠️ DATABASE_URL is not defined. Using mock PostgreSQL pool.');
-    } else {
-        console.warn('⚠️ DATABASE_URL points to localhost or an invalid host. Using mock PostgreSQL pool for deploy safety.');
-    }
-    
-    // Demo data for mock pool
-    const demoUsers = [
-        { id: 1, username: 'admin', password: 'admin123', role: 'Admin', name: 'System Administrator' },
-        { id: 2, username: 'teacher', password: 'teacher123', role: 'Teacher', name: 'Demo Teacher' },
-        { id: 3, username: 'student', password: 'student123', role: 'Student', name: 'Demo Student' }
-    ];
-    
-    pool = {
-        query: async (sql, params) => {
-            // Return demo user data for login queries
-            if (sql.includes('SELECT') && sql.includes('users')) {
-                if (sql.includes('WHERE username = $1') && params && params[0]) {
-                    const user = demoUsers.find(u => u.username === params[0]);
-                    return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
-                }
-                return { rows: demoUsers, rowCount: demoUsers.length };
-            }
-            // Return empty rows for all other queries (mock data)
-            return { rows: [], rowCount: 0 };
-        },
-        on: () => {}
-    };
-}
+let dbType = 'mock'; // 'postgres' | 'sqlite' | 'mock'
+let pgPool = null;
+let sqliteDb = null;
 
-pool.on('connect', () => {
-    console.log('🐘 Connected to PostgreSQL (Render Database)');
-});
+// Mock database storage in memory as absolute fallback
+const mockDb = {
+    bookings: [],
+    rooms: [],
+    messages: [],
+    notifications: [],
+    users: [],
+    settings: []
+};
 
-
-pool.on('error', (err) => {
-    console.error('❌ PostgreSQL Pool Error:', err.message);
-});
-
-// Auto-create all tables on startup (PostgreSQL syntax)
-async function initDb() {
-    if (typeof pool.connect !== 'function') {
-        console.warn('⚠️ Mock pool – skipping DB initialization.');
-        return;
-    }
-    const client = await pool.connect();
+if (databaseUrl && !isLocalDatabase) {
     try {
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS students (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT UNIQUE,
-                name TEXT,
-                class TEXT,
-                gender TEXT,
-                parentContact TEXT
-            );
-            CREATE TABLE IF NOT EXISTS attendance (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                date TEXT,
-                status TEXT
-            );
-            CREATE TABLE IF NOT EXISTS fees (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                amount DECIMAL(10,2),
-                date TEXT,
-                type TEXT
-            );
-            CREATE TABLE IF NOT EXISTS marks (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                subject TEXT,
-                score INTEGER,
-                term TEXT,
-                year INTEGER
-            );
-            CREATE TABLE IF NOT EXISTS staff (
-                id SERIAL PRIMARY KEY,
-                staffId TEXT UNIQUE,
-                name TEXT,
-                role TEXT,
-                contact TEXT
-            );
-            CREATE TABLE IF NOT EXISTS subjects (
-                id SERIAL PRIMARY KEY,
-                name TEXT,
-                class TEXT,
-                teacherId TEXT
-            );
-            CREATE TABLE IF NOT EXISTS assets (
-                id SERIAL PRIMARY KEY,
-                name TEXT,
-                quantity INTEGER,
-                condition TEXT,
-                value DECIMAL(10,2),
-                purchaseDate TEXT
-            );
-            CREATE TABLE IF NOT EXISTS library (
-                id SERIAL PRIMARY KEY,
-                title TEXT,
-                ISBN TEXT,
-                author TEXT,
-                quantity INTEGER,
-                available INTEGER
-            );
-            CREATE TABLE IF NOT EXISTS bookLoans (
-                id SERIAL PRIMARY KEY,
-                bookId INTEGER,
-                studentId TEXT,
-                loanDate TEXT,
-                returnDate TEXT,
-                status TEXT
-            );
-            CREATE TABLE IF NOT EXISTS discipline (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                infraction TEXT,
-                date TEXT,
-                action TEXT,
-                severity TEXT
-            );
-            CREATE TABLE IF NOT EXISTS health (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                bloodGroup TEXT,
-                allergies TEXT,
-                emergencyContact TEXT,
-                status TEXT DEFAULT 'FIT',
-                lastCheckup TEXT
-            );
-            CREATE TABLE IF NOT EXISTS payroll (
-                id SERIAL PRIMARY KEY,
-                staffId TEXT,
-                month TEXT,
-                year INTEGER,
-                salary DECIMAL(10,2),
-                bonus DECIMAL(10,2),
-                deductions DECIMAL(10,2),
-                status TEXT
-            );
-            CREATE TABLE IF NOT EXISTS expenses (
-                id SERIAL PRIMARY KEY,
-                name TEXT,
-                amount DECIMAL(10,2),
-                category TEXT,
-                date TEXT
-            );
-            CREATE TABLE IF NOT EXISTS notices (
-                id SERIAL PRIMARY KEY,
-                title TEXT,
-                content TEXT,
-                date TEXT,
-                priority TEXT DEFAULT 'Medium'
-            );
-            CREATE TABLE IF NOT EXISTS hostels (
-                id SERIAL PRIMARY KEY,
-                name TEXT,
-                capacity INTEGER,
-                gender TEXT
-            );
-            CREATE TABLE IF NOT EXISTS hostelAssignments (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                hostelId INTEGER,
-                roomNo TEXT
-            );
-            CREATE TABLE IF NOT EXISTS transport (
-                id SERIAL PRIMARY KEY,
-                route TEXT,
-                busNo TEXT,
-                driver TEXT
-            );
-            CREATE TABLE IF NOT EXISTS transportAssignments (
-                id SERIAL PRIMARY KEY,
-                studentId TEXT,
-                routeId INTEGER
-            );
-            CREATE TABLE IF NOT EXISTS notifications (
-                id SERIAL PRIMARY KEY,
-                title TEXT,
-                message TEXT,
-                date TEXT,
-                type TEXT,
-                read INTEGER DEFAULT 0
-            );
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username TEXT UNIQUE,
-                password TEXT,
-                role TEXT,
-                name TEXT
-            );
-            CREATE TABLE IF NOT EXISTS public_settings (
-                id SERIAL PRIMARY KEY,
-                key TEXT UNIQUE,
-                value TEXT
-            );
-            CREATE TABLE IF NOT EXISTS public_achievements (
-                id SERIAL PRIMARY KEY,
-                category TEXT,
-                title TEXT,
-                content TEXT,
-                icon TEXT
-            );
-            CREATE TABLE IF NOT EXISTS public_curriculum (
-                id SERIAL PRIMARY KEY,
-                category TEXT,
-                icon TEXT,
-                description TEXT,
-                details TEXT
-            );
-            CREATE TABLE IF NOT EXISTS public_testimonials (
-                id SERIAL PRIMARY KEY,
-                name TEXT,
-                role TEXT,
-                quote TEXT,
-                emoji TEXT
-            );
-        `);
-
-        // Create default admin account
-        const adminRes = await client.query('SELECT id FROM users WHERE username = $1', ['admin']);
-        if (adminRes.rowCount === 0) {
-            await client.query('INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4)', ['admin', 'admin123', 'Admin', 'System Administrator']);
-            console.log('Default admin created: username=admin, password=admin123');
-        }
-
-        // Seed Public Dashboard Data
-        const settingsRes = await client.query('SELECT COUNT(*) as count FROM public_settings');
-        if (parseInt(settingsRes.rows[0].count) === 0) {
-            await client.query('INSERT INTO public_settings (key, value) VALUES ($1, $2)', ['countdown_title', 'Term 2 Admissions Open']);
-            await client.query('INSERT INTO public_settings (key, value) VALUES ($1, $2)', ['countdown_date', new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()]);
-            await client.query('INSERT INTO public_settings (key, value) VALUES ($1, $2)', ['weather_mock', '☀️ 24°C']);
-            await client.query('INSERT INTO public_settings (key, value) VALUES ($1, $2)', ['transport_status', '🚌 All Routes On Time']);
-        }
-
-        const achievementRes = await client.query('SELECT COUNT(*) as count FROM public_achievements');
-        if (parseInt(achievementRes.rows[0].count) === 0) {
-            const achievements = [
-                ['Academics', 'Sarah Jenkins', 'National Science Olympiad Winner 2025. Perfect score in Advanced Physics.', '🥇'],
-                ['Sports', 'Senior Boys Football', 'Regional Champions for three consecutive years (2023-2025).', '⚽'],
-                ['Arts', 'Drama Club', 'Awarded "Best Ensemble" at the National Schools Theatre Festival.', '🎭']
-            ];
-            for (const a of achievements) {
-                await client.query('INSERT INTO public_achievements (category, title, content, icon) VALUES ($1, $2, $3, $4)', a);
+        const { Pool } = require('pg');
+        pgPool = new Pool({
+            connectionString: databaseUrl,
+            ssl: {
+                rejectUnauthorized: false
             }
-        }
+        });
+        dbType = 'postgres';
+        console.log('🔌 Connected with PostgreSQL pool from DATABASE_URL');
 
-        const curriculumRes = await client.query('SELECT COUNT(*) as count FROM public_curriculum');
-        if (parseInt(curriculumRes.rows[0].count) === 0) {
-            const curriculum = [
-                ['STEM', '🧪', 'Science, Technology, Engineering & Math', 'Advanced Physics Lab, Robotics & AI Club, AP Calculus & Statistics, Environmental Science'],
-                ['Humanities', '📚', 'Languages, History & Social Sciences', 'World Literature, Modern European History, Psychology & Sociology, Model UN Debate Team'],
-                ['Creative Arts', '🎭', 'Fine Arts, Music & Performance', 'Digital Graphic Design, Classical & Jazz Orchestra, Theatre Production, 3D Sculpting Studio']
-            ];
-            for (const c of curriculum) {
-                await client.query('INSERT INTO public_curriculum (category, icon, description, details) VALUES ($1, $2, $3, $4)', c);
-            }
-        }
-
-        const testimonialRes = await client.query('SELECT COUNT(*) as count FROM public_testimonials');
-        if (parseInt(testimonialRes.rows[0].count) === 0) {
-            await client.query('INSERT INTO public_testimonials (name, role, quote, emoji) VALUES ($1, $2, $3, $4)', [
-                'Dr. Alistair Chen',
-                'Class of 2014 • Senior Lead Engineer, Quantum Compute',
-                'The foundation I received here didn\'t just teach me how to pass exams; it taught me how to think critically, innovate, and lead with empathy. It was the launchpad for my career in AI research.',
-                '🎓'
-            ]);
-        }
-
-        await client.query('COMMIT');
-        console.log('✅ Database initialized and seed data ready');
+        pgPool.on('error', (err) => {
+            console.error('❌ PostgreSQL Pool Error:', err.message);
+        });
     } catch (err) {
-        await client.query('ROLLBACK');
-        console.error('❌ Database initialization failed:', err.message);
-    } finally {
-        client.release();
+        console.error('❌ Failed to initialize PG connection:', err.message);
     }
 }
 
-initDb();
+if (dbType === 'mock') {
+    try {
+        const Database = require('better-sqlite3');
+        sqliteDb = new Database(path.join(__dirname, 'lodge.db'));
+        dbType = 'sqlite';
+        console.log('📦 Connected with local SQLite database (lodge.db)');
+    } catch (err) {
+        console.warn('⚠️ SQLite failed to load. Falling back to in-memory mock database.', err.message);
+        dbType = 'mock';
+    }
+}
 
-// Allowed tables for security
-const ALLOWED_TABLES = [
-    'students', 'attendance', 'fees', 'marks', 'staff', 'subjects', 'assets',
-    'library', 'bookLoans', 'discipline', 'health', 'payroll',
-    'expenses', 'notices', 'hostels', 'hostelAssignments', 'transport',
-    'transportAssignments', 'notifications', 'users',
-    'public_settings', 'public_achievements', 'public_curriculum', 'public_testimonials'
-];
+// Database helper
+async function dbQuery(sql, params = []) {
+    if (dbType === 'postgres') {
+        const res = await pgPool.query(sql, params);
+        return { rows: res.rows, rowCount: res.rowCount };
+    } else if (dbType === 'sqlite') {
+        // Convert PostgreSQL $1, $2, $3 style parameters to SQLite ?
+        let sqliteSql = sql.replace(/\$\d+/g, '?');
+
+        try {
+            if (sqliteSql.trim().toUpperCase().startsWith('SELECT')) {
+                const stmt = sqliteDb.prepare(sqliteSql);
+                const rows = stmt.all(params);
+                return { rows, rowCount: rows.length };
+            } else {
+                const stmt = sqliteDb.prepare(sqliteSql);
+                if (sqliteSql.toUpperCase().includes('RETURNING')) {
+                    const rows = stmt.all(params);
+                    return { rows, rowCount: rows.length };
+                } else {
+                    const info = stmt.run(params);
+                    // Mock RETURNING behavior by querying or returning id
+                    const lastId = info.lastInsertRowid;
+                    return { rows: [{ id: lastId }], rowCount: info.changes };
+                }
+            }
+        } catch (err) {
+            console.error('SQLite error:', err.message, 'SQL:', sqliteSql, 'Params:', params);
+            throw err;
+        }
+    } else {
+        // In-memory mock DB operations (very simple generic simulator)
+        return simulateMockQuery(sql, params);
+    }
+}
+
+function simulateMockQuery(sql, params) {
+    const query = sql.trim().toUpperCase();
+    
+    // Parse table name
+    let tableName = 'bookings';
+    for (const name of ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings']) {
+        if (query.includes(name.toUpperCase())) {
+            tableName = name;
+            break;
+        }
+    }
+    
+    const table = mockDb[tableName];
+
+    if (query.startsWith('SELECT')) {
+        // Check for specific row select
+        if (query.includes('WHERE USERNAME =') || query.includes('WHERE USERNAME=')) {
+            const username = params[0];
+            const rows = table.filter(r => r.username === username);
+            return { rows, rowCount: rows.length };
+        }
+        if (query.includes('WHERE ID =') || query.includes('WHERE ID=')) {
+            const id = params[0];
+            const rows = table.filter(r => r.id == id);
+            return { rows, rowCount: rows.length };
+        }
+        if (query.includes('WHERE KEY =') || query.includes('WHERE KEY=')) {
+            const key = params[0];
+            const rows = table.filter(r => r.key === key);
+            return { rows, rowCount: rows.length };
+        }
+        return { rows: [...table], rowCount: table.length };
+    } else if (query.startsWith('INSERT')) {
+        const item = { id: table.length + 1 };
+        // Very basic mock parsing of keys and values from sql (for seeding)
+        // In actual usage, req.body is processed by POST route which appends to mockDb directly
+        table.push(item);
+        return { rows: [item], rowCount: 1 };
+    } else if (query.startsWith('UPDATE')) {
+        return { rows: [], rowCount: 1 };
+    } else if (query.startsWith('DELETE')) {
+        return { rows: [], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+}
+
+// Auto-create and seed tables on startup
+async function initDb() {
+    console.log(`🔨 Initializing database schema on [${dbType}]`);
+
+    if (dbType === 'postgres') {
+        const client = await pgPool.connect();
+        try {
+            await client.query('BEGIN');
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS bookings (
+                    id SERIAL PRIMARY KEY,
+                    "bookingId" TEXT UNIQUE,
+                    "guestName" TEXT,
+                    "guestEmail" TEXT,
+                    "guestPhone" TEXT,
+                    "roomType" TEXT,
+                    "checkIn" TEXT,
+                    "checkOut" TEXT,
+                    "guests" INTEGER,
+                    "totalPrice" DECIMAL(10,2),
+                    "status" TEXT DEFAULT 'Pending',
+                    "specialRequests" TEXT,
+                    "createdAt" TEXT
+                );
+                CREATE TABLE IF NOT EXISTS rooms (
+                    id SERIAL PRIMARY KEY,
+                    "type" TEXT UNIQUE,
+                    "name" TEXT,
+                    "price" DECIMAL(10,2),
+                    "capacity" INTEGER,
+                    "totalRooms" INTEGER,
+                    "description" TEXT,
+                    "amenities" TEXT
+                );
+                CREATE TABLE IF NOT EXISTS messages (
+                    id SERIAL PRIMARY KEY,
+                    "name" TEXT,
+                    "email" TEXT,
+                    "phone" TEXT,
+                    "subject" TEXT,
+                    "message" TEXT,
+                    "date" TEXT,
+                    "status" TEXT DEFAULT 'Unread'
+                );
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id SERIAL PRIMARY KEY,
+                    "title" TEXT,
+                    "message" TEXT,
+                    "date" TEXT,
+                    "type" TEXT,
+                    "read" INTEGER DEFAULT 0
+                );
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    "username" TEXT UNIQUE,
+                    "password" TEXT,
+                    "role" TEXT,
+                    "name" TEXT
+                );
+                CREATE TABLE IF NOT EXISTS settings (
+                    id SERIAL PRIMARY KEY,
+                    "key" TEXT UNIQUE,
+                    "value" TEXT
+                );
+            `);
+
+            // Seed default admin account
+            const adminRes = await client.query('SELECT id FROM users WHERE username = $1', ['admin']);
+            if (adminRes.rowCount === 0) {
+                await client.query('INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4)', ['admin', 'admin123', 'Admin', 'Kurichong Admin']);
+                console.log('Default admin seeded.');
+            }
+
+            // Seed rooms
+            const roomRes = await client.query('SELECT COUNT(*) as count FROM rooms');
+            if (parseInt(roomRes.rows[0].count) === 0) {
+                await client.query(`
+                    INSERT INTO rooms ("type", "name", "price", "capacity", "totalRooms", "description", "amenities") VALUES
+                    ('standard', 'Standard Room', 2500.00, 2, 5, 'A cozy retreat featuring comfortable interiors, locally inspired artwork, and all essential modern conveniences for solo travelers or couples.', 'Attached Bathroom, Hot Water Shower, Free High-Speed Wi-Fi, Writing Desk, Daily Housekeeping'),
+                    ('deluxe', 'Deluxe Room', 3500.00, 3, 5, 'Spacious, elegant room with handcrafted wooden accents and a private balcony overlooking the breathtaking Kurichhu River and the pristine Yelchen valley.', 'Private Balcony, Scenic River View, King-Size Bed, Smart LED TV, Coffee/Tea Maker, High-Speed Wi-Fi'),
+                    ('executive', 'Executive Suite', 5500.00, 4, 2, 'Our premier accommodation boasting luxurious traditional Bhutanese woodwork, a grand separate living area, a private viewing deck, and deluxe custom services.', 'Separate Living Lounge, Private Viewing Deck, Premium King Bed, Traditional Wood Stove Setup, In-Suite Hot Stone Tub access, Espresso Bar')
+                `);
+                console.log('Room categories seeded.');
+            }
+
+            // Seed default settings
+            const settingsRes = await client.query('SELECT COUNT(*) as count FROM settings');
+            if (parseInt(settingsRes.rows[0].count) === 0) {
+                await client.query(`
+                    INSERT INTO settings ("key", "value") VALUES
+                    ('lodge_name', 'Kurichong Eco Lodge'),
+                    ('lodge_location', 'Yelchen, Mongar, Bhutan'),
+                    ('lodge_phone', '+975 17730113 / +975 77730113'),
+                    ('lodge_email', 'kurichongecolodge@gmail.com')
+                `);
+                console.log('Lodge settings seeded.');
+            }
+
+            // Seed some mock bookings
+            const bookingsRes = await client.query('SELECT COUNT(*) as count FROM bookings');
+            if (parseInt(bookingsRes.rows[0].count) === 0) {
+                const today = new Date();
+                const d1 = new Date(today); d1.setDate(today.getDate() + 2);
+                const d2 = new Date(today); d2.setDate(today.getDate() + 5);
+                const d3 = new Date(today); d3.setDate(today.getDate() - 4);
+                const d4 = new Date(today); d4.setDate(today.getDate() - 1);
+
+                await client.query(`
+                    INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES
+                    ('KEL-2026-0041', 'Tashi Dorji', 'tashi@gmail.com', '+975 17112233', 'deluxe', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 10500.00, 'Confirmed', 'Requesting top floor balcony.', '${new Date().toISOString()}'),
+                    ('KEL-2026-0028', 'Dr. Alistair Chen', 'achen@quantcompute.com', '+1 (555) 381-0192', 'executive', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 3, 16500.00, 'Confirmed', 'Arranged for traditional Hot Stone Bath.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                    ('KEL-2026-0099', 'Dechen Wangmo', 'dechen@outlook.com', '+975 77123456', 'standard', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 1, 5000.00, 'Pending', 'Vegetarian meals during stay.', '${new Date().toISOString()}')
+                `);
+                console.log('Mock bookings seeded.');
+            }
+
+            // Seed some mock feedback messages
+            const messagesRes = await client.query('SELECT COUNT(*) as count FROM messages');
+            if (parseInt(messagesRes.rows[0].count) === 0) {
+                await client.query(`
+                    INSERT INTO messages ("name", "email", "phone", "subject", "message", "date", "status") VALUES
+                    ('Pema Lhaden', 'pema.l@gmail.com', '+975 17543210', 'Hot Stone Bath Inquiry', 'Hello, do we need to book the traditional hot stone bath in advance, or can we request it upon arrival? Thank you!', '${new Date().toISOString()}', 'Unread'),
+                    ('Robert Miller', 'rmiller@yahoo.com', '+44 7911 123456', 'Rafting Availability', 'We are planning a visit next month and would love to experience river rafting on the Kurichhu. Are guided rafting sessions available daily?', '${new Date().toISOString()}', 'Unread')
+                `);
+                console.log('Mock messages seeded.');
+            }
+
+            await client.query('COMMIT');
+            console.log('✅ PostgreSQL schema and seed data initialized successfully.');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('❌ Failed to initialize database schema in PostgreSQL:', err.message);
+        } finally {
+            client.release();
+        }
+    } else if (dbType === 'sqlite') {
+        try {
+            // Create tables
+            sqliteDb.exec(`
+                CREATE TABLE IF NOT EXISTS bookings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    bookingId TEXT UNIQUE,
+                    guestName TEXT,
+                    guestEmail TEXT,
+                    guestPhone TEXT,
+                    roomType TEXT,
+                    checkIn TEXT,
+                    checkOut TEXT,
+                    guests INTEGER,
+                    totalPrice DECIMAL(10,2),
+                    status TEXT DEFAULT 'Pending',
+                    specialRequests TEXT,
+                    createdAt TEXT
+                );
+                CREATE TABLE IF NOT EXISTS rooms (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    type TEXT UNIQUE,
+                    name TEXT,
+                    price DECIMAL(10,2),
+                    capacity INTEGER,
+                    totalRooms INTEGER,
+                    description TEXT,
+                    amenities TEXT
+                );
+                CREATE TABLE IF NOT EXISTS messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    email TEXT,
+                    phone TEXT,
+                    subject TEXT,
+                    message TEXT,
+                    date TEXT,
+                    status TEXT DEFAULT 'Unread'
+                );
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT,
+                    message TEXT,
+                    date TEXT,
+                    type TEXT,
+                    read INTEGER DEFAULT 0
+                );
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE,
+                    password TEXT,
+                    role TEXT,
+                    name TEXT
+                );
+                CREATE TABLE IF NOT EXISTS settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    key TEXT UNIQUE,
+                    value TEXT
+                );
+            `);
+
+            // Seed default admin user
+            const adminCheck = sqliteDb.prepare('SELECT id FROM users WHERE username = ?').get('admin');
+            if (!adminCheck) {
+                sqliteDb.prepare('INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)').run('admin', 'admin123', 'Admin', 'Kurichong Admin');
+                console.log('Default SQLite admin seeded.');
+            }
+
+            // Seed rooms
+            const roomCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM rooms').get();
+            if (roomCheck.count === 0) {
+                sqliteDb.exec(`
+                    INSERT INTO rooms (type, name, price, capacity, totalRooms, description, amenities) VALUES
+                    ('standard', 'Standard Room', 2500.00, 2, 5, 'A cozy retreat featuring comfortable interiors, locally inspired artwork, and all essential modern conveniences for solo travelers or couples.', 'Attached Bathroom, Hot Water Shower, Free High-Speed Wi-Fi, Writing Desk, Daily Housekeeping'),
+                    ('deluxe', 'Deluxe Room', 3500.00, 3, 5, 'Spacious, elegant room with handcrafted wooden accents and a private balcony overlooking the breathtaking Kurichhu River and the pristine Yelchen valley.', 'Private Balcony, Scenic River View, King-Size Bed, Smart LED TV, Coffee/Tea Maker, High-Speed Wi-Fi'),
+                    ('executive', 'Executive Suite', 5500.00, 4, 2, 'Our premier accommodation boasting luxurious traditional Bhutanese woodwork, a grand separate living area, a private viewing deck, and deluxe custom services.', 'Separate Living Lounge, Private Viewing Deck, Premium King Bed, Traditional Wood Stove Setup, In-Suite Hot Stone Tub access, Espresso Bar')
+                `);
+                console.log('SQLite Room categories seeded.');
+            }
+
+            // Seed settings
+            const settingsCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM settings').get();
+            if (settingsCheck.count === 0) {
+                sqliteDb.exec(`
+                    INSERT INTO settings (key, value) VALUES
+                    ('lodge_name', 'Kurichong Eco Lodge'),
+                    ('lodge_location', 'Yelchen, Mongar, Bhutan'),
+                    ('lodge_phone', '+975 17730113 / +975 77730113'),
+                    ('lodge_email', 'kurichongecolodge@gmail.com')
+                `);
+                console.log('SQLite Lodge settings seeded.');
+            }
+
+            // Seed mock bookings
+            const bookingsCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM bookings').get();
+            if (bookingsCheck.count === 0) {
+                const today = new Date();
+                const d1 = new Date(today); d1.setDate(today.getDate() + 2);
+                const d2 = new Date(today); d2.setDate(today.getDate() + 5);
+                const d3 = new Date(today); d3.setDate(today.getDate() - 4);
+                const d4 = new Date(today); d4.setDate(today.getDate() - 1);
+
+                sqliteDb.exec(`
+                    INSERT INTO bookings (bookingId, guestName, guestEmail, guestPhone, roomType, checkIn, checkOut, guests, totalPrice, status, specialRequests, createdAt) VALUES
+                    ('KEL-2026-0041', 'Tashi Dorji', 'tashi@gmail.com', '+975 17112233', 'deluxe', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 10500.00, 'Confirmed', 'Requesting top floor balcony.', '${new Date().toISOString()}'),
+                    ('KEL-2026-0028', 'Dr. Alistair Chen', 'achen@quantcompute.com', '+1 (555) 381-0192', 'executive', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 3, 16500.00, 'Confirmed', 'Arranged for traditional Hot Stone Bath.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                    ('KEL-2026-0099', 'Dechen Wangmo', 'dechen@outlook.com', '+975 77123456', 'standard', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 1, 5000.00, 'Pending', 'Vegetarian meals during stay.', '${new Date().toISOString()}')
+                `);
+                console.log('SQLite Mock bookings seeded.');
+            }
+
+            // Seed mock messages
+            const messagesCheck = sqliteDb.prepare('SELECT COUNT(*) as count FROM messages').get();
+            if (messagesCheck.count === 0) {
+                sqliteDb.exec(`
+                    INSERT INTO messages (name, email, phone, subject, message, date, status) VALUES
+                    ('Pema Lhaden', 'pema.l@gmail.com', '+975 17543210', 'Hot Stone Bath Inquiry', 'Hello, do we need to book the traditional hot stone bath in advance, or can we request it upon arrival? Thank you!', '${new Date().toISOString()}', 'Unread'),
+                    ('Robert Miller', 'rmiller@yahoo.com', '+44 7911 123456', 'Rafting Availability', 'We are planning a visit next month and would love to experience river rafting on the Kurichhu. Are guided rafting sessions available daily?', '${new Date().toISOString()}', 'Unread')
+                `);
+                console.log('SQLite Mock messages seeded.');
+            }
+
+            console.log('✅ SQLite schema and seed data initialized successfully.');
+        } catch (err) {
+            console.error('❌ Failed to initialize SQLite database:', err.message);
+        }
+    } else {
+        // Mock in-memory database seeding
+        mockDb.users.push({ id: 1, username: 'admin', password: 'admin123', role: 'Admin', name: 'Kurichong Admin' });
+        mockDb.rooms.push(
+            { id: 1, type: 'standard', name: 'Standard Room', price: 2500, capacity: 2, totalRooms: 5, description: 'Cozy eco-retreat', amenities: 'Attached Bath, Hot Shower, Wi-Fi' },
+            { id: 2, type: 'deluxe', name: 'Deluxe Room', price: 3500, capacity: 3, totalRooms: 5, description: 'River view and balcony', amenities: 'Balcony, View, Wi-Fi' },
+            { id: 3, type: 'executive', name: 'Executive Suite', price: 5500, capacity: 4, totalRooms: 2, description: 'Luxury suite', amenities: 'Living Lounge, View, Espresso' }
+        );
+        mockDb.settings.push(
+            { id: 1, key: 'lodge_name', value: 'Kurichong Eco Lodge' },
+            { id: 2, key: 'lodge_location', value: 'Yelchen, Mongar, Bhutan' }
+        );
+        console.log('✅ Mock In-Memory Database initialized and seeded.');
+    }
+}
+
+// Allowed tables for general API safety
+const ALLOWED_TABLES = ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings'];
 
 function validateTable(table, res) {
     if (!ALLOWED_TABLES.includes(table)) {
@@ -331,7 +433,7 @@ function validateTable(table, res) {
     return true;
 }
 
-// GET all rows with optional filter params
+// REST endpoints: GET all rows with query string filters
 app.get('/api/:table', async (req, res) => {
     const { table } = req.params;
     if (!validateTable(table, res)) return;
@@ -339,21 +441,42 @@ app.get('/api/:table', async (req, res) => {
     const { _sort, _order, _limit, ...filters } = req.query;
 
     try {
+        if (dbType === 'mock') {
+            let list = [...mockDb[table]];
+            // Simple in-memory filtering
+            for (const [key, val] of Object.entries(filters)) {
+                list = list.filter(item => item[key] == val);
+            }
+            if (_sort) {
+                list.sort((a, b) => {
+                    const valA = a[_sort];
+                    const valB = b[_sort];
+                    if (valA < valB) return _order === 'desc' ? 1 : -1;
+                    if (valA > valB) return _order === 'desc' ? -1 : 1;
+                    return 0;
+                });
+            }
+            if (_limit) {
+                list = list.slice(0, parseInt(_limit));
+            }
+            return res.json(list);
+        }
+
         let sql = `SELECT * FROM ${table}`;
         const values = [];
         const conditions = [];
 
         let i = 1;
         for (const [key, value] of Object.entries(filters)) {
-            conditions.push(`${key} = $${i++}`);
+            conditions.push(`"${key}" = $${i++}`);
             values.push(value);
         }
         
         if (conditions.length > 0) sql += ' WHERE ' + conditions.join(' AND ');
-        if (_sort) sql += ` ORDER BY ${_sort} ${(_order || 'ASC').toUpperCase()}`;
+        if (_sort) sql += ` ORDER BY "${_sort}" ${(_order || 'ASC').toUpperCase()}`;
         if (_limit) sql += ` LIMIT ${parseInt(_limit)}`;
 
-        const result = await pool.query(sql, values);
+        const result = await dbQuery(sql, values);
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
@@ -361,12 +484,18 @@ app.get('/api/:table', async (req, res) => {
     }
 });
 
-// GET single row by id
+// REST endpoints: GET single row by id
 app.get('/api/:table/:id', async (req, res) => {
     const { table, id } = req.params;
     if (!validateTable(table, res)) return;
     try {
-        const result = await pool.query(`SELECT * FROM ${table} WHERE id = $1`, [id]);
+        if (dbType === 'mock') {
+            const item = mockDb[table].find(r => r.id == id);
+            if (!item) return res.status(404).json({ error: 'Not found' });
+            return res.json(item);
+        }
+
+        const result = await dbQuery(`SELECT * FROM ${table} WHERE id = $1`, [id]);
         if (result.rowCount === 0) return res.status(404).json({ error: 'Not found' });
         res.json(result.rows[0]);
     } catch (err) {
@@ -374,31 +503,50 @@ app.get('/api/:table/:id', async (req, res) => {
     }
 });
 
-// POST single or bulk insert
+// REST endpoints: POST single or bulk insert
 app.post('/api/:table', async (req, res) => {
     const { table } = req.params;
     if (!validateTable(table, res)) return;
 
     try {
         const data = req.body;
+
+        if (dbType === 'mock') {
+            if (Array.isArray(data)) {
+                const results = [];
+                for (const item of data) {
+                    const newItem = { id: mockDb[table].length + 1, ...item };
+                    mockDb[table].push(newItem);
+                    results.push(newItem);
+                }
+                return res.status(201).json(results);
+            } else {
+                const newItem = { id: mockDb[table].length + 1, ...data };
+                mockDb[table].push(newItem);
+                return res.status(201).json(newItem);
+            }
+        }
+
         if (Array.isArray(data)) {
             const insertedRows = [];
             for (const item of data) {
                 const keys = Object.keys(item);
                 const values = Object.values(item);
+                const quotedKeys = keys.map(k => `"${k}"`).join(', ');
                 const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
-                const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING *`;
-                const result = await pool.query(sql, values);
+                const sql = `INSERT INTO ${table} (${quotedKeys}) VALUES (${placeholders}) RETURNING *`;
+                const result = await dbQuery(sql, values);
                 insertedRows.push(result.rows[0]);
             }
             res.status(201).json(insertedRows);
         } else {
             const keys = Object.keys(data);
             const values = Object.values(data);
+            const quotedKeys = keys.map(k => `"${k}"`).join(', ');
             const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
-            const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING *`;
-            const result = await pool.query(sql, values);
-            res.status(201).json(result.rows[0]);
+            const sql = `INSERT INTO ${table} (${quotedKeys}) VALUES (${placeholders}) RETURNING *`;
+            const result = await dbQuery(sql, values);
+            res.status(201).json(result.rows[0] || { id: result.rows[0]?.id || 1, ...data });
         }
     } catch (err) {
         console.error(err.message);
@@ -406,44 +554,85 @@ app.post('/api/:table', async (req, res) => {
     }
 });
 
-// PUT update single row by id
+// REST endpoints: PUT update single row by id
 app.put('/api/:table/:id', async (req, res) => {
     const { table, id } = req.params;
     if (!validateTable(table, res)) return;
     try {
         const data = req.body;
+
+        if (dbType === 'mock') {
+            const idx = mockDb[table].findIndex(r => r.id == id);
+            if (idx === -1) return res.status(404).json({ error: 'Not found' });
+            mockDb[table][idx] = { ...mockDb[table][idx], ...data };
+            return res.json(mockDb[table][idx]);
+        }
+
         const keys = Object.keys(data);
         const values = Object.values(data);
-        const setClause = keys.map((k, i) => `${k} = $${i + 1}`).join(', ');
+        const setClause = keys.map((k, i) => `"${k}" = $${i + 1}`).join(', ');
         
         const sql = `UPDATE ${table} SET ${setClause} WHERE id = $${keys.length + 1} RETURNING *`;
-        const result = await pool.query(sql, [...values, id]);
-        res.json(result.rows[0]);
+        const result = await dbQuery(sql, [...values, id]);
+        res.json(result.rows[0] || { id, ...data });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// DELETE single row by id
+// REST endpoints: DELETE single row by id
 app.delete('/api/:table/:id', async (req, res) => {
     const { table, id } = req.params;
     if (!validateTable(table, res)) return;
     try {
-        await pool.query(`DELETE FROM ${table} WHERE id = $1`, [id]);
+        if (dbType === 'mock') {
+            const idx = mockDb[table].findIndex(r => r.id == id);
+            if (idx === -1) return res.status(404).json({ error: 'Not found' });
+            mockDb[table].splice(idx, 1);
+            return res.json({ message: 'Deleted' });
+        }
+
+        await dbQuery(`DELETE FROM ${table} WHERE id = $1`, [id]);
         res.json({ message: 'Deleted' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Config route for frontend
+// Auth endpoint: Quick simulated admin session login
+app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        if (dbType === 'mock') {
+            const user = mockDb.users.find(u => u.username === username && u.password === password);
+            if (user) {
+                return res.json({ success: true, user: { username: user.username, name: user.name, role: user.role } });
+            }
+            return res.status(401).json({ success: false, error: 'Invalid username or password' });
+        }
+
+        const result = await dbQuery('SELECT * FROM users WHERE "username" = $1 AND "password" = $2', [username, password]);
+        if (result.rowCount > 0) {
+            const user = result.rows[0];
+            res.json({ success: true, user: { username: user.username, name: user.name, role: user.role } });
+        } else {
+            res.status(401).json({ success: false, error: 'Invalid username or password' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Config route for frontend compatibility
 app.get('/api/config', (req, res) => {
     res.json({
-        database: 'PostgreSQL',
+        database: dbType,
         initialized: true
     });
 });
 
-app.listen(port, "0.0.0.0", () => {
-    console.log(`Egles SMIS server running on port ${port}`);
+initDb().then(() => {
+    app.listen(port, "0.0.0.0", () => {
+        console.log(` Kurichong Eco Lodge API server running on port ${port} [${dbType}]`);
+    });
 });

@@ -1,0 +1,5 @@
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+📦 Connected with local SQLite database (lodge.db)
+🔨 Initializing database schema on [sqlite]
+✅ SQLite schema and seed data initialized successfully.
+ Kurichong Eco Lodge API server running on port 3000 [sqlite]

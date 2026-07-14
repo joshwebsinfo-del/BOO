@@ -1,166 +1,41 @@
--- Egles SMIS Database Schema
+-- Kurichong Eco Lodge Database Schema
 
-CREATE TABLE IF NOT EXISTS "students" (
+CREATE TABLE IF NOT EXISTS "bookings" (
     id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100) UNIQUE,
+    "bookingId" VARCHAR(100) UNIQUE,
+    "guestName" VARCHAR(255),
+    "guestEmail" VARCHAR(255),
+    "guestPhone" VARCHAR(100),
+    "roomType" VARCHAR(100),
+    "checkIn" VARCHAR(100),
+    "checkOut" VARCHAR(100),
+    "guests" INTEGER,
+    "totalPrice" DECIMAL(10,2),
+    "status" VARCHAR(100) DEFAULT 'Pending',
+    "specialRequests" TEXT,
+    "createdAt" VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS "rooms" (
+    id SERIAL PRIMARY KEY,
+    "type" VARCHAR(100) UNIQUE,
     "name" VARCHAR(255),
-    "class" VARCHAR(100),
-    "gender" VARCHAR(50),
-    "parentContact" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "attendance" (
-    id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "date" VARCHAR(100),
-    "status" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "fees" (
-    id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "amount" DECIMAL(10,2),
-    "date" VARCHAR(100),
-    "type" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "marks" (
-    id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "subject" VARCHAR(100),
-    "score" INTEGER,
-    "term" VARCHAR(100),
-    "year" INTEGER
-);
-
-CREATE TABLE IF NOT EXISTS "staff" (
-    id SERIAL PRIMARY KEY,
-    "staffId" VARCHAR(100) UNIQUE,
-    "name" VARCHAR(255),
-    "role" VARCHAR(100),
-    "contact" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "subjects" (
-    id SERIAL PRIMARY KEY,
-    "name" VARCHAR(255),
-    "class" VARCHAR(100),
-    "teacherId" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "assets" (
-    id SERIAL PRIMARY KEY,
-    "name" VARCHAR(255),
-    "quantity" INTEGER,
-    "condition" VARCHAR(100),
-    "value" DECIMAL(10,2),
-    "purchaseDate" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "timetable" (
-    id SERIAL PRIMARY KEY,
-    "class" VARCHAR(100),
-    "day" VARCHAR(100),
-    "period" VARCHAR(100),
-    "subject" VARCHAR(255),
-    "teacherId" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "library" (
-    id SERIAL PRIMARY KEY,
-    "title" VARCHAR(255),
-    "ISBN" VARCHAR(100),
-    "author" VARCHAR(255),
-    "quantity" INTEGER,
-    "available" INTEGER
-);
-
-CREATE TABLE IF NOT EXISTS "bookLoans" (
-    id SERIAL PRIMARY KEY,
-    "bookId" INTEGER,
-    "studentId" VARCHAR(100),
-    "loanDate" VARCHAR(100),
-    "returnDate" VARCHAR(100),
-    "status" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "discipline" (
-    id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "infraction" TEXT,
-    "date" VARCHAR(100),
-    "action" TEXT,
-    "severity" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "health" (
-    id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "bloodGroup" VARCHAR(50),
-    "allergies" TEXT,
-    "emergencyContact" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "payroll" (
-    id SERIAL PRIMARY KEY,
-    "staffId" VARCHAR(100),
-    "month" VARCHAR(50),
-    "year" INTEGER,
-    "salary" DECIMAL(10,2),
-    "bonus" DECIMAL(10,2),
-    "deductions" DECIMAL(10,2),
-    "status" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "pos" (
-    id SERIAL PRIMARY KEY,
-    "itemName" VARCHAR(255),
     "price" DECIMAL(10,2),
-    "quantity" INTEGER,
-    "date" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "expenses" (
-    id SERIAL PRIMARY KEY,
-    "name" VARCHAR(255),
-    "amount" DECIMAL(10,2),
-    "category" VARCHAR(100),
-    "date" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "notices" (
-    id SERIAL PRIMARY KEY,
-    "title" VARCHAR(255),
-    "content" TEXT,
-    "date" VARCHAR(100),
-    "expiry" VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS "hostels" (
-    id SERIAL PRIMARY KEY,
-    "name" VARCHAR(255),
     "capacity" INTEGER,
-    "gender" VARCHAR(50)
+    "totalRooms" INTEGER,
+    "description" TEXT,
+    "amenities" TEXT
 );
 
-CREATE TABLE IF NOT EXISTS "hostelAssignments" (
+CREATE TABLE IF NOT EXISTS "messages" (
     id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "hostelId" INTEGER,
-    "roomNo" VARCHAR(50)
-);
-
-CREATE TABLE IF NOT EXISTS "transport" (
-    id SERIAL PRIMARY KEY,
-    "route" VARCHAR(255),
-    "busNo" VARCHAR(100),
-    "driver" VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS "transportAssignments" (
-    id SERIAL PRIMARY KEY,
-    "studentId" VARCHAR(100),
-    "routeId" INTEGER
+    "name" VARCHAR(255),
+    "email" VARCHAR(255),
+    "phone" VARCHAR(100),
+    "subject" VARCHAR(255),
+    "message" TEXT,
+    "date" VARCHAR(100),
+    "status" VARCHAR(100) DEFAULT 'Unread'
 );
 
 CREATE TABLE IF NOT EXISTS "notifications" (
@@ -169,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "notifications" (
     "message" TEXT,
     "date" VARCHAR(100),
     "type" VARCHAR(100),
-    "read" INTEGER
+    "read" INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS "users" (
@@ -178,4 +53,10 @@ CREATE TABLE IF NOT EXISTS "users" (
     "password" VARCHAR(255),
     "role" VARCHAR(100),
     "name" VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS "settings" (
+    id SERIAL PRIMARY KEY,
+    "key" VARCHAR(255) UNIQUE,
+    "value" TEXT
 );

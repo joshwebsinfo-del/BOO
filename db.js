@@ -38,26 +38,56 @@ class QueryBuilder {
     }
 
     async toArray() {
-        const params = { ...this.conditions };
-        if (this.isReverse) {
-            params._sort = 'id';
-            params._order = 'desc';
-        }
-        if (this.limitCount) {
-            params._limit = this.limitCount;
-        }
+        // Fallback to localStorage if API fails or is pure static Page
+        try {
+            const params = { ...this.conditions };
+            if (this.isReverse) {
+                params._sort = 'id';
+                params._order = 'desc';
+            }
+            if (this.limitCount) {
+                params._limit = this.limitCount;
+            }
 
-        const queryStr = new URLSearchParams(params).toString();
-        const res = await fetch(`${API_URL}/${this.tableName}?${queryStr}`);
-        let data = await res.json();
+            const queryStr = new URLSearchParams(params).toString();
+            const res = await fetch(`${API_URL}/${this.tableName}?${queryStr}`);
+            if (!res.ok) throw new Error('API server unreachable');
+            let data = await res.json();
+
+            if (this.filterFunc) {
+                data = data.filter(this.filterFunc);
+            }
+
+            if (db[this.tableName] && db[this.tableName].normalize) {
+                data = data.map(item => db[this.tableName].normalize(item));
+            }
+
+            return data;
+        } catch (err) {
+            console.warn(`⚠️ db.js query fallback for [${this.tableName}] using localStorage:`, err.message);
+            return this.toArrayLocal();
+        }
+    }
+
+    toArrayLocal() {
+        const localKey = `lodge_db_${this.tableName}`;
+        let data = JSON.parse(localStorage.getItem(localKey) || '[]');
+
+        // Filter by conditions
+        for (const [k, val] of Object.entries(this.conditions)) {
+            data = data.filter(item => item[k] == val);
+        }
 
         if (this.filterFunc) {
             data = data.filter(this.filterFunc);
         }
 
-        // Normalize rows if table exists in db
-        if (db[this.tableName] && db[this.tableName].normalize) {
-            data = data.map(item => db[this.tableName].normalize(item));
+        if (this.isReverse) {
+            data.reverse();
+        }
+
+        if (this.limitCount) {
+            data = data.slice(0, this.limitCount);
         }
 
         return data;
@@ -129,50 +159,116 @@ class TableProxy {
                 row[key] = null;
             }
         }
-
-        // Handle PostgreSQL lowercase column names (Reverse Mapping)
-        if (row.studentid !== undefined && row.studentId === undefined) row.studentId = row.studentid;
-        if (row.staffid !== undefined && row.staffId === undefined) row.staffId = row.staffid;
-        if (row.teacherid !== undefined && row.teacherId === undefined) row.teacherId = row.teacherid;
-        if (row.hostelid !== undefined && row.hostelId === undefined) row.hostelId = row.hostelid;
-        if (row.routeid !== undefined && row.routeId === undefined) row.routeId = row.routeid;
-        if (row.parentcontact !== undefined && row.parentContact === undefined) row.parentContact = row.parentcontact;
         
+        // Handle lower-case column mapping from Postgres
+        if (row.bookingid !== undefined && row.bookingId === undefined) row.bookingId = row.bookingid;
+        if (row.guestname !== undefined && row.guestName === undefined) row.guestName = row.guestname;
+        if (row.guestemail !== undefined && row.guestEmail === undefined) row.guestEmail = row.guestemail;
+        if (row.guestphone !== undefined && row.guestPhone === undefined) row.guestPhone = row.guestphone;
+        if (row.roomtype !== undefined && row.roomType === undefined) row.roomType = row.roomtype;
+        if (row.checkin !== undefined && row.checkIn === undefined) row.checkIn = row.checkin;
+        if (row.checkout !== undefined && row.checkOut === undefined) row.checkOut = row.checkout;
+        if (row.totalprice !== undefined && row.totalPrice === undefined) row.totalPrice = row.totalprice;
+        if (row.specialrequests !== undefined && row.specialRequests === undefined) row.specialRequests = row.specialrequests;
+        if (row.createdat !== undefined && row.createdAt === undefined) row.createdAt = row.createdat;
+        if (row.totalrooms !== undefined && row.totalRooms === undefined) row.totalRooms = row.totalrooms;
+
         return row;
     }
 
     async get(id) {
-        // First try to find in cache
-        if (this.cache) {
-            const found = this.cache.find(item => item.id == id);
-            if (found) return found;
-        }
+        try {
+            if (this.cache) {
+                const found = this.cache.find(item => item.id == id);
+                if (found) return found;
+            }
 
-        const res = await fetch(`${API_URL}/${this.tableName}/${id}`);
-        if (!res.ok) return undefined;
-        const row = await res.json();
-        return this.normalize(row);
+            const res = await fetch(`${API_URL}/${this.tableName}/${id}`);
+            if (!res.ok) throw new Error('API unreachable');
+            const row = await res.json();
+            return this.normalize(row);
+        } catch (err) {
+            const list = JSON.parse(localStorage.getItem(`lodge_db_${this.tableName}`) || '[]');
+            const found = list.find(item => item.id == id);
+            return found ? this.normalize(found) : undefined;
+        }
     }
 
     async add(data) {
         this.clearCache();
-        const res = await fetch(`${API_URL}/${this.tableName}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        return await res.json();
+        try {
+            const res = await fetch(`${API_URL}/${this.tableName}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error('API write failed');
+            const row = await res.json();
+
+            // Sync to local storage
+            this.syncLocalAdd(this.normalize(row));
+            return this.normalize(row);
+        } catch (err) {
+            // Local fallback
+            const localKey = `lodge_db_${this.tableName}`;
+            const list = JSON.parse(localStorage.getItem(localKey) || '[]');
+            const newItem = { id: list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1, ...data };
+            list.push(newItem);
+            localStorage.setItem(localKey, JSON.stringify(list));
+            return this.normalize(newItem);
+        }
+    }
+
+    syncLocalAdd(row) {
+        const localKey = `lodge_db_${this.tableName}`;
+        const list = JSON.parse(localStorage.getItem(localKey) || '[]');
+        if (!list.some(item => item.id == row.id)) {
+            list.push(row);
+            localStorage.setItem(localKey, JSON.stringify(list));
+        }
     }
 
     async put(data) {
         this.clearCache();
         if (!data.id) return this.add(data);
-        const res = await fetch(`${API_URL}/${this.tableName}/${data.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        return await res.json();
+
+        try {
+            const res = await fetch(`${API_URL}/${this.tableName}/${data.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error('API write failed');
+            const row = await res.json();
+
+            // Sync to local storage
+            this.syncLocalPut(this.normalize(row));
+            return this.normalize(row);
+        } catch (err) {
+            // Local fallback
+            const localKey = `lodge_db_${this.tableName}`;
+            let list = JSON.parse(localStorage.getItem(localKey) || '[]');
+            const idx = list.findIndex(item => item.id == data.id);
+            if (idx !== -1) {
+                list[idx] = data;
+            } else {
+                list.push(data);
+            }
+            localStorage.setItem(localKey, JSON.stringify(list));
+            return this.normalize(data);
+        }
+    }
+
+    syncLocalPut(row) {
+        const localKey = `lodge_db_${this.tableName}`;
+        let list = JSON.parse(localStorage.getItem(localKey) || '[]');
+        const idx = list.findIndex(item => item.id == row.id);
+        if (idx !== -1) {
+            list[idx] = row;
+        } else {
+            list.push(row);
+        }
+        localStorage.setItem(localKey, JSON.stringify(list));
     }
 
     async update(id, changes) {
@@ -183,7 +279,18 @@ class TableProxy {
 
     async delete(id) {
         this.clearCache();
-        await fetch(`${API_URL}/${this.tableName}/${id}`, { method: 'DELETE' });
+        try {
+            const res = await fetch(`${API_URL}/${this.tableName}/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('API delete failed');
+        } catch (err) {
+            console.warn(`⚠️ Failed deleting item id ${id} from server, applying local only.`, err.message);
+        }
+
+        // Always delete local
+        const localKey = `lodge_db_${this.tableName}`;
+        let list = JSON.parse(localStorage.getItem(localKey) || '[]');
+        list = list.filter(item => item.id != id);
+        localStorage.setItem(localKey, JSON.stringify(list));
     }
 
     async count() {
@@ -197,30 +304,12 @@ class TableProxy {
 }
 
 const db = {
-    students: new TableProxy('students'),
-    attendance: new TableProxy('attendance'),
-    fees: new TableProxy('fees'),
-    marks: new TableProxy('marks'),
-    staff: new TableProxy('staff'),
-    subjects: new TableProxy('subjects'),
-    assets: new TableProxy('assets'),
-    library: new TableProxy('library'),
-    bookLoans: new TableProxy('bookLoans'),
-    discipline: new TableProxy('discipline'),
-    health: new TableProxy('health'),
-    payroll: new TableProxy('payroll'),
-    expenses: new TableProxy('expenses'),
-    notices: new TableProxy('notices'),
-    hostels: new TableProxy('hostels'),
-    hostelAssignments: new TableProxy('hostelAssignments'),
-    transport: new TableProxy('transport'),
-    transportAssignments: new TableProxy('transportAssignments'),
+    bookings: new TableProxy('bookings'),
+    rooms: new TableProxy('rooms'),
+    messages: new TableProxy('messages'),
     notifications: new TableProxy('notifications'),
     users: new TableProxy('users'),
-    publicSettings: new TableProxy('public_settings'),
-    publicAchievements: new TableProxy('public_achievements'),
-    publicCurriculum: new TableProxy('public_curriculum'),
-    publicTestimonials: new TableProxy('public_testimonials')
+    settings: new TableProxy('settings')
 };
 
-console.log("PostgreSQL SMIS DB initialized");
+console.log("Kurichong Eco Lodge DB adapter initialized with local localStorage fallback support");

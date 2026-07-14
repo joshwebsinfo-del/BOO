@@ -1,2729 +1,889 @@
-console.log("app.js loaded");
-const app = {
-    container: document.getElementById('app-container'),
+/**
+ * ==========================================================================
+ * KURICHONG ECO LODGE CLIENT APP CONTROLLER (app_v1.js)
+ * High-performance SPA controller for booking, reviews, and admin dashboard
+ * ==========================================================================
+ */
 
-    openSidebar() {
-        document.getElementById('sidebar')?.classList.add('open');
-        document.getElementById('sidebar-overlay')?.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    },
+class LodgeApp {
+    constructor() {
+        this.currentView = 'home';
+        this.currentAdminTab = 'bookings';
+        this.adminSession = null;
 
-    closeSidebar() {
-        document.getElementById('sidebar')?.classList.remove('open');
-        document.getElementById('sidebar-overlay')?.classList.remove('active');
-        document.body.style.overflow = '';
-    },
-
-
-    async init() {
-        this.container = document.getElementById('app-container');
-
-        if (this.checkAuth()) {
-            const user = this.currentUser;
-            // Student portal - only show results/fees
-            if (user.role === 'Student') {
-                document.querySelector('.sidebar').style.display = 'none';
-                this.loadTheme();
-                await this.renderStudentPortal();
-                return;
-            }
-            this.renderSidebar();
-            this.updateHeaderUser();
-            this.renderDashboard();
-            this.loadTheme();
-            await this.checkSystemAlerts();
-            await this.updateNotifBadge();
-        } else {
-            // Show public portal by default (no login needed)
-            this.showPublicPortal();
-        }
-
-        this.updateOnlineStatus();
-        window.addEventListener('online', () => this.updateOnlineStatus());
-        window.addEventListener('offline', () => this.updateOnlineStatus());
-    },
-
-    checkAuth() {
-        const user = JSON.parse(localStorage.getItem('egles_session'));
-        if (user) {
-            this.currentUser = user;
-            return true;
-        }
-        return false;
-    },
-
-    showPublicPortal() {
-        document.querySelector('.sidebar').style.display = 'none';
-        document.querySelector('.top-bar').style.display = 'none';
-        this.container.innerHTML = `
-            <div id="public-portal" style="min-height:100vh; background: var(--bg-main);">
-                
-                <!-- Premium Hero Section -->
-                <div style="background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.15) 100%); padding: 4rem 2rem; position:relative; overflow:hidden; border-bottom:1px solid var(--glass-border);">
-                    <div style="position:absolute; top:-50px; right:-50px; font-size:15rem; opacity:0.03; pointer-events:none;">🏫</div>
-                    <div style="max-width:1200px; margin:0 auto; position:relative; z-index:10;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:3rem;">
-                            <div style="flex:1; min-width:300px;">
-                                <div style="display:inline-block; padding:0.4rem 1rem; background:var(--primary-glow); color:var(--primary-bright); border-radius:100px; font-size:0.8rem; font-weight:700; margin-bottom:1.5rem; letter-spacing:1px; text-transform:uppercase;">Official Gateway</div>
-                                <h1 style="font-size:3.5rem; font-weight:800; letter-spacing:-1.5px; line-height:1.1; margin-bottom:1rem; background:linear-gradient(to right, var(--text), var(--primary-bright)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Egles <span style="opacity:0.9;">SMIS</span></h1>
-                                <p style="color:var(--text-muted); font-size:1.15rem; max-width:500px; margin-bottom:2.5rem; line-height:1.6;">Secondary School Management & Information System. Access your academic records, stay updated with school notices, and view live statistics.</p>
-                                
-                                <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-                                    <button onclick="app.showStudentLogin()" class="btn-primary" style="font-size:1.05rem; padding:0.85rem 2rem; box-shadow:0 8px 25px var(--primary-glow); display:flex; align-items:center; gap:0.5rem;">
-                                        🎓 Student Portal
-                                    </button>
-                                    <button onclick="app.showStaffLogin()" class="btn-primary" style="font-size:1.05rem; padding:0.85rem 2rem; background:rgba(255,255,255,0.05); color:var(--text); box-shadow:none; border:1px solid var(--glass-border); display:flex; align-items:center; gap:0.5rem;">
-                                        🔐 Staff Login
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="desktop-only" style="flex:1; display:flex; justify-content:flex-end;">
-                                <div style="width:380px; height:380px; background:radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); border-radius:50%; display:flex; align-items:center; justify-content:center; animation: blobFloat 8s infinite alternate ease-in-out;">
-                                    <div style="font-size:9rem; filter:drop-shadow(0 20px 30px rgba(0,0,0,0.5)); transform:rotate(-5deg);">🎓</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="max-width:1200px; margin:0 auto; padding:3rem 2rem;">
-                    
-                    <!-- Live Stats Grid -->
-                    <div id="public-stats" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.5rem; margin-bottom:3rem;">
-                        <div class="glass-panel" style="margin:0; text-align:center; padding:2rem 1.5rem; position:relative; overflow:hidden;">
-                            <div style="position:absolute; top:-10px; right:-10px; font-size:5rem; opacity:0.04;">👥</div>
-                            <div style="font-size:3rem; font-weight:800; color:var(--primary); line-height:1;" id="pub-students">—</div>
-                            <div style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.75rem; font-weight:600;">Enrolled Students</div>
-                        </div>
-                        <div class="glass-panel" style="margin:0; text-align:center; padding:2rem 1.5rem; position:relative; overflow:hidden;">
-                            <div style="position:absolute; top:-10px; right:-10px; font-size:5rem; opacity:0.04;">👨‍🏫</div>
-                            <div style="font-size:3rem; font-weight:800; color:var(--success); line-height:1;" id="pub-staff">—</div>
-                            <div style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.75rem; font-weight:600;">Teaching Staff</div>
-                        </div>
-                        <div class="glass-panel" style="margin:0; text-align:center; padding:2rem 1.5rem; position:relative; overflow:hidden;">
-                            <div style="position:absolute; top:-10px; right:-10px; font-size:5rem; opacity:0.04;">📚</div>
-                            <div style="font-size:3rem; font-weight:800; color:var(--accent); line-height:1;" id="pub-subjects">—</div>
-                            <div style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.75rem; font-weight:600;">Subjects Offered</div>
-                        </div>
-                        <div class="glass-panel" style="margin:0; text-align:center; padding:2rem 1.5rem; position:relative; overflow:hidden;">
-                            <div style="position:absolute; top:-10px; right:-10px; font-size:5rem; opacity:0.04;">📢</div>
-                            <div style="font-size:3rem; font-weight:800; color:var(--warning); line-height:1;" id="pub-notices">—</div>
-                            <div style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.75rem; font-weight:600;">Active Notices</div>
-                        </div>
-                    </div>
-
-                    <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 2.5rem;" class="mobile-stack">
-                        
-                        <!-- Notice Board -->
-                        <div>
-                            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
-                                <div style="width:40px; height:40px; border-radius:12px; background:rgba(245, 158, 11, 0.15); color:var(--warning); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">📢</div>
-                                <h2 style="margin:0;">Notice Board</h2>
-                            </div>
-                            <div id="pub-notices-list" style="display:flex; flex-direction:column; gap:1rem;">
-                                <!-- Populated dynamically -->
-                            </div>
-                        </div>
-
-                        <!-- General Timetable -->
-                        <div>
-                            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
-                                <div style="width:40px; height:40px; border-radius:12px; background:rgba(99, 102, 241, 0.15); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">📅</div>
-                                <h2 style="margin:0;">General Timetable</h2>
-                            </div>
-                            <div class="glass-panel" style="margin:0; padding:0; overflow:hidden;">
-                                <div id="pub-timetable" style="overflow-x:auto;">
-                                    <!-- Populated dynamically -->
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <style>
-                @media (max-width: 900px) {
-                    .mobile-stack { grid-template-columns: 1fr !important; }
-                    #public-portal h1 { font-size: 2.5rem !important; }
-                }
-            </style>
-        `;
-        // Load public data
-        this._loadPublicData();
-    },
-
-    async _loadPublicData() {
-        const [students, staff, subjects, notices, timetable] = await Promise.all([
-            db.students.toArray(),
-            db.staff.toArray(),
-            db.subjects.toArray(),
-            db.notices.toArray(),
-            db.timetable.toArray()
-        ]);
-
-        // Counter animation logic
-        const animateValue = (id, start, end, duration) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            if (end === 0) { el.textContent = '0'; return; }
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                // Ease out cubic
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
-                el.textContent = Math.floor(easeProgress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    el.textContent = end;
-                }
-            };
-            window.requestAnimationFrame(step);
+        // Cache room pricing state
+        this.roomPrices = {
+            standard: 2500,
+            deluxe: 3500,
+            executive: 5500
         };
 
-        const staffCount = staff.filter(s => s.role === 'Teacher').length;
+        this.bookings = [];
+        this.messages = [];
+    }
 
-        setTimeout(() => {
-            animateValue('pub-students', 0, students.length, 1500);
-            animateValue('pub-staff', 0, staffCount, 1500);
-            animateValue('pub-subjects', 0, subjects.length, 1500);
-            animateValue('pub-notices', 0, notices.length, 1500);
-        }, 100);
+    async init() {
+        console.log("🚀 Initializing Kurichong Eco Lodge Web App...");
 
-        // Notices
-        const nl = document.getElementById('pub-notices-list');
-        if (nl) {
-            nl.innerHTML = notices.length === 0
-                ? '<div class="glass-panel" style="text-align:center; padding:3rem 2rem;"><div style="font-size:3rem; opacity:0.5; margin-bottom:1rem;">📭</div><p style="color:var(--text-muted); margin:0;">No public announcements at this time.</p></div>'
-                : notices.slice(-5).reverse().map(n => {
-                    const color = n.priority === 'High' ? 'var(--danger)' : n.priority === 'Medium' ? 'var(--warning)' : 'var(--success)';
-                    const bg = n.priority === 'High' ? 'rgba(239, 68, 68, 0.05)' : n.priority === 'Medium' ? 'rgba(245, 158, 11, 0.05)' : 'rgba(16, 185, 129, 0.05)';
-                    return `
-                    <div style="background:var(--bg-card); border:1px solid var(--glass-border); border-left:4px solid ${color}; border-radius:16px; padding:1.5rem; transition:transform 0.2s, box-shadow 0.2s; cursor:default;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow)'" onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
-                            <div style="font-weight:700; font-size:1.1rem; color:var(--text); line-height:1.3; padding-right:1rem;">${n.title}</div>
-                            <span style="background:${bg}; color:${color}; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:700; white-space:nowrap;">${n.priority}</span>
-                        </div>
-                        <div style="font-size:0.95rem; color:var(--text-muted); margin-bottom:1.25rem; line-height:1.6;">${n.content}</div>
-                        <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-muted); opacity:0.8;">
-                            <span>📅</span> ${n.date}
-                        </div>
-                    </div>`
-                }).join('');
-        }
+        // Setup initial default date constraints
+        this.initDatePickerLimits();
 
-        // Timetable
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        const periods = ['08:00-09:00', '09:00-10:00', '10:30-11:30', '11:30-12:30', '14:00-15:00'];
-        const tt = document.getElementById('pub-timetable');
-        if (tt) {
-            if (timetable.length === 0) {
-                tt.innerHTML = '<div style="padding:4rem 2rem; text-align:center;"><div style="font-size:3rem; opacity:0.5; margin-bottom:1rem;">🗓️</div><p style="color:var(--text-muted); margin:0;">The master timetable has not been published yet.</p></div>';
-            } else {
-                tt.innerHTML = `<table style="width:100%; border-collapse:collapse; min-width:600px;">
-                    <thead><tr style="background:rgba(255,255,255,0.02);">
-                        <th style="padding:1.25rem 1rem; border-bottom:1px solid var(--glass-border); color:var(--text); font-weight:700; font-size:0.85rem;">PERIOD</th>
-                        ${days.map(d => `<th style="padding:1.25rem 1rem; border-bottom:1px solid var(--glass-border); color:var(--text); font-weight:700; font-size:0.85rem;">${d.toUpperCase()}</th>`).join('')}
-                    </tr></thead>
-                    <tbody>
-                        ${periods.map((p, i) => `<tr style="${i % 2 === 0 ? 'background:rgba(255,255,255,0.01);' : ''}">
-                            <td style="padding:1rem; border-bottom:1px solid var(--glass-border); font-weight:600; color:var(--primary-bright); font-family:monospace; font-size:0.95rem;">${p}</td>
-                            ${days.map(d => {
-                    const e = timetable.find(s => s.day === d && s.period === p);
-                    return `<td style="padding:1rem; border-bottom:1px solid var(--glass-border); vertical-align:top;">
-                                    ${e ? `<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:0.75rem; border-radius:10px;">
-                                        <strong style="display:block; color:var(--text); margin-bottom:0.25rem; font-size:0.95rem;">${e.subject}</strong>
-                                        <div style="color:var(--text-muted); font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
-                                            <span>${e.class}</span>
-                                            <span style="opacity:0.5;">●</span>
-                                        </div>
-                                    </div>` : '<div style="color:var(--text-muted); opacity:0.3; text-align:center; padding:1rem;">-</div>'}
-                                </td>`;
-                }).join('')}
-                        </tr>`).join('')}
-                    </tbody>
-                </table>`;
+        // Initial setup for navigation listener
+        window.addEventListener('scroll', () => this.handleHeaderScroll());
+
+        // Check for active admin session in localStorage
+        const storedSession = localStorage.getItem('lodge_admin_session');
+        if (storedSession) {
+            try {
+                this.adminSession = JSON.parse(storedSession);
+                this.updateAdminDashboardUI();
+            } catch (e) {
+                localStorage.removeItem('lodge_admin_session');
             }
         }
-    },
 
-    showStaffLogin() {
-        document.querySelector('.sidebar').style.display = 'none';
-        document.querySelector('.top-bar').style.display = 'none';
-        this.container.innerHTML = `
-            <div class="auth-overlay">
-                <div class="glass-panel auth-card">
-                    <div style="text-align:center; margin-bottom:1rem; font-size:2.5rem;">🔐</div>
-                    <div class="logo" style="text-align:center; margin-bottom:0.5rem;">Egles <span>SMIS</span></div>
-                    <h2 style="text-align:center;">Staff / Admin Login</h2>
-                    <p style="text-align:center; color:var(--text-muted); margin-bottom:2rem; font-size:0.85rem;">Staff accounts are provisioned by the Administrator.</p>
-                    <form onsubmit="app.handleStaffAuth(event)">
-                        <input type="text" id="auth-user" placeholder="Username" required autocomplete="username">
-                        <input type="password" id="auth-pass" placeholder="Password" required autocomplete="current-password">
-                        <button type="submit" class="btn-primary" style="width:100%; margin-top:1rem;">Sign In</button>
-                    </form>
-                    <div style="margin-top:1.5rem; text-align:center;">
-                        <a href="#" onclick="app.init()" style="color:var(--primary); font-size:0.85rem;">← Back to Public Portal</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
+        // Fetch fresh state from API database
+        await this.syncStateWithDB();
 
-    showStudentLogin() {
-        document.querySelector('.sidebar').style.display = 'none';
-        document.querySelector('.top-bar').style.display = 'none';
-        this.container.innerHTML = `
-            <div class="auth-overlay">
-                <div class="glass-panel auth-card">
-                    <div style="text-align:center; margin-bottom:1rem; font-size:2.5rem;">🎓</div>
-                    <div class="logo" style="text-align:center; margin-bottom:0.5rem;">Egles <span>SMIS</span></div>
-                    <h2 style="text-align:center;">Student Results Portal</h2>
-                    <p style="text-align:center; color:var(--text-muted); margin-bottom:2rem; font-size:0.85rem;">Enter your Student ID and Full Name to access your results and fees.</p>
-                    <form onsubmit="app.handleStudentLogin(event)">
-                        <input type="text" id="stu-id" placeholder="Student ID (e.g. STU-12345)" required>
-                        <input type="text" id="stu-name" placeholder="Full Name" required>
-                        <button type="submit" class="btn-primary" style="width:100%; margin-top:1rem; background:var(--secondary);">Access My Portal</button>
-                    </form>
-                    <div style="margin-top:1.5rem; text-align:center;">
-                        <a href="#" onclick="app.init()" style="color:var(--primary); font-size:0.85rem;">← Back to Public Portal</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
+        // Initialize dynamic calculations
+        this.calcBookingPrice();
+        this.calcManualBookingPrice();
+    }
 
-    async handleStaffAuth(e) {
-        e.preventDefault();
-        const username = document.getElementById('auth-user').value.trim();
-        const password = document.getElementById('auth-pass').value;
-        const users = await db.users.toArray();
-        const user = users.find(u => u.username === username && u.password === password);
-        if (user && ['Admin', 'Teacher', 'Staff', 'Bursar'].includes(user.role)) {
-            localStorage.setItem('egles_session', JSON.stringify(user));
-            document.querySelector('.sidebar').style.display = '';
-            document.querySelector('.top-bar').style.display = '';
-            this.init();
-        } else if (user) {
-            alert('This portal is for Staff and Admins only. Use the Student Portal.');
-        } else {
-            alert('Invalid credentials. If you believe this is an error, contact your Administrator.');
-        }
-    },
+    initDatePickerLimits() {
+        const todayStr = new Date().toISOString().split('T')[0];
 
-    async handleStudentLogin(e) {
-        e.preventDefault();
-        const studentId = document.getElementById('stu-id').value.trim();
-        const name = document.getElementById('stu-name').value.trim().toLowerCase();
-        const students = await db.students.toArray();
-        const student = students.find(s => s.studentId.toLowerCase() === studentId.toLowerCase() && s.name.toLowerCase() === name);
-        if (student) {
-            const session = { role: 'Student', name: student.name, studentId: student.studentId, id: student.id };
-            localStorage.setItem('egles_session', JSON.stringify(session));
-            this.currentUser = session;
-            await this.renderStudentPortal();
-        } else {
-            alert('Student not found. Please check your Student ID and Full Name, then try again.');
-        }
-    },
+        // Set min dates on date picker inputs
+        const checkinInputs = ['qb-checkin', 'book-checkin', 'mb-checkin'];
+        const checkoutInputs = ['qb-checkout', 'book-checkout', 'mb-checkout'];
 
-    async renderStudentPortal() {
-        document.querySelector('.sidebar').style.display = 'none';
-        document.querySelector('.top-bar').style.display = 'none';
-        const user = this.currentUser;
-        const [marks, fees, notices, attendance, subjects, staff] = await Promise.all([
-            db.marks.toArray(),
-            db.fees.toArray(),
-            db.notices.toArray(),
-            db.attendance.toArray(),
-            db.subjects.toArray(),
-            db.staff.toArray()
-        ]);
-        const myMarks = marks.filter(m => m.studentId === user.studentId);
-        const myFees = fees.filter(f => f.studentId === user.studentId);
-        const myAttendance = attendance.filter(a => a.studentId === user.studentId);
-        const totalPaid = myFees.reduce((s, f) => s + parseFloat(f.amount || 0), 0);
-        const presentDays = myAttendance.filter(a => a.status === 'Present').length;
-        const attendancePct = myAttendance.length ? Math.round((presentDays / myAttendance.length) * 100) : 0;
-
-        // Group marks by subject
-        const subjectMap = {};
-        myMarks.forEach(m => {
-            if (!subjectMap[m.subject]) subjectMap[m.subject] = [];
-            subjectMap[m.subject].push(m);
+        checkinInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.min = todayStr;
         });
 
-        // Map Teachers to Subjects
-        const teachersMap = staff.filter(s => s.role === 'Teacher' || s.role === 'Admin');
-
-        this.container.innerHTML = `
-            <div style="padding:1rem; max-width:1200px; margin:0 auto; padding-top:2rem;">
-                
-                <!-- Premium Header -->
-                <div class="glass-panel" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; background: linear-gradient(135deg, var(--bg-card), rgba(99,102,241,0.1)); border-left: 4px solid var(--primary); padding:2rem;">
-                    <div style="display:flex; align-items:center; gap:1.5rem;">
-                        <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; box-shadow: 0 4px 15px var(--primary-glow);">
-                            ${user.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <div style="font-size:0.85rem; color:var(--primary-bright); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Student Dashboard</div>
-                            <h1 style="margin:0; font-size:2rem;">${user.name}</h1>
-                            <div style="color:var(--text-muted); font-family:monospace; margin-top:0.25rem;">ID: ${user.studentId}</div>
-                        </div>
-                    </div>
-                    <button onclick="app.logout()" class="btn-primary" style="background:var(--danger); box-shadow:0 4px 15px rgba(239, 68, 68, 0.4);">Secure Sign Out</button>
-                </div>
-
-                <!-- Live Metrics -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.25rem; margin-bottom:2rem;">
-                    <div class="glass-panel" style="margin:0; text-align:center; padding:1.5rem; position:relative; overflow:hidden;">
-                        <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05;">📊</div>
-                        <div style="font-size:2.5rem; font-weight:800; color:var(--primary);">${myMarks.length}</div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.5rem;">Results</div>
-                    </div>
-                    <div class="glass-panel" style="margin:0; text-align:center; padding:1.5rem; position:relative; overflow:hidden;">
-                        <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05;">💲</div>
-                        <div style="font-size:2.5rem; font-weight:800; color:var(--success);">$${totalPaid.toFixed(2)}</div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.5rem;">Fees Cleared</div>
-                    </div>
-                    <div class="glass-panel" style="margin:0; text-align:center; padding:1.5rem; position:relative; overflow:hidden;">
-                        <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05;">📅</div>
-                        <div style="font-size:2.5rem; font-weight:800; color:var(--accent);">${attendancePct}%</div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.5rem;">Attendance</div>
-                    </div>
-                    <div class="glass-panel" style="margin:0; text-align:center; padding:1.5rem; position:relative; overflow:hidden;">
-                        <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05;">📚</div>
-                        <div style="font-size:2.5rem; font-weight:800; color:var(--warning);">${Object.keys(subjectMap).length}</div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:0.5rem;">Enrolled Subjects</div>
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
-                    
-                    <!-- Left Column: Results & Staff -->
-                    <div style="display:flex; flex-direction:column; gap:2rem;">
-                        
-                        <!-- Academic Results -->
-                        <div class="glass-panel" style="margin:0; overflow-x:auto;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                                <h2 style="margin:0;">📝 Academic Performance</h2>
-                                <span style="background:var(--primary-glow); color:var(--primary-bright); padding:4px 10px; border-radius:20px; font-size:0.8rem; font-weight:700;">Official Record</span>
-                            </div>
-                            ${Object.keys(subjectMap).length === 0
-                ? '<div style="padding:2rem; text-align:center; background:rgba(0,0,0,0.1); border-radius:12px;"><p>No examination results published yet.</p></div>'
-                : `<table style="width:100%; border-collapse:collapse; min-width:500px;">
-                                    <thead><tr style="text-align:left; border-bottom:2px solid var(--glass-border);">
-                                        <th style="padding:1rem;">Subject</th>
-                                        <th style="padding:1rem;">Term</th>
-                                        <th style="padding:1rem;">Score (%)</th>
-                                        <th style="padding:1rem;">Grade</th>
-                                    </tr></thead>
-                                    <tbody>
-                                        ${myMarks.map(m => `<tr style="transition:all 0.2s;">
-                                            <td style="padding:1rem; font-weight:600; font-size:1.05rem;">${m.subject}</td>
-                                            <td style="padding:1rem; color:var(--text-muted);">${m.term} (Year ${m.year})</td>
-                                            <td style="padding:1rem;">
-                                                <div style="display:flex; align-items:center; gap:1rem;">
-                                                    <div style="flex:1; height:8px; background:rgba(255,255,255,0.05); border-radius:4px; max-width:120px; overflow:hidden;">
-                                                        <div style="height:100%; border-radius:4px; background:${m.score >= 80 ? 'var(--success)' : m.score >= 60 ? 'var(--warning)' : 'var(--danger)'}; width:${m.score}%; box-shadow:0 0 10px ${m.score >= 80 ? 'var(--success)' : m.score >= 60 ? 'var(--warning)' : 'var(--danger)'};"></div>
-                                                    </div>
-                                                    <span style="font-weight:700;">${m.score}</span>
-                                                </div>
-                                            </td>
-                                            <td style="padding:1rem;">
-                                                <span class="status-pill" style="font-size:0.9rem; padding:6px 16px; background:${m.score >= 80 ? 'rgba(16,185,129,0.15)' : m.score >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'}; color:${m.score >= 80 ? 'var(--success)' : m.score >= 60 ? 'var(--warning)' : 'var(--danger)'}; border:1px solid ${m.score >= 80 ? 'rgba(16,185,129,0.3)' : m.score >= 60 ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)'};">${this.calculateGrade(m.score)}</span>
-                                            </td>
-                                        </tr>`).join('')}
-                                    </tbody>
-                                </table>`
-            }
-                        </div>
-
-                        <!-- Teaching Staff & Subjects Directory -->
-                        <div class="glass-panel" style="margin:0;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                                <h2 style="margin:0;">👨‍🏫 Department Faculty</h2>
-                                <span style="font-size:0.85rem; color:var(--text-muted);">Current Teaching Staff</span>
-                            </div>
-                            ${teachersMap.length === 0
-                ? '<p>Faculty details are not available yet.</p>'
-                : `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem;">
-                                    ${teachersMap.map(t => {
-                    const teacherSubjects = subjects.filter(s => s.teacherId === t.staffId);
-                    return `
-                                        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); padding:1.25rem; border-radius:12px; display:flex; gap:1rem; align-items:flex-start;">
-                                            <div style="width:45px; height:45px; border-radius:12px; background:var(--glass-bg); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
-                                                👔
-                                            </div>
-                                            <div>
-                                                <div style="font-weight:700; color:var(--text); font-size:1.05rem; margin-bottom:0.25rem;">${t.name}</div>
-                                                <div style="color:var(--primary-bright); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.75rem;">${t.role}</div>
-                                                <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                                                    ${teacherSubjects.length > 0
-                            ? teacherSubjects.map(ts => `<span style="background:rgba(255,255,255,0.1); color:white; padding:3px 8px; border-radius:4px; font-size:0.75rem;">${ts.name} (${ts.class})</span>`).join('')
-                            : `<span style="color:var(--text-muted); font-size:0.8rem;">No subjects assigned</span>`
-                        }
-                                                </div>
-                                            </div>
-                                        </div>`
-                }).join('')}
-                                </div>`
-            }
-                        </div>
-
-                    </div>
-
-                    <!-- Right Column: Fees & Notices -->
-                    <div style="display:flex; flex-direction:column; gap:2rem;">
-                        
-                        <!-- Fee Statement -->
-                        <div class="glass-panel" style="margin:0;">
-                            <h2 style="margin-bottom:1.5rem;">💳 Financial Statement</h2>
-                            ${myFees.length === 0
-                ? '<div style="padding:1.5rem; text-align:center; background:rgba(16,185,129,0.05); border:1px dashed var(--success); border-radius:12px;"><span style="font-size:2rem; display:block; margin-bottom:0.5rem;">✅</span><p style="color:var(--success); font-weight:600;">No outstanding payments.</p></div>'
-                : `<div style="overflow-x:auto;">
-                                    <table style="width:100%; border-collapse:collapse; min-width:300px;">
-                                    <thead><tr style="text-align:left; border-bottom:1px solid var(--glass-border);">
-                                        <th style="padding:0.75rem;">Details</th>
-                                        <th style="padding:0.75rem; text-align:right;">Amount</th>
-                                    </tr></thead>
-                                    <tbody>
-                                        ${myFees.map(f => `<tr style="border-bottom:1px dashed rgba(255,255,255,0.05);">
-                                            <td style="padding:0.75rem;">
-                                                <div style="font-weight:600;">${f.type}</div>
-                                                <div style="font-size:0.75rem; color:var(--text-muted);">${f.date}</div>
-                                            </td>
-                                            <td style="padding:0.75rem; text-align:right; color:var(--success); font-weight:700;">$${parseFloat(f.amount).toFixed(2)}</td>
-                                        </tr>`).join('')}
-                                    </tbody></table>
-                                </div>`
-            }
-                        </div>
-
-                        <!-- Notices -->
-                        <div class="glass-panel" style="margin:0;">
-                            <h2 style="margin-bottom:1.5rem;">📢 School Bulletins</h2>
-                            ${notices.length === 0
-                ? '<p style="color:var(--text-muted);">No recent announcements.</p>'
-                : `<div style="display:flex; flex-direction:column; gap:1rem;">
-                                    ${notices.slice(-4).reverse().map(n => `
-                                        <div style="padding:1.25rem; border-left:4px solid ${n.priority === 'High' ? 'var(--danger)' : n.priority === 'Medium' ? 'var(--warning)' : 'var(--success)'}; background:rgba(0,0,0,0.2); border-radius:0 12px 12px 0;">
-                                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
-                                                <div style="font-weight:700; color:white; line-height:1.3;">${n.title}</div>
-                                                <span style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; margin-left:0.5rem;">${n.date}</span>
-                                            </div>
-                                            <div style="color:var(--text-muted); font-size:0.85rem; line-height:1.5;">${n.content}</div>
-                                        </div>
-                                    `).join('')}
-                                </div>`
-            }
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <style>
-                @media (max-width: 900px) {
-                    [style*="grid-template-columns: 2fr 1fr"] { grid-template-columns: 1fr !important; }
-                }
-            </style>
-        `;
-    },
-
-    logout() {
-        localStorage.removeItem('egles_session');
-        window.location.reload();
-    },
-
-    updateHeaderUser() {
-        const nameEl = document.getElementById('user-display-name');
-        const avatarEl = document.getElementById('user-avatar');
-        if (this.currentUser && nameEl) {
-            nameEl.textContent = this.currentUser.name || this.currentUser.username;
-            const roleLabel = document.createElement('span');
-            roleLabel.style.cssText = 'font-size: 0.65rem; color: var(--text-muted); display: block; text-transform: uppercase; letter-spacing: 0.5px;';
-            roleLabel.textContent = this.currentUser.role;
-            nameEl.after(roleLabel);
-        }
-        if (this.currentUser && avatarEl) {
-            avatarEl.textContent = (this.currentUser.name || 'U').charAt(0).toUpperCase();
-        }
-    },
-
-    isReadOnly() {
-        if (!this.currentUser) return true;
-        return ['Student', 'Parent'].includes(this.currentUser.role);
-    },
-
-    canModify() {
-        return !this.isReadOnly();
-    },
-
-    // --- Theme Management ---
-    setTheme(themeName) {
-        document.body.className = '';
-        if (themeName !== 'default') {
-            document.body.classList.add(`${themeName}-theme`);
-        }
-        localStorage.setItem('egles_theme', themeName);
-    },
-
-    loadTheme() {
-        const theme = localStorage.getItem('egles_theme');
-        if (theme) this.setTheme(theme);
-    },
-
-    toggleTheme() {
-        const themes = ['default', 'light', 'midnight', 'aurora', 'sunset'];
-        const current = localStorage.getItem('egles_theme') || 'default';
-        const idx = themes.indexOf(current);
-        const next = themes[(idx + 1) % themes.length];
-        this.setTheme(next);
-    },
-
-    renderSidebar() {
-        const role = this.currentUser.role;
-        const nav = document.getElementById('sidebar-nav');
-
-        const menu = [
-            {
-                label: 'Core', items: [
-                    { id: 'dashboard', name: 'Dashboard', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
-                    { id: 'students', name: 'Students', roles: ['Admin', 'Teacher'] },
-                    { id: 'staff', name: 'Staff', roles: ['Admin'] }
-                ]
-            },
-            {
-                label: 'Academic', items: [
-                    { id: 'subjects', name: 'Subjects', roles: ['Admin', 'Teacher'] },
-                    { id: 'exams', name: 'Examinations', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
-                    { id: 'timetable', name: 'Timetable', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
-                    { id: 'attendance', name: 'Attendance', roles: ['Admin', 'Teacher'] },
-                    { id: 'library', name: 'Library', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
-                    { id: 'discipline', name: 'Discipline', roles: ['Admin', 'Teacher'] },
-                    { id: 'health', name: 'Health Records', roles: ['Admin', 'Teacher', 'Parent'] }
-                ]
-            },
-            {
-                label: 'Finance & Infrastructure', items: [
-                    { id: 'fees', name: 'Fees Management', roles: ['Admin', 'Parent'] },
-                    { id: 'payroll', name: 'Staff Payroll', roles: ['Admin'] },
-                    { id: 'inventory', name: 'Inventory & Assets', roles: ['Admin'] },
-                    { id: 'pos', name: 'Tuckshop POS', roles: ['Admin', 'Staff'] },
-                    { id: 'expenses', name: 'Expenses', roles: ['Admin'] },
-                    { id: 'hostels', name: 'Hostels', roles: ['Admin', 'Parent'] },
-                    { id: 'transport', name: 'Transport', roles: ['Admin', 'Parent'] }
-                ]
-            },
-            {
-                label: 'Communication', items: [
-                    { id: 'notices', name: 'Notice Board', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
-                    { id: 'resources', name: 'Resources', roles: ['Admin', 'Teacher', 'Parent', 'Student'] }
-                ]
-            }
-        ];
-
-        nav.innerHTML = menu.map(group => {
-            const visibleItems = group.items.filter(item => item.roles.includes(role));
-            if (visibleItems.length === 0) return '';
-
-            return `
-                <div class="nav-group">
-                    <span class="nav-label">${group.label}</span>
-                    ${visibleItems.map(item => `
-                        <button class="nav-item ${item.id === 'dashboard' ? 'active' : ''}" onclick="app.navigate('${item.id}')">
-                            <span>${item.name}</span>
-                        </button>
-                    `).join('')}
-                </div>
-            `;
-        }).join('');
-    },
-
-    // --- Phase 2: Notification & Alert Logic ---
-    async checkSystemAlerts() {
-        // 1. Check for students with low fees (simulated threshold $1000)
-        const students = await db.students.toArray();
-        const fees = await db.fees.toArray();
-
-        for (const student of students) {
-            const studentFees = fees.filter(f => f.studentId === student.studentId)
-                .reduce((acc, f) => acc + parseFloat(f.amount), 0);
-
-            if (studentFees < 1000) {
-                await this.addNotification(
-                    'Fee Payment Alert',
-                    `Student ${student.name} (${student.studentId}) has paid less than $1,000. Current: $${studentFees.toLocaleString()}.`,
-                    'finance'
-                );
-            }
-        }
-
-        // 2. Check for disciplinary issues (simulated count >= 3)
-        const discipline = await db.discipline.toArray();
-        const infractionCounts = {};
-        discipline.forEach(d => {
-            infractionCounts[d.studentId] = (infractionCounts[d.studentId] || 0) + 1;
+        checkoutInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.min = todayStr;
         });
 
-        for (const sid in infractionCounts) {
-            if (infractionCounts[sid] >= 3) {
-                const student = await db.students.where('studentId').equals(sid).first();
-                await this.addNotification(
-                    'Disciplinary Warning',
-                    `Student ${student ? student.name : sid} has recorded ${infractionCounts[sid]} infractions. Review required.`,
-                    'discipline'
-                );
-            }
+        // Seed some defaults
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dayAfterTomorrow = new Date();
+        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 3);
+
+        const checkinDefault = tomorrow.toISOString().split('T')[0];
+        const checkoutDefault = dayAfterTomorrow.toISOString().split('T')[0];
+
+        if (document.getElementById('qb-checkin')) document.getElementById('qb-checkin').value = checkinDefault;
+        if (document.getElementById('qb-checkout')) document.getElementById('qb-checkout').value = checkoutDefault;
+
+        if (document.getElementById('book-checkin')) document.getElementById('book-checkin').value = checkinDefault;
+        if (document.getElementById('book-checkout')) document.getElementById('book-checkout').value = checkoutDefault;
+
+        if (document.getElementById('mb-checkin')) document.getElementById('mb-checkin').value = checkinDefault;
+        if (document.getElementById('mb-checkout')) document.getElementById('mb-checkout').value = checkoutDefault;
+    }
+
+    handleHeaderScroll() {
+        const header = document.getElementById('main-header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
         }
-    },
+    }
 
-    async addNotification(title, message, type) {
-        // Prevent duplicate notifications for same day/title
-        const today = new Date().toISOString().split('T')[0];
-        const exists = await db.notifications.where('title').equals(title).and(n => n.message === message).first();
+    // Toggle slide-out menu drawer
+    toggleMobileMenu() {
+        const sidebar = document.getElementById('mobile-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+    }
 
-        if (!exists) {
-            await db.notifications.add({
-                title,
-                message,
-                type,
-                date: new Date().toLocaleString(),
-                read: 0
+    // SPA View Switcher
+    showSection(sectionId) {
+        this.currentView = sectionId;
+
+        // Hide all sections, display target
+        document.querySelectorAll('.view-section').forEach(sec => {
+            sec.classList.remove('active');
+        });
+        const targetSection = document.getElementById(`section-${sectionId}`);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+
+        // Update Nav Menu Links Classes
+        document.querySelectorAll('.desktop-nav .nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === sectionId) {
+                link.classList.add('active');
+            }
+        });
+        document.querySelectorAll('.mobile-sidebar .mobile-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.innerText.toLowerCase().includes(sectionId)) {
+                link.classList.add('active');
+            }
+        });
+
+        // Scroll to top of body
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // If admin section requested, update statistics
+        if (sectionId === 'admin') {
+            this.syncStateWithDB().then(() => {
+                this.updateAdminDashboardUI();
             });
         }
-    },
+    }
 
-    async updateNotifBadge() {
-        const unreadCount = await db.notifications.where('read').equals(0).count();
-        const badge = document.getElementById('notif-badge');
-        if (unreadCount > 0) {
-            badge.textContent = unreadCount;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
+    // SYNC STATE FROM REST DATABASE
+    async syncStateWithDB() {
+        this.showLoader(true);
+        try {
+            // Load bookings
+            this.bookings = await db.bookings.toArray();
+
+            // Load messages
+            this.messages = await db.messages.toArray();
+
+            // Load settings and adjust tariffs if configured
+            const settings = await db.settings.toArray();
+            const stdSetting = settings.find(s => s.key === 'tariff_standard');
+            const dlxSetting = settings.find(s => s.key === 'tariff_deluxe');
+            const exeSetting = settings.find(s => s.key === 'tariff_executive');
+
+            if (stdSetting) this.roomPrices.standard = parseFloat(stdSetting.value);
+            if (dlxSetting) this.roomPrices.deluxe = parseFloat(dlxSetting.value);
+            if (exeSetting) this.roomPrices.executive = parseFloat(exeSetting.value);
+
+            // Seed initial state in localStorage fallback for offline client demonstration
+            this.seedLocalMockIfNeeded();
+
+        } catch (err) {
+            console.error('❌ Database sync failed. Using local storage Fallback.', err.message);
+        } finally {
+            this.showLoader(false);
         }
-    },
+    }
 
-    toggleNotifications() {
-        const panel = document.getElementById('notification-panel');
-        const isHidden = panel.classList.contains('hidden');
-
-        if (isHidden) {
-            this.renderNotifications();
-            panel.classList.remove('hidden');
-        } else {
-            panel.classList.add('hidden');
+    seedLocalMockIfNeeded() {
+        const localKey = 'lodge_db_bookings';
+        if (!localStorage.getItem(localKey)) {
+            // Seed localStorage fallback with initial bookings
+            localStorage.setItem(localKey, JSON.stringify(this.bookings));
+            localStorage.setItem('lodge_db_messages', JSON.stringify(this.messages));
+            localStorage.setItem('lodge_db_settings', JSON.stringify([
+                { key: 'tariff_standard', value: this.roomPrices.standard },
+                { key: 'tariff_deluxe', value: this.roomPrices.deluxe },
+                { key: 'tariff_executive', value: this.roomPrices.executive }
+            ]));
         }
-    },
+    }
 
-    async renderNotifications() {
-        const notifications = await db.notifications.reverse().limit(10).toArray();
-        const list = document.getElementById('notif-list');
+    // DYNAMIC PRICING ENGINE
+    calcBookingPrice() {
+        const checkinVal = document.getElementById('book-checkin')?.value;
+        const checkoutVal = document.getElementById('book-checkout')?.value;
+        const roomType = document.getElementById('book-room-type')?.value;
 
-        if (notifications.length === 0) {
-            list.innerHTML = '<p class="empty-notif" style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">No new notifications</p>';
-            return;
+        if (!checkinVal || !checkoutVal || !roomType) return;
+
+        const date1 = new Date(checkinVal);
+        const date2 = new Date(checkoutVal);
+
+        // Calculate nights
+        const timeDiff = date2.getTime() - date1.getTime();
+        const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        const finalNights = nights > 0 ? nights : 0;
+
+        const rate = this.roomPrices[roomType] || 0;
+        const totalPrice = finalNights * rate;
+
+        // Render to modal
+        const nightsText = document.getElementById('booking-nights-count');
+        const rateText = document.getElementById('booking-room-rate');
+        const totalText = document.getElementById('booking-total-price');
+
+        if (nightsText) nightsText.innerText = `${finalNights} Night${finalNights !== 1 ? 's' : ''} Stay`;
+        if (rateText) rateText.innerText = `Rate: Nu. ${rate.toLocaleString()}/night`;
+        if (totalText) totalText.innerText = `Nu. ${totalPrice.toLocaleString()}.00`;
+    }
+
+    calcManualBookingPrice() {
+        const checkinVal = document.getElementById('mb-checkin')?.value;
+        const checkoutVal = document.getElementById('mb-checkout')?.value;
+        const roomType = document.getElementById('mb-room-type')?.value;
+
+        if (!checkinVal || !checkoutVal || !roomType) return;
+
+        const date1 = new Date(checkinVal);
+        const date2 = new Date(checkoutVal);
+
+        const timeDiff = date2.getTime() - date1.getTime();
+        const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        const finalNights = nights > 0 ? nights : 0;
+
+        const rate = this.roomPrices[roomType] || 0;
+        const totalPrice = finalNights * rate;
+
+        const nightsText = document.getElementById('mb-nights-count');
+        const totalText = document.getElementById('mb-total-price');
+
+        if (nightsText) nightsText.innerText = `${finalNights} night${finalNights !== 1 ? 's' : ''}`;
+        if (totalText) totalText.innerText = `Nu. ${totalPrice.toLocaleString()}.00`;
+    }
+
+    // Modal Control Modals
+    openBookingModal(preselectedRoom = 'deluxe') {
+        const modal = document.getElementById('booking-modal');
+        const roomSelector = document.getElementById('book-room-type');
+
+        if (roomSelector && preselectedRoom) {
+            roomSelector.value = preselectedRoom;
         }
 
-        list.innerHTML = notifications.map(n => `
-            <div class="notif-item ${n.read ? '' : 'unread'}" onclick="app.markAsRead(${n.id})">
-                <div class="notif-icon" style="background: ${this.getNotifColor(n.type)}">
-                    ${this.getNotifEmoji(n.type)}
-                </div>
-                <div class="notif-content">
-                    <div class="notif-title">${n.title}</div>
-                    <div class="notif-msg">${n.message}</div>
-                    <div class="notif-time">${n.date}</div>
-                </div>
-            </div>
-        `).join('');
-    },
-
-    getNotifColor(type) {
-        switch (type) {
-            case 'finance': return 'rgba(16, 185, 129, 0.1)';
-            case 'discipline': return 'rgba(239, 68, 68, 0.1)';
-            default: return 'rgba(99, 102, 241, 0.1)';
+        if (modal) {
+            modal.classList.remove('hidden');
+            this.calcBookingPrice();
         }
-    },
+    }
 
-    getNotifEmoji(type) {
-        switch (type) {
-            case 'finance': return '💰';
-            case 'discipline': return '⚠️';
-            default: return '📢';
-        }
-    },
+    closeBookingModal() {
+        const modal = document.getElementById('booking-modal');
+        if (modal) modal.classList.add('hidden');
+    }
 
-    async markAsRead(id) {
-        await db.notifications.update(id, { read: 1 });
-        this.updateNotifBadge();
-        this.renderNotifications();
-    },
+    closeConfirmationModal() {
+        const modal = document.getElementById('confirmation-modal');
+        if (modal) modal.classList.add('hidden');
+    }
 
-    async markAllAsRead() {
-        await db.notifications.where('read').equals(0).modify({ read: 1 });
-        this.updateNotifBadge();
-        this.renderNotifications();
-    },
+    // Check overlap helper for double booking prevention
+    hasBookingOverlap(roomType, newIn, newOut) {
+        const inDate = new Date(newIn);
+        const outDate = new Date(newOut);
 
-    updateOnlineStatus() {
-        const indicator = document.getElementById('offline-indicator');
-        if (indicator) {
-            if (navigator.onLine) {
-                indicator.classList.add('hidden');
-            } else {
-                indicator.classList.remove('hidden');
+        // Filter active bookings of the same room type
+        const matches = this.bookings.filter(b => b.roomType === roomType && b.status === 'Confirmed');
+
+        for (const b of matches) {
+            const bIn = new Date(b.checkIn);
+            const bOut = new Date(b.checkOut);
+
+            // Check overlap: (NewCheckIn < ExistingCheckOut) AND (NewCheckOut > ExistingCheckIn)
+            if (inDate < bOut && outDate > bIn) {
+                return true;
             }
         }
-    },
+        return false;
+    }
 
-    showProvisionModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal-backdrop';
-        modal.innerHTML = `
-            <div class="glass-panel auth-card" style="width: 500px; padding: 3rem; background: var(--bg-main); border: 1px solid var(--glass-border); border-radius: 24px; position: fixed; top: 50%; left: 50%; translate: -50% -50%; z-index: 2500;">
-                <h2 style="text-align: center;">Provision New Staff</h2>
-                <p style="text-align: center; margin-bottom: 2rem;">Register a teacher or administrator and generate their credentials.</p>
-                <form id="provision-form" onsubmit="app.handleProvision(event)">
-                    <input type="text" id="prov-name" placeholder="Full Name" required>
-                    <select id="prov-role" required style="width: 100%; margin: 10px 0; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text);">
-                        <option value="Teacher">Teacher</option>
-                        <option value="Admin">Administrator</option>
-                    </select>
-                    <input type="text" id="prov-contact" placeholder="Contact Number" required>
-                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                        <button type="submit" class="btn-primary" style="flex: 1;">Generate Credentials</button>
-                        <button type="button" class="btn-primary" style="flex: 1; background: var(--bg-card); color: var(--text);" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    },
+    // FORM HANDLERS
+    async handleBookingSubmit(event) {
+        event.preventDefault();
 
-    async handleProvision(e) {
-        e.preventDefault();
-        const name = document.getElementById('prov-name').value;
-        const role = document.getElementById('prov-role').value;
-        const contact = document.getElementById('prov-contact').value;
+        const checkin = document.getElementById('book-checkin').value;
+        const checkout = document.getElementById('book-checkout').value;
+        const roomType = document.getElementById('book-room-type').value;
+        const guests = parseInt(document.getElementById('book-guests').value);
+        const name = document.getElementById('book-name').value;
+        const email = document.getElementById('book-email').value;
+        const phone = document.getElementById('book-phone').value;
+        const requests = document.getElementById('book-requests').value;
 
-        const staffId = (role === 'Admin' ? 'ADM-' : 'TCH-') + Math.floor(1000 + Math.random() * 9000);
-        const username = name.toLowerCase().replace(/\s/g, '.') + Math.floor(10 + Math.random() * 89);
-        const password = Math.random().toString(36).slice(-8);
+        // Perform validations
+        const date1 = new Date(checkin);
+        const date2 = new Date(checkout);
 
-        // Save to staff table
-        await db.staff.add({ staffId, name, role, contact });
-
-        // Save to users table for authentication
-        await db.users.add({ username, password, role, name });
-
-        const modalOverlay = e.target.closest('.modal-backdrop');
-        modalOverlay.innerHTML = `
-            <div class="glass-panel auth-card" style="width: 500px; padding: 3rem; background: var(--bg-main); border: 1px solid var(--glass-border); border-radius: 24px; position: fixed; top: 50%; left: 50%; translate: -50% -50%; z-index: 2500; text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
-                <h2>Staff Provisioned Successfully</h2>
-                <p>Please share these secure credentials with <strong>${name}</strong>.</p>
-                
-                <div style="background: rgba(0,0,0,0.2); padding: 2rem; border-radius: 14px; margin: 2rem 0; text-align: left;">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted);">Username</label>
-                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--primary);">${username}</div>
-                    </div>
-                    <div>
-                        <label style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted);">Temporary Password</label>
-                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent);">${password}</div>
-                    </div>
-                </div>
-                
-                <button class="btn-primary" style="width: 100%;" onclick="this.closest('.modal-backdrop').remove(); app.renderStaff();">Close & Refresh</button>
-            </div>
-        `;
-    },
-
-    async navigate(page) {
-        if (!this.checkPermission(page)) {
-            this.navigate('dashboard');
+        if (date2 <= date1) {
+            this.showToast("Check-out date must be after the check-in date.", "error");
             return;
         }
 
-        // Update sidebar active state
-        document.querySelectorAll('.nav-item').forEach(btn => {
+        // Prevent booking overlap for a polished experience!
+        if (this.hasBookingOverlap(roomType, checkin, checkout)) {
+            this.showToast(`Sorry, the selected dates have booking conflicts for the ${roomType.toUpperCase()} Room. Please try other dates.`, "error");
+            return;
+        }
+
+        const nights = Math.ceil((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
+        const rate = this.roomPrices[roomType] || 0;
+        const totalPrice = nights * rate;
+
+        const bookingRef = `KEL-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const bookingData = {
+            bookingId: bookingRef,
+            guestName: name,
+            guestEmail: email,
+            guestPhone: phone,
+            roomType: roomType,
+            checkIn: checkin,
+            checkOut: checkout,
+            guests: guests,
+            totalPrice: totalPrice,
+            status: 'Pending',
+            specialRequests: requests,
+            createdAt: new Date().toISOString()
+        };
+
+        this.showLoader(true);
+        try {
+            const saved = await db.bookings.add(bookingData);
+
+            // Sync up and show confirmation
+            await this.syncStateWithDB();
+            this.closeBookingModal();
+            this.showConfirmationSuccess(saved);
+            document.getElementById('booking-reservation-form').reset();
+            this.initDatePickerLimits();
+
+        } catch (e) {
+            this.showToast("An error occurred. Booking saved offline.", "warning");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    handleQuickBook(event) {
+        event.preventDefault();
+        const checkin = document.getElementById('qb-checkin').value;
+        const checkout = document.getElementById('qb-checkout').value;
+        const roomType = document.getElementById('qb-room-type').value;
+
+        // Prepopulate booking modal
+        if (document.getElementById('book-checkin')) document.getElementById('book-checkin').value = checkin;
+        if (document.getElementById('book-checkout')) document.getElementById('book-checkout').value = checkout;
+
+        this.openBookingModal(roomType);
+    }
+
+    async handleContactSubmit(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('contact-name').value;
+        const email = document.getElementById('contact-email').value;
+        const phone = document.getElementById('contact-phone').value;
+        const subject = document.getElementById('contact-subject').value;
+        const message = document.getElementById('contact-message').value;
+
+        const messageData = {
+            name: name,
+            email: email,
+            phone: phone,
+            subject: subject,
+            message: message,
+            date: new Date().toISOString(),
+            status: 'Unread'
+        };
+
+        this.showLoader(true);
+        try {
+            await db.messages.add(messageData);
+            this.showToast("Your inquiry message was successfully sent! We will reach out shortly.", "success");
+            document.getElementById('contact-form').reset();
+            await this.syncStateWithDB();
+        } catch (e) {
+            this.showToast("Failed sending, saved locally.", "warning");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    showConfirmationSuccess(b) {
+        const modal = document.getElementById('confirmation-modal');
+
+        const confRef = document.getElementById('conf-id');
+        const confName = document.getElementById('conf-name');
+        const confRoom = document.getElementById('conf-room');
+        const confDates = document.getElementById('conf-dates');
+        const confPrice = document.getElementById('conf-price');
+
+        if (confRef) confRef.innerText = b.bookingId;
+        if (confName) confName.innerText = b.guestName;
+        if (confRoom) confRoom.innerText = b.roomType.toUpperCase();
+        if (confDates) confDates.innerText = `${b.checkIn} to ${b.checkOut}`;
+        if (confPrice) confPrice.innerText = `Nu. ${parseFloat(b.totalPrice).toLocaleString()}.00`;
+
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    // ADMINISTRATIVE PORTAL BUSINESS LOGIC
+    async handleAdminLogin(event) {
+        event.preventDefault();
+
+        const user = document.getElementById('login-username').value;
+        const pass = document.getElementById('login-password').value;
+
+        this.showLoader(true);
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                this.adminSession = data.user;
+                localStorage.setItem('lodge_admin_session', JSON.stringify(data.user));
+                this.showToast("Welcome Administrator! Access Granted.", "success");
+                this.updateAdminDashboardUI();
+            } else {
+                // Client-side fallback for static Cloudflare Pages / Offline demonstration
+                if (user === 'admin' && pass === 'admin123') {
+                    this.adminSession = { username: 'admin', name: 'Kurichong Admin', role: 'Admin' };
+                    localStorage.setItem('lodge_admin_session', JSON.stringify(this.adminSession));
+                    this.showToast("Access Granted (Local Mode)", "success");
+                    this.updateAdminDashboardUI();
+                } else {
+                    this.showToast("Invalid administrative username or password.", "error");
+                }
+            }
+        } catch (e) {
+            // Offline fallback
+            if (user === 'admin' && pass === 'admin123') {
+                this.adminSession = { username: 'admin', name: 'Kurichong Admin (Offline)', role: 'Admin' };
+                localStorage.setItem('lodge_admin_session', JSON.stringify(this.adminSession));
+                this.showToast("Access Granted (Offline Fallback)", "success");
+                this.updateAdminDashboardUI();
+            } else {
+                this.showToast("Authentication server unavailable. Admin credentials failed.", "error");
+            }
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    handleAdminLogout() {
+        this.adminSession = null;
+        localStorage.removeItem('lodge_admin_session');
+        this.showToast("Administrator signed out successfully.", "success");
+
+        // Return back to credentials card
+        document.getElementById('admin-login-card')?.classList.remove('hidden');
+        document.getElementById('admin-dashboard-console')?.classList.add('hidden');
+        document.getElementById('admin-login-form')?.reset();
+    }
+
+    updateAdminDashboardUI() {
+        if (!this.adminSession) return;
+
+        // Hide login form, display dashboard
+        document.getElementById('admin-login-card')?.classList.add('hidden');
+        document.getElementById('admin-dashboard-console')?.classList.remove('hidden');
+
+        const adminNameLabel = document.getElementById('admin-display-name');
+        if (adminNameLabel) adminNameLabel.innerText = this.adminSession.name;
+
+        // Compile operational stats
+        this.renderStats();
+
+        // Render current active tab
+        this.switchAdminTab(this.currentAdminTab);
+    }
+
+    renderStats() {
+        // Calculate revenue
+        const confirmedBookings = this.bookings.filter(b => b.status === 'Confirmed');
+        const revenue = confirmedBookings.reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
+
+        const revEl = document.getElementById('stat-revenue');
+        if (revEl) revEl.innerText = `Nu. ${revenue.toLocaleString()}.00`;
+
+        const totalActive = this.bookings.filter(b => b.status !== 'Cancelled').length;
+        const activeBookingsEl = document.getElementById('stat-bookings');
+        if (activeBookingsEl) activeBookingsEl.innerText = totalActive;
+
+        const pendingCount = this.bookings.filter(b => b.status === 'Pending').length;
+        const pendEl = document.getElementById('stat-pending-indicator');
+        if (pendEl) pendEl.innerText = `${pendingCount} Reservation${pendingCount !== 1 ? 's' : ''} Pending`;
+
+        // Calculate current room category occupancies (occupied standard rooms vs total 5)
+        const stdOcc = confirmedBookings.filter(b => b.roomType === 'standard').length;
+        const dlxOcc = confirmedBookings.filter(b => b.roomType === 'deluxe').length;
+        const exeOcc = confirmedBookings.filter(b => b.roomType === 'executive').length;
+
+        const stdEl = document.getElementById('stat-std-occupancy');
+        const dlxEl = document.getElementById('stat-dlx-occupancy');
+        const exeEl = document.getElementById('stat-exe-occupancy');
+
+        if (stdEl) stdEl.innerText = `${stdOcc} / 5 occupied`;
+        if (dlxEl) dlxEl.innerText = `${dlxOcc} / 5 occupied`;
+        if (exeEl) exeEl.innerText = `${exeOcc} / 2 occupied`;
+
+        // Messages count
+        const unreadMsg = this.messages.filter(m => m.status === 'Unread').length;
+        const unreadCountEl = document.getElementById('unread-msg-count');
+        if (unreadCountEl) unreadCountEl.innerText = unreadMsg;
+    }
+
+    switchAdminTab(tabName) {
+        this.currentAdminTab = tabName;
+
+        // Update menu buttons active class
+        document.querySelectorAll('.admin-tabs-nav .tab-btn').forEach(btn => {
             btn.classList.remove('active');
-            const btnText = btn.querySelector('span').innerText.toLowerCase();
-            const pageLower = page.toLowerCase();
-            if (btnText === pageLower || (pageLower === 'pos' && btnText === 'tuckshop pos') || (pageLower === 'exams' && btnText === 'examinations')) {
+            if (btn.getAttribute('data-tab') === tabName) {
                 btn.classList.add('active');
             }
         });
 
-        this.container.innerHTML = `
-            <div class="loader">
-                <div class="spinner"></div>
-                <p>Loading ${page.charAt(0).toUpperCase() + page.slice(1)}...</p>
-            </div>
-        `;
-
-        switch (page) {
-            case 'dashboard':
-                await this.renderDashboard();
-                break;
-            case 'students':
-                await this.renderStudents();
-                break;
-            case 'staff':
-                await this.renderStaff();
-                break;
-            case 'subjects':
-                await this.renderSubjects();
-                break;
-            case 'exams':
-                await this.renderExams();
-                break;
-            case 'timetable':
-                await this.renderTimetable();
-                break;
-            case 'attendance':
-                await this.renderAttendance();
-                break;
-            case 'library':
-                await this.renderLibrary();
-                break;
-            case 'discipline':
-                await this.renderDiscipline();
-                break;
-            case 'health':
-                await this.renderHealth();
-                break;
-            case 'fees':
-                await this.renderFees();
-                break;
-            case 'payroll':
-                await this.renderPayroll();
-                break;
-            case 'inventory':
-                await this.renderInventory();
-                break;
-            case 'pos':
-                await this.renderPOS();
-                break;
-            case 'expenses':
-                await this.renderExpenses();
-                break;
-            case 'hostels':
-                await this.renderHostels();
-                break;
-            case 'transport':
-                await this.renderTransport();
-                break;
-            case 'notices':
-                await this.renderNotices();
-                break;
-            case 'resources':
-                await this.renderResources();
-                break;
-            default:
-                this.container.innerHTML = '<div class="glass-panel"><h1>404 Page Not Found</h1></div>';
-        }
-    },
-
-    async renderTimetable() {
-        const slots = await db.timetable.toArray();
-        const subjects = await db.subjects.toArray();
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        const periods = ['08:00 - 09:00', '09:00 - 10:00', '10:30 - 11:30', '11:30 - 12:30', '14:00 - 15:00'];
-
-        const canEdit = this.canModify();
-        this.container.innerHTML = `
-            <h1>Timetable ${canEdit ? 'Generator' : 'View'}</h1>
-            ${canEdit ? `
-            <div class="glass-panel" style="margin-bottom: 2rem;">
-                <h2>Add Schedule</h2>
-                <form id="tt-form" class="mobile-stack" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <input type="text" id="tt-class" placeholder="Class (e.g. Form 1A)" required style="flex: 1;">
-                    <select id="tt-day" required style="flex: 1;">
-                        ${days.map(d => `<option value="${d}">${d}</option>`).join('')}
-                    </select>
-                    <select id="tt-period" required style="flex: 1;">
-                        ${periods.map(p => `<option value="${p}">${p}</option>`).join('')}
-                    </select>
-                    <select id="tt-subj" required style="flex: 1;">
-                        ${subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
-                    </select>
-                    <button type="submit" class="btn-primary">Add Entry</button>
-                </form>
-            </div>` : ''}
-            <div class="glass-panel" style="overflow-x: auto;">
-                <h2>Visual Schedule</h2>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th style="padding: 1rem; border: 1px solid var(--glass-border);">Period</th>
-                            ${days.map(d => `<th style="padding: 1rem; border: 1px solid var(--glass-border);">${d}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${periods.map(p => `
-                            <tr>
-                                <td style="padding: 1rem; border: 1px solid var(--glass-border); font-weight: 600;">${p}</td>
-                                ${days.map(d => {
-            const entry = slots.find(s => s.day === d && s.period === p);
-            return `<td style="padding: 1rem; border: 1px solid var(--glass-border); background: ${entry ? 'var(--glass-bg)' : ''};">
-                                        ${entry ? `<div style="font-weight: 700;">${entry.subject}</div><div style="font-size: 0.8rem; color: var(--text-muted);">${entry.class}</div>` : '-'}
-                                    </td>`;
-        }).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        if (canEdit) {
-            document.getElementById('tt-form').onsubmit = async (e) => {
-                e.preventDefault();
-                await db.timetable.add({
-                    class: document.getElementById('tt-class').value,
-                    day: document.getElementById('tt-day').value,
-                    period: document.getElementById('tt-period').value,
-                    subject: document.getElementById('tt-subj').value
-                });
-                this.renderTimetable();
-            };
-        }
-    },
-
-    async renderLibrary() {
-        const books = await db.library.toArray();
-        const loans = await db.bookLoans.toArray();
-        const students = await db.students.toArray();
-
-        const canEdit = this.canModify();
-        this.container.innerHTML = `
-            <h1>Library ${canEdit ? 'Management' : 'Catalog'}</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: ${canEdit ? '1fr 2fr' : '1fr'}; gap: 2rem;">
-                ${canEdit ? `
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Register Book</h2>
-                    <form id="lib-form">
-                        <input type="text" id="lib-title" placeholder="Book Title" required>
-                        <input type="text" id="lib-isbn" placeholder="ISBN" required>
-                        <input type="number" id="lib-qty" placeholder="Quantity" required>
-                        <button type="submit" class="btn-primary" style="width: 100%;">Add Book</button>
-                    </form>
-                    <h2 style="margin-top: 2rem;">Issue Book</h2>
-                    <form id="loan-form">
-                        <select id="loan-book" required>
-                            <option value="">Select Book</option>
-                            ${books.filter(b => b.available > 0).map(b => `<option value="${b.id}">${b.title}</option>`).join('')}
-                        </select>
-                        <select id="loan-student" required>
-                            <option value="">Select Student</option>
-                            ${students.map(s => `<option value="${s.studentId}">${s.name}</option>`).join('')}
-                        </select>
-                        <button type="submit" class="btn-primary" style="width: 100%; background: var(--secondary);">Issue Item</button>
-                    </form>
-                </div>` : ''}
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Library Catalog</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left; border-bottom: 2px solid var(--glass-border);">
-                                <th style="padding: 1rem;">Title</th>
-                                <th style="padding: 1rem;">Available</th>
-                                <th style="padding: 1rem;">On Loan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${books.map(b => `
-                                <tr>
-                                    <td style="padding: 1rem;">${b.title}</td>
-                                    <td style="padding: 1rem;">${b.available}/${b.quantity}</td>
-                                    <td style="padding: 1rem;">
-                                        ${loans.filter(l => l.bookId == b.id && l.status === 'Issued').length}
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        if (canEdit) {
-            document.getElementById('lib-form').onsubmit = async (e) => {
-                e.preventDefault();
-                const qty = parseInt(document.getElementById('lib-qty').value);
-                await db.library.add({
-                    title: document.getElementById('lib-title').value,
-                    ISBN: document.getElementById('lib-isbn').value,
-                    quantity: qty,
-                    available: qty
-                });
-                this.renderLibrary();
-            };
-
-            document.getElementById('loan-form').onsubmit = async (e) => {
-                e.preventDefault();
-                const bookId = parseInt(document.getElementById('loan-book').value);
-                await db.bookLoans.add({
-                    bookId: bookId,
-                    studentId: document.getElementById('loan-student').value,
-                    loanDate: new Date().toLocaleDateString(),
-                    status: 'Issued'
-                });
-                const book = await db.library.get(bookId);
-                await db.library.update(bookId, { available: book.available - 1 });
-                this.renderLibrary();
-            };
-        }
-    },
-
-    async renderDiscipline() {
-        const discipline = await db.discipline.toArray();
-        const students = await db.students.toArray();
-
-        this.container.innerHTML = `
-            <h1>Disciplinary Tracker</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="disc-form" class="glass-panel" style="margin: 0;">
-                    <h2>Record Infraction</h2>
-                    <select id="ds-student" required>
-                        <option value="">Select Student</option>
-                        ${students.map(s => `<option value="${s.studentId}">${s.name}</option>`).join('')}
-                    </select>
-                    <input type="text" id="ds-infraction" placeholder="Reason (e.g. Late for class)" required>
-                    <select id="ds-severity">
-                        <option value="Minor">Minor</option>
-                        <option value="Moderate">Moderate</option>
-                        <option value="Severe">Severe</option>
-                    </select>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Log Incident</button>
-                </form>
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Incident Log</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left;">
-                                <th style="padding: 1rem;">Student</th>
-                                <th style="padding: 1rem;">Infraction</th>
-                                <th style="padding: 1rem;">Severity</th>
-                                <th style="padding: 1rem;">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${discipline.map(d => `
-                                <tr>
-                                    <td style="padding: 1rem;">${students.find(s => s.studentId === d.studentId)?.name || d.studentId}</td>
-                                    <td style="padding: 1rem;">${d.infraction}</td>
-                                    <td style="padding: 1rem;"><span style="color: ${d.severity === 'Severe' ? 'var(--danger)' : d.severity === 'Moderate' ? 'var(--warning)' : 'var(--success)'}">${d.severity}</span></td>
-                                    <td style="padding: 1rem;">${d.date}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('disc-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.discipline.add({
-                studentId: document.getElementById('ds-student').value,
-                infraction: document.getElementById('ds-infraction').value,
-                severity: document.getElementById('ds-severity').value,
-                date: new Date().toLocaleDateString()
-            });
-            this.renderDiscipline();
-        };
-    },
-
-    async renderHealth() {
-        const records = await db.health.toArray();
-        const students = await db.students.toArray();
-
-        const canEdit = this.canModify();
-        this.container.innerHTML = `
-            <h1>Student Health Records</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: ${canEdit ? '1fr 2fr' : '1fr'}; gap: 2rem;">
-                ${canEdit ? `
-                <form id="health-form" class="glass-panel" style="margin: 0;">
-                    <h2>Add/Update Health Info</h2>
-                    <select id="h-student" required>
-                        <option value="">Select Student</option>
-                        ${students.map(s => `<option value="${s.studentId}">${s.name}</option>`).join('')}
-                    </select>
-                    <input type="text" id="h-blood" placeholder="Blood Group (e.g. O+)" required>
-                    <textarea id="h-allergies" placeholder="Known Allergies" style="min-height: 100px;"></textarea>
-                    <input type="text" id="h-contact" placeholder="Emergency Contact" required>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Save Record</button>
-                </form>` : ''}
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Medical Database</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr>
-                                <th style="padding: 1rem; text-align: left;">Student</th>
-                                <th style="padding: 1rem; text-align: left;">Blood Group</th>
-                                <th style="padding: 1rem; text-align: left;">Allergies</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${records.map(r => `
-                                <tr>
-                                    <td style="padding: 1rem;">${students.find(s => s.studentId === r.studentId)?.name || r.studentId}</td>
-                                    <td style="padding: 1rem;">${r.bloodGroup}</td>
-                                    <td style="padding: 1rem; font-size: 0.9rem; color: var(--text-muted);">${r.allergies || 'None'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        if (canEdit) {
-            document.getElementById('health-form').onsubmit = async (e) => {
-                e.preventDefault();
-                await db.health.put({
-                    studentId: document.getElementById('h-student').value,
-                    bloodGroup: document.getElementById('h-blood').value,
-                    allergies: document.getElementById('h-allergies').value,
-                    emergencyContact: document.getElementById('h-contact').value
-                });
-                this.renderHealth();
-            };
-        }
-    },
-
-    toggleTheme() {
-        document.body.classList.toggle('light-theme');
-        const isLight = document.body.classList.contains('light-theme');
-        document.getElementById('theme-toggle').innerText = isLight ? '🌙' : '🌓';
-    },
-
-    async renderPayroll() {
-        const staff = await db.staff.toArray();
-        const payroll = await db.payroll.toArray();
-        const month = new Date().toLocaleString('default', { month: 'long' });
-        const year = 2026;
-
-        this.container.innerHTML = `
-            <h1>Staff Payroll System</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="pay-form" class="glass-panel" style="margin: 0;">
-                    <h2>Process Payment</h2>
-                    <select id="p-staff" required>
-                        <option value="">Select Staff Member</option>
-                        ${staff.map(s => `<option value="${s.staffId}">${s.name} (${s.role})</option>`).join('')}
-                    </select>
-                    <input type="number" id="p-salary" placeholder="Basic Salary" required>
-                    <input type="number" id="p-bonus" placeholder="Bonus" value="0">
-                    <input type="number" id="p-deduct" placeholder="Deductions" value="0">
-                    <button type="submit" class="btn-primary" style="width: 100%;">Generate Payslip</button>
-                </form>
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Payroll Log - ${month} ${year}</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left;">
-                                <th style="padding: 1rem;">Staff</th>
-                                <th style="padding: 1rem;">Net Salary</th>
-                                <th style="padding: 1rem;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${payroll.filter(p => p.month === month).map(p => `
-                                <tr>
-                                    <td style="padding: 1rem;">${staff.find(s => s.staffId === p.staffId)?.name || p.staffId}</td>
-                                    <td style="padding: 1rem;">$${(p.salary + p.bonus - p.deductions).toFixed(2)}</td>
-                                    <td style="padding: 1rem;"><span style="color: var(--success);">Paid</span></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('pay-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.payroll.add({
-                staffId: document.getElementById('p-staff').value,
-                salary: parseFloat(document.getElementById('p-salary').value),
-                bonus: parseFloat(document.getElementById('p-bonus').value || 0),
-                deductions: parseFloat(document.getElementById('p-deduct').value || 0),
-                month: month,
-                year: year,
-                status: 'Paid'
-            });
-            this.renderPayroll();
-        };
-    },
-
-    async renderPOS() {
-        const sales = await db.pos.toArray();
-        const totalSales = sales.reduce((acc, s) => acc + (s.price * s.quantity), 0);
-
-        this.container.innerHTML = `
-            <h1>Tuckshop POS Terminal</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="pos-form" class="glass-panel" style="margin: 0;">
-                    <h2>New Transaction</h2>
-                    <input type="text" id="pos-item" placeholder="Item Name" required>
-                    <input type="number" id="pos-price" placeholder="Price" step="0.01" required>
-                    <input type="number" id="pos-qty" placeholder="Quantity" value="1" required>
-                    <button type="submit" class="btn-primary" style="width: 100%; background: var(--accent);">Complete Sale</button>
-                </form>
-                <div class="glass-panel" style="margin: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>Daily Sales</h2>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">$${totalSales.toFixed(2)}</div>
-                    </div>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left;">
-                                <th style="padding: 1rem;">Item</th>
-                                <th style="padding: 1rem;">Qty</th>
-                                <th style="padding: 1rem;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${sales.map(s => `
-                                <tr>
-                                    <td style="padding: 1rem;">${s.itemName}</td>
-                                    <td style="padding: 1rem;">${s.quantity}</td>
-                                    <td style="padding: 1rem;">$${(s.price * s.quantity).toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('pos-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.pos.add({
-                itemName: document.getElementById('pos-item').value,
-                price: parseFloat(document.getElementById('pos-price').value),
-                quantity: parseInt(document.getElementById('pos-qty').value),
-                date: new Date().toLocaleDateString()
-            });
-            this.renderPOS();
-        };
-    },
-
-    async renderExpenses() {
-        const expenses = await db.expenses.toArray();
-        const totalExp = expenses.reduce((acc, e) => acc + e.amount, 0);
-
-        this.container.innerHTML = `
-            <h1>Expenses Tracker</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="exp-form" class="glass-panel" style="margin: 0;">
-                    <h2>Record Expense</h2>
-                    <input type="text" id="ex-name" placeholder="Expense Name" required>
-                    <input type="number" id="ex-amount" placeholder="Amount" step="0.01" required>
-                    <select id="ex-cat">
-                        <option value="Operational">Operational</option>
-                        <option value="Maintenance">Maintenance</option>
-                        <option value="Stationery">Stationery</option>
-                        <option value="Utilities">Utilities</option>
-                    </select>
-                    <button type="submit" class="btn-primary" style="width: 100%; background: var(--danger);">Log Expense</button>
-                </form>
-                <div class="glass-panel" style="margin: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>Operational Costs</h2>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger);">$${totalExp.toFixed(2)}</div>
-                    </div>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left;">
-                                <th style="padding: 1rem;">Expense</th>
-                                <th style="padding: 1rem;">Category</th>
-                                <th style="padding: 1rem;">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${expenses.map(e => `
-                                <tr>
-                                    <td style="padding: 1rem;">${e.name}</td>
-                                    <td style="padding: 1rem;">${e.category}</td>
-                                    <td style="padding: 1rem;">$${e.amount.toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('exp-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.expenses.add({
-                name: document.getElementById('ex-name').value,
-                amount: parseFloat(document.getElementById('ex-amount').value),
-                category: document.getElementById('ex-cat').value,
-                date: new Date().toLocaleDateString()
-            });
-            this.renderExpenses();
-        };
-    },
-
-    async renderInventory() {
-        const assets = await db.assets.toArray();
-        this.container.innerHTML = `
-            <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1>School Assets & Inventory</h1>
-                <div class="button-group" style="display: flex; gap: 1rem;">
-                    <button class="btn-primary" onclick="app.renderInventoryAudit()" style="background: var(--accent);">Inventory Audit Report</button>
-                    <button class="btn-primary" onclick="app.exportToCSV('assets')" style="background: var(--success);">Export Ledger (CSV)</button>
-                    <button class="btn-primary" onclick="app.showAssetForm()">Add New Asset</button>
-                </div>
-            </div>
-
-            <div class="glass-panel" style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr style="text-align: left; border-bottom: 2px solid var(--glass-border);">
-                            <th style="padding: 1rem;">Item Name</th>
-                            <th style="padding: 1rem;">Qty</th>
-                            <th style="padding: 1rem;">Current Value</th>
-                            <th style="padding: 1rem;">Condition</th>
-                            <th style="padding: 1rem;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${assets.map(a => {
-            const yearsElapsed = (new Date() - new Date(a.purchaseDate || new Date())) / (1000 * 60 * 60 * 24 * 365);
-            const currentValue = (a.value || 0) * Math.pow(0.9, Math.max(0, yearsElapsed));
-            return `
-                                    <tr style="border-bottom: 1px solid var(--glass-border);">
-                                        <td style="padding: 1rem; font-weight: 600;">${a.name}</td>
-                                        <td style="padding: 1rem;">${a.quantity}</td>
-                                        <td style="padding: 1rem;">$${currentValue.toFixed(2)}</td>
-                                        <td style="padding: 1rem;"><span class="status-pill" style="background: ${a.condition === 'Good' ? 'var(--success-glow)' : 'rgba(255,255,255,0.05)'}; color: ${a.condition === 'Good' ? 'var(--success)' : ''}">${a.condition}</span></td>
-                                        <td style="padding: 1rem;"><button onclick="app.deleteAsset(${a.id})" style="color: var(--danger); background:none; border:none; cursor:pointer;">Remove</button></td>
-                                    </tr>
-                                `;
-        }).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="asset-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px);">
-                <div class="glass-panel" style="width: 90%; max-width: 500px; border: 1px solid var(--primary);">
-                    <h2 class="card-title">New Asset Registration</h2>
-                    <form id="asset-form">
-                        <input type="text" id="as-name" placeholder="Item Name" required>
-                        <input type="number" id="as-qty" placeholder="Quantity" required>
-                        <input type="number" id="as-val" placeholder="Value ($)" required>
-                        <select id="as-condition">
-                            <option value="Good">Good</option>
-                            <option value="Fair">Fair</option>
-                            <option value="Damaged">Damaged</option>
-                        </select>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                            <button type="submit" class="btn-primary">Add Asset</button>
-                            <button type="button" class="btn-primary" style="background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); box-shadow: none;" onclick="document.getElementById('asset-modal').classList.add('hidden')">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('asset-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.assets.add({
-                name: document.getElementById('as-name').value,
-                quantity: document.getElementById('as-qty').value,
-                value: parseFloat(document.getElementById('as-val').value),
-                purchaseDate: new Date().toISOString(),
-                condition: document.getElementById('as-condition').value
-            });
-            this.renderInventory();
-        };
-    },
-
-    showAssetForm() {
-        document.getElementById('asset-modal').classList.remove('hidden');
-    },
-
-    async deleteAsset(id) {
-        if (confirm('Remove item from inventory?')) {
-            await db.assets.delete(id);
-            this.renderInventory();
-        }
-    },
-
-    async renderDashboard() {
-        const studentCount = await db.students.count();
-        const totalFees = await db.fees.toArray();
-        const sumFees = totalFees.reduce((acc, f) => acc + parseFloat(f.amount), 0);
-
-        this.container.innerHTML = `
-            <div class="dashboard-grid">
-                <h1>Academic Dashboard</h1>
-                <div class="stats-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    <div class="stat-card glass-panel" style="margin:0; padding: 1.5rem;">
-                        <h3>Total Students</h3>
-                        <p style="font-size: 2rem; color: var(--primary-bright); font-weight: 700;">${studentCount}</p>
-                    </div>
-                    <div class="stat-card glass-panel" style="margin:0; padding: 1.5rem;">
-                        <h3>Fees Collected</h3>
-                        <p style="font-size: 2rem; color: var(--success); font-weight: 700;">$${sumFees.toFixed(2)}</p>
-                    </div>
-                </div>
-                <div class="glass-panel" style="margin:0;">
-                    <h2>Quick Actions</h2>
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <button class="btn-primary" onclick="app.navigate('students')">Register Student</button>
-                        <button class="btn-primary" style="background: var(--secondary);" onclick="app.navigate('exams')">Record Marks</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    async renderStaff() {
-        const staffList = await db.staff.toArray();
-        this.container.innerHTML = `
-            <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1>Staff Management</h1>
-                <div class="button-group" style="display: flex; gap: 1rem;">
-                    <button class="btn-primary" onclick="app.exportToCSV('staff')" style="background: var(--success);">Export Staff (CSV)</button>
-                    <button class="btn-primary" onclick="app.showStaffForm()">Register Staff</button>
-                </div>
-            </div>
-            
-            <div class="glass-panel" style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr style="text-align: left; border-bottom: 2px solid var(--glass-border);">
-                            <th style="padding: 1rem;">Staff ID</th>
-                            <th style="padding: 1rem;">Name</th>
-                            <th style="padding: 1rem;">Role</th>
-                            <th style="padding: 1rem;">Contact</th>
-                            <th style="padding: 1rem;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${staffList.map(s => `
-                            <tr style="border-bottom: 1px solid var(--glass-border);">
-                                <td style="padding: 1rem;"><span style="color: var(--primary); font-weight: 600;">${s.staffId}</span></td>
-                                <td style="padding: 1rem;">${s.name}</td>
-                                <td style="padding: 1rem;"><span class="status-pill" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">${s.role}</span></td>
-                                <td style="padding: 1rem; color: var(--text-muted);">${s.contact}</td>
-                                <td style="padding: 1rem;">
-                                    <button onclick="app.deleteStaff(${s.id})" style="color: var(--danger); background:none; border:none; cursor:pointer; font-weight:600;">Remove</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="staff-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px);">
-                <div class="glass-panel" style="width: 90%; max-width: 500px; border: 1px solid var(--primary);">
-                    <h2 class="card-title">New Staff Registration</h2>
-                    <form id="staff-form">
-                        <input type="text" id="st-name" placeholder="Full Name" required>
-                        <select id="st-role" required>
-                            <option value="Teacher">Teacher</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Bursar">Bursar</option>
-                            <option value="Support">Support Staff</option>
-                        </select>
-                        <input type="text" id="st-contact" placeholder="Contact Number" required>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                            <button type="submit" class="btn-primary">Register Staff</button>
-                            <button type="button" class="btn-primary" style="background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); box-shadow: none;" onclick="document.getElementById('staff-modal').classList.add('hidden')">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('staff-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const staff = {
-                staffId: 'ST-' + Math.floor(Math.random() * 9000 + 1000),
-                name: document.getElementById('st-name').value,
-                role: document.getElementById('st-role').value,
-                contact: document.getElementById('st-contact').value
-            };
-            await db.staff.add(staff);
-            this.renderStaff();
-        };
-    },
-
-    showStaffForm() {
-        document.getElementById('staff-modal').classList.remove('hidden');
-    },
-
-    async deleteStaff(id) {
-        if (confirm('Are you sure you want to remove this staff member?')) {
-            await db.staff.delete(id);
-            this.renderStaff();
-        }
-    },
-
-    async renderSubjects() {
-        const subjects = await db.subjects.toArray();
-        const teachers = await db.staff.where('role').equals('Teacher').toArray();
-
-        this.container.innerHTML = `
-            <h1>Subject Management</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="subj-form" class="glass-panel" style="margin: 0;">
-                    <h2>Define Subject</h2>
-                    <input type="text" id="subj-name" placeholder="Subject Name (e.g. Mathematics)" required>
-                    <input type="text" id="subj-class" placeholder="Class (e.g. Form 1)" required>
-                    <select id="subj-teacher" required>
-                        <option value="">Select Teacher</option>
-                        ${teachers.map(t => `<option value="${t.staffId}">${t.name}</option>`).join('')}
-                    </select>
-                    <button type="submit" class="btn-primary">Assign Subject</button>
-                </form>
-                <div class="glass-panel" style="margin: 0; overflow-x: auto;">
-                    <h2>Subject Allocations</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left; border-bottom: 1px solid var(--glass-border);">
-                                <th style="padding: 1rem;">Subject</th>
-                                <th style="padding: 1rem;">Class</th>
-                                <th style="padding: 1rem;">Teacher</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${subjects.map(s => `
-                                <tr style="border-bottom: 1px solid var(--glass-border);">
-                                    <td style="padding: 1rem;">${s.name}</td>
-                                    <td style="padding: 1rem;">${s.class}</td>
-                                    <td style="padding: 1rem;">${teachers.find(t => t.staffId === s.teacherId)?.name || s.teacherId}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('subj-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const subject = {
-                name: document.getElementById('subj-name').value,
-                class: document.getElementById('subj-class').value,
-                teacherId: document.getElementById('subj-teacher').value
-            };
-            await db.subjects.add(subject);
-            this.renderSubjects();
-        };
-    },
-
-    async renderStudents() {
-        const students = await db.students.toArray();
-        this.container.innerHTML = `
-            <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1>Student Directory</h1>
-                <div class="button-group" style="display: flex; gap: 1rem;">
-                    <button class="btn-primary" onclick="app.exportToCSV('students')" style="background: var(--success);">Export to CSV</button>
-                    <button class="btn-primary" onclick="app.showStudentForm()">Admit Student</button>
-                </div>
-            </div>
-            
-            <div class="glass-panel" style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr style="text-align: left; border-bottom: 2px solid var(--glass-border);">
-                            <th style="padding: 1.25rem 1rem;">ID</th>
-                            <th style="padding: 1.25rem 1rem;">Name</th>
-                            <th style="padding: 1.25rem 1rem;">Class</th>
-                            <th style="padding: 1.25rem 1rem;">Contact</th>
-                            <th style="padding: 1.25rem 1rem;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${students.map(s => `
-                            <tr style="border-bottom: 1px solid var(--glass-border);">
-                                <td style="padding: 1.25rem 1rem; font-weight: 600; color: var(--accent);">${s.studentId}</td>
-                                <td style="padding: 1.25rem 1rem;">${s.name}</td>
-                                <td style="padding: 1.25rem 1rem;"><span class="status-pill" style="background: rgba(255,255,255,0.05);">${s.class}</span></td>
-                                <td style="padding: 1.25rem 1rem; color: var(--text-muted);">${s.parentContact}</td>
-                                <td style="padding: 1.25rem 1rem; display: flex; gap: 0.75rem;">
-                                    <button onclick="app.viewIDCard('${s.id}')" style="color: var(--accent); background:none; border:none; cursor:pointer; font-weight:600;">ID Card</button>
-                                    <button onclick="app.deleteStudent(${s.id})" style="color: var(--danger); background:none; border:none; cursor:pointer; font-weight:600;">Expel</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="student-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px);">
-                <div class="glass-panel" style="width: 90%; max-width: 500px; border: 1px solid var(--primary);">
-                    <h2 class="card-title">Register New Student</h2>
-                    <form id="reg-form">
-                        <input type="text" id="s-name" placeholder="Full Name" required>
-                        <input type="text" id="s-class" placeholder="Class (e.g. Form 1A)" required>
-                        <select id="s-gender">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                        <input type="text" id="s-contact" placeholder="Parent/Guardian Contact" required>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                            <button type="submit" class="btn-primary">Register Student</button>
-                            <button type="button" class="btn-primary" style="background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); box-shadow: none;" onclick="document.getElementById('student-modal').classList.add('hidden')">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('reg-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const count = await db.students.count();
-            await db.students.add({
-                studentId: `EST${2026}${String(count + 1).padStart(3, '0')}`,
-                name: document.getElementById('s-name').value,
-                class: document.getElementById('s-class').value,
-                gender: document.getElementById('s-gender').value,
-                parentContact: document.getElementById('s-contact').value
-            });
-            this.renderStudents();
-        };
-    },
-
-    showStudentForm() {
-        document.getElementById('student-modal').classList.remove('hidden');
-    },
-
-    async deleteStudent(id) {
-        if (confirm('Are you sure you want to remove this student?')) {
-            await db.students.delete(id);
-            this.renderStudents();
-        }
-    },
-
-    async renderAttendance() {
-        const students = await db.students.toArray();
-        const today = new Date().toISOString().split('T')[0];
-
-        this.container.innerHTML = `
-            <h1>Attendance Management</h1>
-            <div class="glass-panel" style="margin: 0;">
-                <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Record Daily Attendance</h2>
-                    <input type="date" id="att-date" value="${today}" style="width: auto; margin: 0; min-width: 150px;">
-                </div>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="text-align: left; border-bottom: 1px solid var(--glass-border);">
-                            <th style="padding: 1rem;">Student Name</th>
-                            <th style="padding: 1rem;">Class</th>
-                            <th style="padding: 1rem;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="att-list">
-                        ${students.map(s => `
-                            <tr style="border-bottom: 1px solid var(--glass-border);">
-                                <td style="padding: 1rem;">${s.name}</td>
-                                <td style="padding: 1rem;">${s.class}</td>
-                                <td style="padding: 1rem;">
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <button class="btn-att" onclick="app.setAttendance('${s.studentId}', 'Present')" style="background: var(--success);">P</button>
-                                        <button class="btn-att" onclick="app.setAttendance('${s.studentId}', 'Absent')" style="background: var(--danger);">A</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-            <style>
-                .btn-att { border: none; padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; font-weight: 700; opacity: 0.7; transition: opacity 0.2s; }
-                .btn-att:hover { opacity: 1; }
-            </style>
-        `;
-    },
-
-    async setAttendance(studentId, status) {
-        const date = document.getElementById('att-date').value;
-        await db.attendance.put({ studentId, date, status });
-        alert(`${status} recorded for ${studentId}`);
-    },
-
-    async renderFees() {
-        const students = await db.students.toArray();
-        const fees = await db.fees.toArray();
-
-        const canEdit = this.canModify();
-        this.container.innerHTML = `
-            <h1>Fees ${canEdit ? 'Management' : 'Statement'}</h1>
-            <div class="mobile-stack" style="display: grid; grid-template-columns: ${canEdit ? '1fr 2fr' : '1fr'}; gap: 2rem;">
-                ${canEdit ? `
-                <form id="fees-form" class="glass-panel" style="margin: 0;">
-                    <h2>Record Payment</h2>
-                    <select id="f-student" required>
-                        <option value="">Select Student</option>
-                        ${students.map(s => `<option value="${s.studentId}">${s.name} (${s.studentId})</option>`).join('')}
-                    </select>
-                    <input type="number" id="f-amount" placeholder="Amount ($)" required>
-                    <input type="text" id="f-type" placeholder="Payment Type (e.g. Tuition, Bus)">
-                    <button type="submit" class="btn-primary">Record Payment</button>
-                </form>` : ''}
-                <div class="glass-panel" style="margin: 0; overflow-x: auto;">
-                    <h2>Payment History</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left; border-bottom: 1px solid var(--glass-border);">
-                                <th style="padding: 1rem;">Student ID</th>
-                                <th style="padding: 1rem;">Amount</th>
-                                <th style="padding: 1rem;">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${fees.map(f => `
-                                <tr style="border-bottom: 1px solid var(--glass-border);">
-                                    <td style="padding: 1rem;">${f.studentId}</td>
-                                    <td style="padding: 1rem;">$${f.amount}</td>
-                                    <td style="padding: 1rem;">${f.date}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        if (canEdit) {
-            document.getElementById('fees-form').onsubmit = async (e) => {
-                e.preventDefault();
-                const payment = {
-                    studentId: document.getElementById('f-student').value,
-                    amount: document.getElementById('f-amount').value,
-                    type: document.getElementById('f-type').value,
-                    date: new Date().toISOString().split('T')[0]
-                };
-                await db.fees.add(payment);
-                alert('Payment recorded and SMS reminder simulated!');
-                this.renderFees();
-            };
-        }
-    },
-
-    async renderExams() {
-        const students = await db.students.toArray();
-        const marks = await db.marks.toArray();
-
-        const canEdit = this.canModify();
-        this.container.innerHTML = `
-            <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1>Examination ${canEdit ? 'Management' : 'Results'}</h1>
-                <div class="button-group" style="display: flex; gap: 1rem; width: 100%;">
-                    ${canEdit ? `<button class="btn-primary" onclick="app.showReportSelector()" style="background: var(--accent); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4); flex: 1;">Generate Report Cards</button>` : ''}
-                </div>
-            </div>
-            <div class="dashboard-grid mobile-stack" style="grid-template-columns: ${canEdit ? '1fr 2fr' : '1fr'}; gap: 2rem;">
-                ${canEdit ? `
-                <div class="glass-panel">
-                    <h2 class="card-title">Enter Marks</h2>
-                    <form id="marks-form">
-                        <select id="m-student" required>
-                            <option value="">Select Student</option>
-                            ${students.map(s => `<option value="${s.studentId}">${s.name}</option>`).join('')}
-                        </select>
-                        <input type="text" id="m-subject" placeholder="Subject" required>
-                        <input type="number" id="m-score" placeholder="Score (%)" max="100" required>
-                        <button type="submit" class="btn-primary" style="width: 100%; background: var(--secondary); box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);">Assign Grade</button>
-                    </form>
-                </div>` : ''}
-                <div class="glass-panel" style="overflow-x: auto;">
-                    <h2 class="card-title">Student Performances</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Subject</th>
-                                <th>Score</th>
-                                <th>Grade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${marks.map(m => `
-                                <tr>
-                                    <td><span style="color: var(--primary); font-weight: 600;">${m.studentId}</span></td>
-                                    <td>${m.subject}</td>
-                                    <td style="font-weight: 700;">${m.score}%</td>
-                                    <td>
-                                        <span class="status-pill" style="background: ${m.score >= 50 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; color: ${m.score >= 50 ? 'var(--success)' : 'var(--danger)'}; border: 1px solid ${m.score >= 50 ? 'var(--success)' : 'var(--danger)'};">
-                                            ${this.calculateGrade(m.score)}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            ${canEdit ? `
-            <div id="report-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px);">
-                <div class="glass-panel" style="width: 90%; max-width: 500px; border: 1px solid var(--primary);">
-                    <h2 class="card-title" style="text-align: center;">Academic Reports</h2>
-                    <p style="text-align: center; margin-bottom: 2rem;">Select a student to generate their official achievement report.</p>
-                    <select id="report-student">
-                        ${students.map(s => `<option value="${s.studentId}">${s.name} (${s.studentId})</option>`).join('')}
-                    </select>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn-primary" onclick="app.generateReport()">View Report</button>
-                        <button class="btn-primary" style="background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); box-shadow: none;" onclick="document.getElementById('report-modal').classList.add('hidden')">Cancel</button>
-                    </div>
-                </div>
-            </div>` : ''}
-        `;
-
-        if (canEdit) {
-            document.getElementById('marks-form').onsubmit = async (e) => {
-                e.preventDefault();
-                const mark = {
-                    studentId: document.getElementById('m-student').value,
-                    subject: document.getElementById('m-subject').value,
-                    score: parseInt(document.getElementById('m-score').value),
-                    year: 2026,
-                    term: 1
-                };
-                await db.marks.add(mark);
-                this.renderExams();
-            };
-        }
-    },
-
-    showReportSelector() {
-        document.getElementById('report-modal').classList.remove('hidden');
-    },
-
-    async generateReport() {
-        const studentId = document.getElementById('report-student').value;
-        const student = await db.students.where('studentId').equals(studentId).first();
-        const studentMarks = await db.marks.where('studentId').equals(studentId).toArray();
-
-        const avgScore = studentMarks.length > 0 ? (studentMarks.reduce((acc, m) => acc + m.score, 0) / studentMarks.length).toFixed(1) : 0;
-        const gpa = (avgScore / 20).toFixed(2); // Simple conversion to 5.0 scale
-
-        const reportContent = `
-            <div class="print-container" style="background: white; color: black; padding: 50px; border: 10px double #1e293b; min-height: 100vh; position: relative; font-family: 'Times New Roman', serif;">
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; color: rgba(0,0,0,0.03); z-index: 0; pointer-events: none; white-space: nowrap; font-weight: 900;">
-                    OFFICIAL RELEASE
-                </div>
-                
-                <div style="text-align: center; border-bottom: 3px solid #1e293b; padding-bottom: 20px; margin-bottom: 30px; position: relative; z-index: 1;">
-                    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; color: #1e293b;">EGLES SECONDARY SCHOOL</div>
-                    <p style="margin: 5px 0; font-size: 1.1rem; color: #64748b;">Motto: Excellence Through Discipline & Integrity</p>
-                    <p style="margin: 2px 0; font-size: 0.9rem;">P.O. Box 772, High Glen Road, Harare</p>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; z-index: 1; border: 1px dashed #cbd5e1; padding: 15px;">
-                    <div>
-                        <p style="margin: 4px 0;"><strong>STUDENT NAME:</strong> ${student.name.toUpperCase()}</p>
-                        <p style="margin: 4px 0;"><strong>STUDENT ID:</strong> ${student.studentId}</p>
-                        <p style="margin: 4px 0;"><strong>CLASS/FORM:</strong> ${student.class}</p>
-                    </div>
-                    <div>
-                        <p style="margin: 4px 0;"><strong>ACADEMIC YEAR:</strong> 2026</p>
-                        <p style="margin: 4px 0;"><strong>TERM NO:</strong> 1</p>
-                        <p style="margin: 4px 0;"><strong>ISSUE DATE:</strong> ${new Date().toLocaleDateString()}</p>
-                    </div>
-                </div>
-
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; position: relative; z-index: 1;">
-                    <thead>
-                        <tr style="background: #1e293b; color: white;">
-                            <th style="border: 1px solid #1e293b; padding: 12px; text-align: left;">Subject Area</th>
-                            <th style="border: 1px solid #1e293b; padding: 12px; text-align: center;">Score (%)</th>
-                            <th style="border: 1px solid #1e293b; padding: 12px; text-align: center;">Grade</th>
-                            <th style="border: 1px solid #1e293b; padding: 12px; text-align: left;">Teacher Remark</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${studentMarks.map(m => `
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: 12px;">${m.subject}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center;">${m.score}%</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold;">${this.calculateGrade(m.score)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 12px; font-style: italic; color: #64748b;">${this.getSubjectRemark(m.score)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot>
-                        <tr style="background: #f8fafc; font-weight: bold;">
-                            <td style="border: 1px solid #cbd5e1; padding: 12px;">SUMMARY PERFORMANCE</td>
-                            <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center;">${avgScore}%</td>
-                            <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center;">GPA: ${gpa}</td>
-                            <td style="border: 1px solid #cbd5e1; padding: 12px;">Rank: Top 15%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-
-                <div style="margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; position: relative; z-index: 1;">
-                    <div style="text-align: center;">
-                        <div style="border-bottom: 1px solid #000; height: 40px;"></div>
-                        <p style="margin-top: 5px; font-size: 0.9rem;">Class Teacher's Signature</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="border-bottom: 1px solid #000; height: 40px; display: flex; align-items: center; justify-content: center;">
-                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=40x40&data=${student.studentId}" style="width: 40px; border: 1px solid #000; opacity: 0.3;">
-                        </div>
-                        <p style="margin-top: 5px; font-size: 0.9rem;">Principal's Endorsement</p>
-                    </div>
-                </div>
-
-                <div id="report-actions" style="margin-top: 60px; border-top: 1px solid #cbd5e1; padding-top: 20px; display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn-primary" style="background: #1e293b; color: white;" onclick="window.print()">Print to PDF</button>
-                    <button class="btn-primary" style="background: var(--accent);" onclick="alert('SMS SENT: Academic report for ${student.name} is now available.')">Notify Parent</button>
-                    <button class="btn-primary" style="background: var(--danger);" onclick="app.navigate('exams')">Back to Exams</button>
-                </div>
-            </div>
-            <style>
-                @media print { 
-                    #report-actions { display: none; } 
-                    body { background: white !important; }
-                    .main-wrapper { margin-left: 0 !important; }
-                    .sidebar, .top-bar { display: none !important; }
-                    .content-area { padding: 0 !important; }
-                    .print-container { border: none !important; padding: 0 !important; }
-                }
-            </style>
-        `;
-
-        this.container.innerHTML = reportContent;
-        this.container.style.padding = '0';
-        this.container.style.background = 'white';
-    },
-
-    getSubjectRemark(score) {
-        if (score >= 80) return "Exceptional performance, continue standard.";
-        if (score >= 70) return "Strong grasp of concepts, well done.";
-        if (score >= 60) return "Satisfactory, can improve with effort.";
-        if (score >= 50) return "Borderline, needs consistent practice.";
-        return "Critical attention required in this subject.";
-    },
-
-    async renderDashboard() {
-        const studentCount = await db.students.count();
-        const totalFees = await db.fees.toArray();
-        const sumFees = totalFees.reduce((acc, f) => acc + parseFloat(f.amount), 0);
-        const staffCount = await db.staff.count();
-        const allMarks = await db.marks.toArray();
-
-        // Academic Stats for Chart
-        const subjectStats = {};
-        allMarks.forEach(m => {
-            if (!subjectStats[m.subject]) subjectStats[m.subject] = { total: 0, count: 0 };
-            subjectStats[m.subject].total += m.score;
-            subjectStats[m.subject].count++;
+        // Hide all contents, show target
+        document.querySelectorAll('.admin-tab-content').forEach(cont => {
+            cont.classList.remove('active');
         });
-        const subjectNames = Object.keys(subjectStats);
-        const subjectAvgs = subjectNames.map(name => (subjectStats[name].total / subjectStats[name].count).toFixed(1));
+        const targetTab = document.getElementById(`admin-tab-${tabName}`);
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
 
-        // Financial Stats for Chart (Last 6 months simulated)
-        const months = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
-        const feeData = [sumFees * 0.1, sumFees * 0.15, sumFees * 0.2, sumFees * 0.1, sumFees * 0.25, sumFees * 0.2];
-        const expData = [sumFees * 0.05, sumFees * 0.08, sumFees * 0.1, sumFees * 0.07, sumFees * 0.12, sumFees * 0.15];
+        // Render contents based on active tab
+        if (tabName === 'bookings') {
+            this.renderBookingsTable();
+        } else if (tabName === 'messages') {
+            this.renderMessagesTable();
+        } else if (tabName === 'settings') {
+            this.populateSettingsForm();
+        }
+    }
 
-        this.container.innerHTML = `
-            <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
-                <div>
-                    <h1>Academic Insights</h1>
-                    <p>Welcome back, Administrator. Real-time metrics are active.</p>
-                </div>
-                <div class="button-group" style="display: flex; gap: 1rem;">
-                    <button class="btn-primary" onclick="app.exportAllData()" style="background: var(--success);">Full System Backup</button>
-                    <button class="btn-primary" onclick="app.generateMinistryStats()" style="background: var(--secondary); box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);">
-                        Ministry Statistics
-                    </button>
-                </div>
-            </div>
-            
-            <div class="dashboard-grid">
-                <div class="glass-panel" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem;">
-                    <div style="width: 60px; height: 60px; border-radius: 15px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎓</div>
-                    <div>
-                        <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem;">Total Enrollment</h3>
-                        <p style="font-size: 1.75rem; color: var(--primary); font-weight: 800;">${studentCount}</p>
-                    </div>
-                </div>
-                <div class="glass-panel" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem;">
-                    <div style="width: 60px; height: 60px; border-radius: 15px; background: rgba(6, 182, 212, 0.1); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👨‍🏫</div>
-                    <div>
-                        <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem;">Active Staff</h3>
-                        <p style="font-size: 1.75rem; color: var(--accent); font-weight: 800;">${staffCount}</p>
-                    </div>
-                </div>
-                <div class="glass-panel" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem;">
-                    <div style="width: 60px; height: 60px; border-radius: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">💰</div>
-                    <div>
-                        <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem;">Total Revenue</h3>
-                        <p style="font-size: 1.75rem; color: var(--success); font-weight: 800;">$${sumFees.toLocaleString()}</p>
-                    </div>
-                </div>
-            </div>
+    // Render bookings log
+    renderBookingsTable(filterStatus = 'all') {
+        const tbody = document.getElementById('bookings-table-body');
+        if (!tbody) return;
 
-            <div class="dashboard-main-grid">
-                <div class="glass-panel">
-                    <h2 class="card-title">Financial Trends</h2>
-                    <div class="chart-container">
-                        <canvas id="financeChart"></canvas>
-                    </div>
-                </div>
-                <div class="glass-panel">
-                    <h2 class="card-title">Academic Distribution</h2>
-                    <div class="chart-container">
-                        <canvas id="academicChart"></canvas>
-                    </div>
-                </div>
-            </div>
+        tbody.innerHTML = '';
 
-            <div class="glass-panel" style="margin-top: 1.5rem;">
-                <h2 class="card-title">Quick Actions</h2>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn-primary" onclick="app.navigate('students')">Admit Student</button>
-                    <button class="btn-primary" style="background: var(--secondary);" onclick="app.navigate('exams')">Record Marks</button>
-                    <button class="btn-primary" style="background: var(--accent);" onclick="app.navigate('staff')">Staff Directory</button>
-                    <button class="btn-primary" style="background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); box-shadow: none;" onclick="app.navigate('fees')">Billing</button>
-                    <button class="btn-primary" style="background: var(--success);" onclick="app.exportAllData()">System Backup</button>
-                </div>
-            </div>
-        `;
+        let filtered = [...this.bookings];
+        if (filterStatus !== 'all') {
+            filtered = filtered.filter(b => b.status === filterStatus);
+        }
 
-        this.initCharts(months, feeData, expData, subjectNames, subjectAvgs);
-    },
+        // Sort descending by creation
+        filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    // --- Phase 3: Data Export & Auditing ---
-    async exportToCSV(tableName) {
-        const data = await db[tableName].toArray();
-        if (data.length === 0) {
-            alert("No data found in " + tableName);
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted)">No reservations logged in this category.</td></tr>`;
             return;
         }
 
-        const headers = Object.keys(data[0]);
-        const csvContent = [
-            headers.join(','),
-            ...data.map(row => headers.map(header => {
-                let cell = row[header] === null || row[header] === undefined ? '' : row[header].toString();
-                if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
-                    cell = `"${cell.replace(/"/g, '""')}"`;
-                }
-                return cell;
-            }).join(','))
-        ].join('\n');
+        filtered.forEach(b => {
+            const tr = document.createElement('tr');
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `egles_smis_${tableName}_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    },
-
-    async exportAllData() {
-        const tables = ['students', 'staff', 'fees', 'marks', 'discipline', 'assets', 'library'];
-        alert("Preparing full system backup. You will receive multiple CSV files.");
-        for (const table of tables) {
-            await this.exportToCSV(table);
-        }
-    },
-
-    async renderInventoryAudit() {
-        const assets = await db.assets.toArray();
-        const totalValue = assets.reduce((acc, a) => acc + (parseFloat(a.value) || 0), 0);
-
-        this.container.innerHTML = `
-            <div class="print-container" style="background: white; color: black; padding: 40px; min-height: 100vh; font-family: sans-serif;">
-                <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
-                    <div style="font-size: 2.5rem; font-weight: 900; color: #1e293b;">EGLES SECONDARY SCHOOL</div>
-                    <h2 style="margin: 10px 0;">Annual Asset & Inventory Audit Report</h2>
-                    <p>Report Period: Academic Year 2026 | Generated: ${new Date().toLocaleDateString()}</p>
-                </div>
-
-                <div style="margin-bottom: 30px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                    <div style="border: 2px solid #1e293b; padding: 15px; text-align: center;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase;">Total Asset Count</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">${assets.length}</div>
-                    </div>
-                    <div style="border: 2px solid #1e293b; padding: 15px; text-align: center;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase;">Est. Total Value</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">$${totalValue.toLocaleString()}</div>
-                    </div>
-                    <div style="border: 2px solid #1e293b; padding: 15px; text-align: center;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase;">Audit Status</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #16a34a;">VERIFIED</div>
-                    </div>
-                </div>
-
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background: #e2e8f0;">
-                            <th style="border: 1px solid #000; padding: 10px; text-align: left;">Asset Name</th>
-                            <th style="border: 1px solid #000; padding: 10px; text-align: center;">Qty</th>
-                            <th style="border: 1px solid #000; padding: 10px; text-align: left;">Condition</th>
-                            <th style="border: 1px solid #000; padding: 10px; text-align: right;">Current Value ($)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${assets.map(a => `
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 10px;">${a.name}</td>
-                                <td style="border: 1px solid #000; padding: 10px; text-align: center;">${a.quantity}</td>
-                                <td style="border: 1px solid #000; padding: 10px;">${a.condition}</td>
-                                <td style="border: 1px solid #000; padding: 10px; text-align: right;">$${parseFloat(a.value || 0).toLocaleString()}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-
-                <div style="margin-top: 50px; display: flex; justify-content: space-between;">
-                    <div style="text-align: center; border-top: 1px solid #000; width: 250px; padding-top: 10px;">Inventory Manager Signature</div>
-                    <div style="text-align: center; border-top: 1px solid #000; width: 250px; padding-top: 10px;">Official School Stamp</div>
-                </div>
-
-                <div id="audit-actions" style="margin-top: 40px; display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn-primary" style="background: #1e293b; color: white;" onclick="window.print()">Print Audit Summary</button>
-                    <button class="btn-primary" style="background: var(--success);" onclick="app.exportToCSV('assets')">Export Ledger</button>
-                    <button class="btn-primary" style="background: var(--danger);" onclick="app.navigate('inventory')">Close Audit</button>
-                </div>
-            </div>
-            <style>
-                @media print { 
-                    #audit-actions { display: none; }
-                    .main-wrapper { margin-left: 0 !important; }
-                    .sidebar, .top-bar { display: none !important; }
-                    .content-area { padding: 0 !important; }
-                }
-            </style>
-        `;
-        this.container.style.background = 'white';
-        this.container.style.padding = '0';
-    },
-
-    initCharts(months, feeData, expData, subjectNames, subjectAvgs) {
-        const ctxFinance = document.getElementById('financeChart').getContext('2d');
-        const ctxAcademic = document.getElementById('academicChart').getContext('2d');
-
-        new Chart(ctxFinance, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [
-                    {
-                        label: 'Fees Collected',
-                        data: feeData,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Expenses',
-                        data: expData,
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: true, labels: { color: '#94a3b8' } } },
-                scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                }
+            // Build action buttons depending on booking status
+            let actionButtons = '';
+            if (b.status === 'Pending') {
+                actionButtons = `
+                    <button class="btn-action-confirm" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">Approve</button>
+                    <button class="btn-action-cancel" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">Cancel</button>
+                `;
+            } else if (b.status === 'Confirmed') {
+                actionButtons = `
+                    <button class="btn-action-cancel" onclick="app.updateBookingStatus(${b.id}, 'Cancelled')">Cancel</button>
+                `;
+            } else if (b.status === 'Cancelled') {
+                actionButtons = `
+                    <button class="btn-action-confirm" onclick="app.updateBookingStatus(${b.id}, 'Confirmed')">Reinstate</button>
+                `;
             }
-        });
 
-        new Chart(ctxAcademic, {
-            type: 'bar',
-            data: {
-                labels: subjectNames,
-                datasets: [{
-                    label: 'Subject Average %',
-                    data: subjectAvgs,
-                    backgroundColor: '#6366f1',
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                }
-            }
-        });
-    },
-
-    async handleSearch(query) {
-        const resultsBox = document.getElementById('search-results');
-        if (!query || query.length < 1) {
-            resultsBox.classList.add('hidden');
-            return;
-        }
-
-        const students = await db.students.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.studentId.toLowerCase().includes(query.toLowerCase())).toArray();
-        const staff = await db.staff.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.staffId.toLowerCase().includes(query.toLowerCase())).toArray();
-        const assets = await db.assets.filter(a => a.name.toLowerCase().includes(query.toLowerCase())).toArray();
-
-        let html = '';
-        students.forEach(s => html += `
-            <div class="search-result-item" onclick="app.navigate('students'); resultsBox.classList.add('hidden');">
-                <span class="type-tag" style="background: var(--accent);">Student</span>
-                <div>
-                    <div>${s.name}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">${s.studentId} - ${s.class}</div>
-                </div>
-            </div>
-        `);
-        staff.forEach(s => html += `
-            <div class="search-result-item" onclick="app.navigate('staff'); resultsBox.classList.add('hidden');">
-                <span class="type-tag" style="background: var(--primary);">Staff</span>
-                <div>
-                    <div>${s.name}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">${s.staffId} - ${s.role}</div>
-                </div>
-            </div>
-        `);
-        assets.forEach(a => html += `
-            <div class="search-result-item" onclick="app.navigate('inventory'); resultsBox.classList.add('hidden');">
-                <span class="type-tag" style="background: var(--warning);">Asset</span>
-                <div>
-                    <div>${a.name}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">${a.quantity} units - ${a.condition}</div>
-                </div>
-            </div>
-        `);
-
-        if (html === '') html = '<div class="search-result-item">No results found</div>';
-        resultsBox.innerHTML = html;
-        resultsBox.classList.remove('hidden');
-    },
-
-    async generateMinistryStats() {
-        const studentCount = await db.students.count();
-        const staffCount = await db.staff.count();
-        const femaleStudents = await db.students.where('gender').equals('Female').count();
-        const maleStudents = await db.students.where('gender').equals('Male').count();
-
-        const statsContent = `
-            <div style="background: #f8fafc; color: #1e293b; padding: 40px; border-radius: 12px; max-width: 800px; margin: 2rem auto;">
-                <h1 style="text-align: center; color: #0f172a;">Ministry of Primary and Secondary Education</h1>
-                <h2 style="text-align: center; border-bottom: 2px solid #cbd5e1; padding-bottom: 1rem;">Egles Secondary School - Statistics Report</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-                    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <h3 style="margin: 0 0 1rem 0; color: #64748b;">Enrollment Details</h3>
-                        <p><strong>Total Enrollment:</strong> ${studentCount}</p>
-                        <p><strong>Male Students:</strong> ${maleStudents}</p>
-                        <p><strong>Female Students:</strong> ${femaleStudents}</p>
-                    </div>
-                    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <h3 style="margin: 0 0 1rem 0; color: #64748b;">Staff Details</h3>
-                        <p><strong>Total Staff:</strong> ${staffCount}</p>
-                        <p><strong>Teacher-Student Ratio:</strong> 1:${Math.round(studentCount / (staffCount || 1))}</p>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 3rem; text-align: center;">
-                    <button class="btn-primary" onclick="window.print()">Print Official Statistics</button>
-                    <button class="btn-primary" style="background: var(--danger); margin-left: 10px;" onclick="app.navigate('dashboard')">Close Report</button>
-                </div>
-            </div>
-        `;
-
-        this.container.innerHTML = statsContent;
-    },
-
-    calculateGrade(score) {
-        if (score >= 80) return 'A';
-        if (score >= 70) return 'B';
-        if (score >= 60) return 'C';
-        if (score >= 50) return 'D';
-        return 'U';
-    },
-
-    async renderNotices() {
-        const notices = await db.notices.toArray();
-        const canEdit = this.canModify();
-        this.container.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1>Digital Notice Board</h1>
-                ${canEdit ? `<button class="btn-primary" onclick="app.showNoticeForm()">Post Announcement</button>` : ''}
-            </div>
-
-            <div class="notice-grid" id="notice-grid">
-                ${notices.length === 0 ? '<p>No active notices.</p>' : notices.reverse().map(n => `
-                    <div class="notice-card" style="border-left: 4px solid ${n.priority === 'High' ? 'var(--danger)' : n.priority === 'Medium' ? 'var(--warning)' : 'var(--success)'}">
-                        <div class="priority-dot priority-${(n.priority || 'low').toLowerCase()}"></div>
-                        <h3 style="margin-bottom: 0.75rem; color: var(--text);">${n.title}</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">${n.content}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted);">
-                            <span>📅 ${n.date}</span>
-                            <span class="status-pill" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">${n.priority || 'Normal'}</span>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-
-            ${canEdit ? `
-            <div id="notice-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px);">
-                <div class="glass-panel" style="width: 90%; max-width: 500px; border: 1px solid var(--primary);">
-                    <h2 class="card-title">New Announcement</h2>
-                    <form id="notice-form">
-                        <input type="text" id="n-title" placeholder="Notice Title" required>
-                        <textarea id="n-content" placeholder="Type your message here..." style="min-height: 150px;" required></textarea>
-                        <select id="n-priority">
-                            <option value="Low">Low Priority</option>
-                            <option value="Medium">Medium Priority</option>
-                            <option value="High">High Priority</option>
-                        </select>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                            <button type="submit" class="btn-primary">Post Notice</button>
-                            <button type="button" class="btn-primary" style="background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); box-shadow: none;" onclick="document.getElementById('notice-modal').classList.add('hidden')">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>` : ''}
-        `;
-
-        if (canEdit) {
-            document.getElementById('notice-form').onsubmit = async (e) => {
-                e.preventDefault();
-                await db.notices.add({
-                    title: document.getElementById('n-title').value,
-                    content: document.getElementById('n-content').value,
-                    priority: document.getElementById('n-priority').value,
-                    date: new Date().toLocaleDateString()
-                });
-                this.renderNotices();
-            };
-        }
-    },
-
-    showNoticeForm() {
-        document.getElementById('notice-modal').classList.remove('hidden');
-    },
-
-    async renderResources() {
-        this.container.innerHTML = `
-            <h1>System Resources & Portability</h1>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Data Portability (CSV Export)</h2>
-                    <p style="margin-bottom: 2rem;">Download your school data in CSV format for backup or external analysis.</p>
-                    <div style="display: grid; gap: 1rem;">
-                        <button class="btn-primary" onclick="app.exportToCSV('students')">Export Students</button>
-                        <button class="btn-primary" onclick="app.exportToCSV('fees')">Export Financials</button>
-                        <button class="btn-primary" onclick="app.exportToCSV('staff')">Export Staff</button>
-                        <button class="btn-primary" onclick="app.exportToCSV('inventory')">Export Inventory</button>
-                    </div>
-                </div>
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Learning Resource Hub</h2>
-                    <p style="margin-bottom: 1.5rem;">Storage for school syllabuses, digital notes, and circulars.</p>
-                    <div style="background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 12px; text-align: center; border: 2px dashed var(--glass-border);">
-                        <p>Document Upload (In Demo Mode)</p>
-                        <button class="btn-primary" style="background: var(--secondary); margin-top: 1rem;" onclick="alert('File storage module ready (IndexedDB Blob storage enabled). Select file to simulate upload.')">Simulate Upload</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    async exportToCSV(table) {
-        const data = await db[table].toArray();
-        if (data.length === 0) return alert('No data to export.');
-
-        const headers = Object.keys(data[0]).join(',');
-        const rows = data.map(item => Object.values(item).map(v => `"${v}"`).join(','));
-        const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `egles_${table}_${new Date().toLocaleDateString()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-    },
-
-    async renderHostels() {
-        const hostels = await db.hostels.toArray();
-        this.container.innerHTML = `
-            <h1>Hostel & Dormitory Management</h1>
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="hostel-form" class="glass-panel" style="margin: 0;">
-                    <h2>Register Hostel</h2>
-                    <input type="text" id="h-name" placeholder="Hostel Name" required>
-                    <input type="number" id="h-cap" placeholder="Capacity" required>
-                    <select id="h-gender">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Create Hostel</button>
-                </form>
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Dormitory List</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left;">
-                                <th style="padding: 1rem;">Hostel</th>
-                                <th style="padding: 1rem;">Gender</th>
-                                <th style="padding: 1rem;">Capacity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${hostels.map(h => `
-                                <tr>
-                                    <td style="padding: 1rem;">${h.name}</td>
-                                    <td style="padding: 1rem;">${h.gender}</td>
-                                    <td style="padding: 1rem;">${h.capacity} Beds</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-        document.getElementById('hostel-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.hostels.add({
-                name: document.getElementById('h-name').value,
-                capacity: parseInt(document.getElementById('h-cap').value),
-                gender: document.getElementById('h-gender').value
-            });
-            this.renderHostels();
-        };
-    },
-
-    checkPermission(page) {
-        if (!this.currentUser) return false;
-        const role = this.currentUser.role;
-        const matrix = {
-            'dashboard': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'students': ['Admin', 'Teacher'],
-            'staff': ['Admin'],
-            'subjects': ['Admin', 'Teacher'],
-            'exams': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'timetable': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'attendance': ['Admin', 'Teacher'],
-            'library': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'discipline': ['Admin', 'Teacher'],
-            'health': ['Admin', 'Teacher', 'Parent'],
-            'fees': ['Admin', 'Parent'],
-            'payroll': ['Admin'],
-            'inventory': ['Admin'],
-            'pos': ['Admin', 'Staff'],
-            'expenses': ['Admin'],
-            'hostels': ['Admin', 'Parent'],
-            'transport': ['Admin', 'Parent'],
-            'notices': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'resources': ['Admin', 'Teacher', 'Parent', 'Student']
-        };
-        return (matrix[page] || []).includes(role);
-    },
-
-    async renderStaff() {
-        const staff = await db.staff.toArray();
-        this.container.innerHTML = `
-            <div class="glass-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Staff Management</h2>
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="btn-primary" onclick="app.showProvisionModal()">Provision New Staff</button>
-                        <button class="btn-primary" style="background: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);" onclick="app.exportToCSV('staff')">Export Staff (CSV)</button>
-                    </div>
-                </div>
-                
-                <div class="dashboard-grid">
-                    <div class="glass-panel" style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary);">
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Total Staff</div>
-                        <div style="font-size: 2rem; font-weight: 700;">${staff.length}</div>
-                    </div>
-                </div>
-
-                <div class="glass-panel" style="margin-top: 2rem; padding: 0; overflow: hidden;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Role</th>
-                                <th>Staff ID</th>
-                                <th>Contact</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${staff.map(s => `
-                                <tr>
-                                    <td style="font-weight: 600;">${s.name}</td>
-                                    <td><span class="status-pill" style="background: var(--primary); color: white;">${s.role}</span></td>
-                                    <td style="font-family: monospace; color: var(--primary);">${s.staffId}</td>
-                                    <td>${s.contact}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-    },
-
-    async renderTransport() {
-        const routes = await db.transport.toArray();
-        this.container.innerHTML = `
-            <h1>Transport & Bus Routes</h1>
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                <form id="route-form" class="glass-panel" style="margin: 0;">
-                    <h2>Add Route</h2>
-                    <input type="text" id="r-name" placeholder="Route Name" required>
-                    <input type="text" id="r-bus" placeholder="Bus Registration" required>
-                    <input type="text" id="r-driver" placeholder="Driver Name" required>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Save Route</button>
-                </form>
-                <div class="glass-panel" style="margin: 0;">
-                    <h2>Active Routes</h2>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left;">
-                                <th style="padding: 1rem;">Route</th>
-                                <th style="padding: 1rem;">Bus</th>
-                                <th style="padding: 1rem;">Driver</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${routes.map(r => `
-                                <tr>
-                                    <td style="padding: 1rem;">${r.route}</td>
-                                    <td style="padding: 1rem;">${r.busNo}</td>
-                                    <td style="padding: 1rem;">${r.driver}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-        document.getElementById('route-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.transport.add({
-                route: document.getElementById('r-name').value,
-                busNo: document.getElementById('r-bus').value,
-                driver: document.getElementById('r-driver').value
-            });
-            this.renderTransport();
-        };
-    },
-
-    async renderDiscipline() {
-        const students = await db.students.toArray();
-        const records = await db.discipline.toArray();
-        this.container.innerHTML = `
-            <h1>Disciplinary Management</h1>
-            <div class="dashboard-grid" style="grid-template-columns: 1fr 2fr;">
-                <div class="glass-panel">
-                    <h2 class="card-title">Record Infraction</h2>
-                    <form id="discipline-form">
-                        <select id="d-student" required>
-                            <option value="">Select Student</option>
-                            ${students.map(s => `<option value="${s.studentId}">${s.name}</option>`).join('')}
-                        </select>
-                        <input type="text" id="d-infraction" placeholder="Infraction Type" required>
-                        <select id="d-severity">
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                        </select>
-                        <textarea id="d-action" placeholder="Action Taken" required></textarea>
-                        <button type="submit" class="btn-primary" style="width: 100%;">Log Incident</button>
-                    </form>
-                </div>
-                <div class="glass-panel" style="overflow-x: auto;">
-                    <h2 class="card-title">Incident Logs</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Infraction</th>
-                                <th>Severity</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${records.reverse().map(r => `
-                                <tr>
-                                    <td><span style="color: var(--primary); font-weight: 600;">${r.studentId}</span></td>
-                                    <td>${r.infraction}</td>
-                                    <td><span class="status-pill" style="background: ${r.severity === 'High' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${r.severity === 'High' ? 'var(--danger)' : 'var(--warning)'};">${r.severity}</span></td>
-                                    <td>${r.date}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('discipline-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.discipline.add({
-                studentId: document.getElementById('d-student').value,
-                infraction: document.getElementById('d-infraction').value,
-                severity: document.getElementById('d-severity').value,
-                action: document.getElementById('d-action').value,
-                date: new Date().toLocaleDateString()
-            });
-            await this.checkSystemAlerts();
-            await this.updateNotifBadge();
-            this.renderDiscipline();
-        };
-    },
-
-    viewIDCard(id) {
-        db.students.get(parseInt(id)).then(student => {
-            this.container.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh;">
-                    <div class="glass-panel" style="width: 350px; height: 500px; display: flex; flex-direction: column; align-items: center; border: 2px solid var(--primary); background: var(--bg-gradient); padding: 0;">
-                        <div style="background: var(--primary); width: 100%; padding: 1.5rem; text-align: center; border-radius: 20px 20px 0 0;">
-                            <h2 style="margin: 0; font-size: 1.2rem; color: white;">EGLES SECONDARY SCHOOL</h2>
-                            <span style="font-size: 0.7rem; color: rgba(255,255,255,0.8);">Student Identification Card</span>
-                        </div>
-                        <div style="width: 150px; height: 150px; border-radius: 50%; background: var(--glass-bg); margin: 2rem 0; border: 4px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 4rem;">👤</div>
-                        <h2 style="margin-bottom: 0.5rem; color: white;">${student.name}</h2>
-                        <p style="color: var(--primary-bright); font-weight: 700;">STUDENT ID: ${student.studentId}</p>
-                        <p style="margin-top: 1rem; font-weight: 600; color: white;">CLASS: ${student.class}</p>
-                        <div style="margin-top: auto; padding: 1rem; width: 100%; text-align: center; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--glass-border);">
-                            Official School ID - Valid for 2026 Academic Year
-                        </div>
-                    </div>
-                    <button class="btn-primary" style="margin-top: 2rem;" onclick="window.print()">Print ID Card</button>
-                    <button class="btn-primary" style="background: var(--danger); margin-top: 1rem;" onclick="app.navigate('students')">Back to Registry</button>
-                </div>
-                <style>@media print { .btn-primary { display: none; } .glass-panel { margin: 0; box-shadow: none; border: 1px solid #000; } body { background: white; } }</style>
+            actionButtons += `
+                <button class="btn-action-delete" onclick="app.deleteBookingRecord(${b.id})">Delete</button>
             `;
+
+            const statusClass = b.status.toLowerCase();
+
+            tr.innerHTML = `
+                <td style="font-family: monospace; font-weight: 700; color: var(--primary)">${b.bookingId}</td>
+                <td>
+                    <div class="guest-cell-name">${b.guestName}</div>
+                    <div class="guest-cell-meta">✉️ ${b.guestEmail} | 📞 ${b.guestPhone}</div>
+                    ${b.specialRequests ? `<div style="font-size: 0.75rem; font-style: italic; color: var(--accent-dark); margin-top: 0.25rem;">📝: "${b.specialRequests}"</div>` : ''}
+                </td>
+                <td style="text-transform: capitalize; font-weight: 600;">${b.roomType}</td>
+                <td>
+                    <div style="font-weight: 600;">${b.checkIn}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted)">to ${b.checkOut}</div>
+                </td>
+                <td style="font-weight: 700; color: var(--primary-dark)">Nu. ${parseFloat(b.totalPrice).toLocaleString()}.00</td>
+                <td><span class="status-badge ${statusClass}">${b.status}</span></td>
+                <td><div style="display: flex; gap: 0.2rem;">${actionButtons}</div></td>
+            `;
+
+            tbody.appendChild(tr);
         });
     }
-};
 
-app.init();
+    filterBookings(status) {
+        this.renderBookingsTable(status);
+    }
+
+    async updateBookingStatus(id, newStatus) {
+        this.showLoader(true);
+        try {
+            await db.bookings.update(id, { status: newStatus });
+            this.showToast(`Reservation successfully ${newStatus}!`, "success");
+            await this.syncStateWithDB();
+            this.updateAdminDashboardUI();
+        } catch (e) {
+            this.showToast("Failed updating status", "error");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    async deleteBookingRecord(id) {
+        if (!confirm("Are you absolutely sure you want to permanently delete this reservation record from the database? This cannot be undone.")) return;
+
+        this.showLoader(true);
+        try {
+            await db.bookings.delete(id);
+            this.showToast("Reservation record permanently deleted.", "success");
+            await this.syncStateWithDB();
+            this.updateAdminDashboardUI();
+        } catch (e) {
+            this.showToast("Failed deleting record", "error");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    // Manual walks-in Injector
+    async handleManualBooking(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('mb-guest-name').value;
+        const email = document.getElementById('mb-guest-email').value;
+        const phone = document.getElementById('mb-guest-phone').value;
+        const checkin = document.getElementById('mb-checkin').value;
+        const checkout = document.getElementById('mb-checkout').value;
+        const guests = parseInt(document.getElementById('mb-guests').value);
+        const roomType = document.getElementById('mb-room-type').value;
+        const status = document.getElementById('mb-status').value;
+        const requests = document.getElementById('mb-requests').value;
+
+        // Validations
+        const date1 = new Date(checkin);
+        const date2 = new Date(checkout);
+        if (date2 <= date1) {
+            this.showToast("Check-out date must succeed check-in date.", "error");
+            return;
+        }
+
+        const nights = Math.ceil((date2.getTime() - date1.getTime()) / (1000 * 3600 * 24));
+        const totalPrice = nights * (this.roomPrices[roomType] || 0);
+
+        const bookingRef = `KEL-WALK-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const data = {
+            bookingId: bookingRef,
+            guestName: name,
+            guestEmail: email,
+            guestPhone: phone,
+            roomType: roomType,
+            checkIn: checkin,
+            checkOut: checkout,
+            guests: guests,
+            totalPrice: totalPrice,
+            status: status,
+            specialRequests: requests,
+            createdAt: new Date().toISOString()
+        };
+
+        this.showLoader(true);
+        try {
+            await db.bookings.add(data);
+            this.showToast("Manual reservation successfully registered!", "success");
+            document.getElementById('admin-manual-booking-form').reset();
+            this.initDatePickerLimits();
+            this.calcManualBookingPrice();
+            await this.syncStateWithDB();
+            this.updateAdminDashboardUI();
+            this.switchAdminTab('bookings');
+        } catch (e) {
+            this.showToast("Failed adding walk-in booking", "error");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    // Message Inbox Render
+    renderMessagesTable() {
+        const tbody = document.getElementById('messages-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        // Sort descending by date
+        const sorted = [...this.messages].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        if (sorted.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted)">Inbox is empty. No inquiries received yet.</td></tr>`;
+            return;
+        }
+
+        sorted.forEach(m => {
+            const tr = document.createElement('tr');
+
+            let actions = '';
+            if (m.status === 'Unread') {
+                actions += `<button class="btn-action-confirm" onclick="app.updateMessageStatus(${m.id}, 'Read')">Mark Read</button>`;
+            } else if (m.status === 'Read') {
+                actions += `<button class="btn-action-cancel" onclick="app.updateMessageStatus(${m.id}, 'Replied')">Mark Replied</button>`;
+            }
+            actions += `<button class="btn-action-delete" onclick="app.deleteMessage(${m.id})">Delete</button>`;
+
+            const dateStr = new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            tr.innerHTML = `
+                <td style="white-space: nowrap; font-weight: 600;">${dateStr}</td>
+                <td>
+                    <div style="font-weight: 700;">${m.name}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted)">✉️ ${m.email} | 📞 ${m.phone}</div>
+                </td>
+                <td style="font-weight: 600; color: var(--primary-glow)">${m.subject}</td>
+                <td style="font-size: 0.8rem; max-width: 300px; word-wrap: break-word;">"${m.message}"</td>
+                <td><span class="status-badge ${m.status === 'Unread' ? 'pending' : (m.status === 'Read' ? 'confirmed' : 'cancelled')}" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">${m.status}</span></td>
+                <td><div style="display: flex; gap: 0.2rem;">${actions}</div></td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    async updateMessageStatus(id, newStatus) {
+        this.showLoader(true);
+        try {
+            await db.messages.update(id, { status: newStatus });
+            this.showToast(`Inquiry status updated to ${newStatus}`, "success");
+            await this.syncStateWithDB();
+            this.updateAdminDashboardUI();
+        } catch (e) {
+            this.showToast("Failed updating message status", "error");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    async deleteMessage(id) {
+        if (!confirm("Delete this message permanently?")) return;
+        this.showLoader(true);
+        try {
+            await db.messages.delete(id);
+            this.showToast("Message deleted.", "success");
+            await this.syncStateWithDB();
+            this.updateAdminDashboardUI();
+        } catch (e) {
+            this.showToast("Failed deleting message", "error");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    // System Settings & Tariffs
+    populateSettingsForm() {
+        const stdPriceInput = document.getElementById('set-std-price');
+        const dlxPriceInput = document.getElementById('set-dlx-price');
+        const exePriceInput = document.getElementById('set-exe-price');
+
+        if (stdPriceInput) stdPriceInput.value = this.roomPrices.standard;
+        if (dlxPriceInput) dlxPriceInput.value = this.roomPrices.deluxe;
+        if (exePriceInput) exePriceInput.value = this.roomPrices.executive;
+    }
+
+    async handleSettingsSave(event) {
+        event.preventDefault();
+
+        const std = parseFloat(document.getElementById('set-std-price').value);
+        const dlx = parseFloat(document.getElementById('set-dlx-price').value);
+        const exe = parseFloat(document.getElementById('set-exe-price').value);
+        const newPass = document.getElementById('set-admin-pass').value;
+
+        this.showLoader(true);
+        try {
+            // Retrieve settings list to update correctly
+            const settings = await db.settings.toArray();
+
+            const stdSet = settings.find(s => s.key === 'tariff_standard') || { key: 'tariff_standard' };
+            const dlxSet = settings.find(s => s.key === 'tariff_deluxe') || { key: 'tariff_deluxe' };
+            const exeSet = settings.find(s => s.key === 'tariff_executive') || { key: 'tariff_executive' };
+
+            stdSet.value = std;
+            dlxSet.value = dlx;
+            exeSet.value = exe;
+
+            await db.settings.put(stdSet);
+            await db.settings.put(dlxSet);
+            await db.settings.put(exeSet);
+
+            // Handle password updating if entered
+            if (newPass.trim() !== '') {
+                const adminUser = (await db.users.toArray()).find(u => u.username === 'admin');
+                if (adminUser) {
+                    await db.users.update(adminUser.id, { password: newPass });
+                    this.showToast("Admin password successfully updated!", "success");
+                }
+            }
+
+            this.showToast("Tariff configurations updated successfully!", "success");
+            await this.syncStateWithDB();
+            this.updateAdminDashboardUI();
+
+            // Re-render rooms rates on page
+            this.calcBookingPrice();
+            this.calcManualBookingPrice();
+        } catch (e) {
+            this.showToast("Failed updating settings", "error");
+        } finally {
+            this.showLoader(false);
+        }
+    }
+
+    // UTILS: TOAST NOTIFICATIONS
+    showToast(message, type = "success") {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        let emoji = '🔔';
+        if (type === 'error') emoji = '❌';
+        if (type === 'success') emoji = '✅';
+        if (type === 'warning') emoji = '⚠️';
+
+        toast.innerHTML = `
+            <span>${emoji} ${message}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    showLoader(show) {
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+            if (show) loader.classList.remove('hidden');
+            else loader.classList.add('hidden');
+        }
+    }
+}
+
+// Instantiate Global Controller
+const app = new LodgeApp();
+window.addEventListener('DOMContentLoaded', () => {
+    app.init();
+});
