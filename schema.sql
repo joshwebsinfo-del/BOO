@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS "rooms" (
     "capacity" INTEGER,
     "totalRooms" INTEGER,
     "description" TEXT,
-    "amenities" TEXT
+    "amenities" TEXT,
+    "image" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS "messages" (
@@ -59,4 +60,26 @@ CREATE TABLE IF NOT EXISTS "settings" (
     id SERIAL PRIMARY KEY,
     "key" VARCHAR(255) UNIQUE,
     "value" TEXT
+);
+
+CREATE TABLE IF NOT EXISTS "menu_items" (
+    id SERIAL PRIMARY KEY,
+    "name" VARCHAR(255),
+    "description" TEXT,
+    "price" DECIMAL(10,2),
+    "image" TEXT
+);
+
+CREATE TABLE IF NOT EXISTS "food_bookings" (
+    id SERIAL PRIMARY KEY,
+    "bookingId" VARCHAR(100) UNIQUE,
+    "guestName" VARCHAR(255),
+    "guestPhone" VARCHAR(100),
+    "guestEmail" VARCHAR(255),
+    "items" TEXT, -- JSON array of booked items with name, price, qty
+    "totalPrice" DECIMAL(10,2),
+    "deliveryDate" VARCHAR(100),
+    "deliveryTime" VARCHAR(100),
+    "status" VARCHAR(100) DEFAULT 'Pending',
+    "createdAt" VARCHAR(100)
 );

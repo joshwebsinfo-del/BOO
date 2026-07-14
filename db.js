@@ -172,6 +172,8 @@ class TableProxy {
         if (row.specialrequests !== undefined && row.specialRequests === undefined) row.specialRequests = row.specialrequests;
         if (row.createdat !== undefined && row.createdAt === undefined) row.createdAt = row.createdat;
         if (row.totalrooms !== undefined && row.totalRooms === undefined) row.totalRooms = row.totalrooms;
+        if (row.deliverydate !== undefined && row.deliveryDate === undefined) row.deliveryDate = row.deliverydate;
+        if (row.deliverytime !== undefined && row.deliveryTime === undefined) row.deliveryTime = row.deliverytime;
 
         return row;
     }
@@ -309,7 +311,9 @@ const db = {
     messages: new TableProxy('messages'),
     notifications: new TableProxy('notifications'),
     users: new TableProxy('users'),
-    settings: new TableProxy('settings')
+    settings: new TableProxy('settings'),
+    menu_items: new TableProxy('menu_items'),
+    food_bookings: new TableProxy('food_bookings')
 };
 
 console.log("Mountain View Lodge DB adapter initialized with local localStorage fallback support");

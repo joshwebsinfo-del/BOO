@@ -14,7 +14,7 @@
     <meta name="description" content="A peaceful and affordable getaway offering comfortable accommodations, safe parking, mocktails, and cozy gazebo setups.">
 
     <!-- Stylesheets & Fonts -->
-    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="style.css?v=14">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -163,96 +163,7 @@
                 </div>
 
                 <div class="rooms-grid" id="rooms-container">
-                    <!-- Ensuite Short Stay Standard Card -->
-                    <div class="room-card">
-                        <div class="room-image-placeholder room-std">
-                            <span class="room-badge">$10 / 2 Hours</span>
-                        </div>
-                        <div class="room-details-content">
-                            <h3>2-Hour Ensuite (Standard)</h3>
-                            <p class="room-desc">Ideal private ensuite setup for short stays, quick refreshes, clothing changes, or a brief restorative nap during road trips.</p>
-                            <div class="room-amenity-badges">
-                                <span>2-Hour Private Block</span>
-                                <span>Attached Bathroom</span>
-                                <span>Hot Showers</span>
-                                <span>Fresh Linen</span>
-                                <span>High-Speed Wi-Fi</span>
-                            </div>
-                            <div class="room-footer-row">
-                                <span class="room-capacity">👥 Max Guests: 2</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('ensuite_std')">Reserve Block</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ensuite Short Stay Premium Card -->
-                    <div class="room-card">
-                        <div class="room-image-placeholder room-deluxe">
-                            <span class="room-badge">$15 / 2 Hours</span>
-                        </div>
-                        <div class="room-details-content">
-                            <h3>2-Hour Ensuite (Premium)</h3>
-                            <p class="room-desc">Premium short stay private ensuite featuring high-end linens, spacious luxury hot showers, and priority dining/mocktail bar table delivery.</p>
-                            <div class="room-amenity-badges">
-                                <span>2-Hour Block</span>
-                                <span>Attached Premium Bath</span>
-                                <span>Hot Showers</span>
-                                <span>Luxury Fresh Linen</span>
-                                <span>Wi-Fi</span>
-                                <span>Beverage Delivery</span>
-                            </div>
-                            <div class="room-footer-row">
-                                <span class="room-capacity">👥 Max Guests: 2</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('ensuite_premium')">Reserve Block</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Overnight Stay Standard Card -->
-                    <div class="room-card">
-                        <div class="room-image-placeholder room-std">
-                            <span class="room-badge">$20 / Night</span>
-                        </div>
-                        <div class="room-details-content">
-                            <h3>Overnight Stay (Standard)</h3>
-                            <p class="room-desc">An affordable and deeply peaceful overnight accommodation option. Complete with premium beds, safe parking, and absolute privacy.</p>
-                            <div class="room-amenity-badges">
-                                <span>Overnight Stay</span>
-                                <span>Attached Bathroom</span>
-                                <span>Refreshing Hot Shower</span>
-                                <span>Fresh Linen</span>
-                                <span>High-Speed Wi-Fi</span>
-                                <span>Safe Parking</span>
-                            </div>
-                            <div class="room-footer-row">
-                                <span class="room-capacity">👥 Max Guests: 2</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('overnight_std')">Reserve Room</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Overnight Stay Premium Card -->
-                    <div class="room-card">
-                        <div class="room-image-placeholder room-suite">
-                            <span class="room-badge">$25 / Night</span>
-                        </div>
-                        <div class="room-details-content">
-                            <h3>Overnight Stay (Premium)</h3>
-                            <p class="room-desc">Our ultimate overnight escape. Enjoy beautiful scenic mountain views, large spacious configurations, and priority booking at our outdoor gazebo.</p>
-                            <div class="room-amenity-badges">
-                                <span>Overnight Stay</span>
-                                <span>Mountain View View</span>
-                                <span>Attached Premium Bath</span>
-                                <span>Premium Linen</span>
-                                <span>Wi-Fi</span>
-                                <span>Priority Gazebo Access</span>
-                            </div>
-                            <div class="room-footer-row">
-                                <span class="room-capacity">👥 Max Guests: 3</span>
-                                <button class="btn-book-now" onclick="app.openBookingModal('overnight_premium')">Reserve Room</button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Dynamic rooms will be rendered here by JS -->
                 </div>
             </div>
         </section>
@@ -262,11 +173,23 @@
             <div class="section-container">
                 <div class="section-header">
                     <span class="sub-heading">Mocktails & Burgers</span>
-                    <h2 class="main-heading" style="color: var(--text-light)">Our Signature Combos & Promos</h2>
+                    <h2 class="main-heading" style="color: var(--text-light)">Our Signature Combos, Food & Drink Menu</h2>
+                    <p class="heading-description">Indulge in our succulent gourmet flame-grilled burgers and freshly personalized artisanal mocktails prepared to your taste.</p>
                     <div class="heading-divider"></div>
                 </div>
 
-                <div class="split-row">
+                <!-- Live dynamic menu display -->
+                <div class="dynamic-menu-block">
+                    <div class="dynamic-menu-header">
+                        <h3 style="color: var(--accent);">Delicious Selections</h3>
+                        <button class="btn-book-nav" onclick="app.openFoodBookingModal()">Book Food & Combos</button>
+                    </div>
+                    <div class="menu-items-grid" id="menu-items-container">
+                        <!-- Dynamic menu items loaded from database will appear here -->
+                    </div>
+                </div>
+
+                <div class="split-row" style="margin-top: 4rem;">
                     <div class="text-column">
                         <h3 style="color: var(--accent);">Our Signature Combo — $5.00</h3>
                         <p style="font-style: italic; font-size: 1.1rem; color: var(--accent-light);">"Try it and you will thank us... Perfect Combo!"</p>
@@ -356,8 +279,8 @@
                             </div>
                             <div class="form-group-row">
                                 <div class="form-group">
-                                    <label for="contact-phone" style="color: var(--accent);">Phone Number</label>
-                                    <input type="tel" id="contact-phone" required placeholder="+1 (555) 123-4567" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    <label for="contact-phone" style="color: var(--accent);">Phone / WhatsApp</label>
+                                    <input type="tel" id="contact-phone" required placeholder="0786110672" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                                 <div class="form-group">
                                     <label for="contact-subject" style="color: var(--accent);">Subject</label>
@@ -368,7 +291,7 @@
                                 <label for="contact-message" style="color: var(--accent);">Message</label>
                                 <textarea id="contact-message" rows="5" required placeholder="Hi Mountain View Lodge, I would like to..." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
                             </div>
-                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Send Message</button>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Send Message & Chat</button>
                         </form>
                     </div>
 
@@ -380,15 +303,15 @@
                             <span class="contact-icon">📍</span>
                             <div>
                                 <h4 style="color: var(--accent);">Location</h4>
-                                <p style="color: var(--text-light);">Scenic Mountain View, Countryside</p>
+                                <p style="color: var(--text-light);">13 KM PEG(9MILES) MUTARE, ZIMUNYA RD</p>
                             </div>
                         </div>
 
                         <div class="contact-item">
                             <span class="contact-icon">📞</span>
                             <div>
-                                <h4 style="color: var(--accent);">Phone Number</h4>
-                                <p style="color: var(--text-light);"><a href="tel:+15558319023" style="color: var(--text-light)">+1 (555) 831-9023</a></p>
+                                <h4 style="color: var(--accent);">Phone / WhatsApp</h4>
+                                <p style="color: var(--text-light);"><a href="https://wa.me/263786110672" target="_blank" style="color: var(--accent-light); font-weight:700;">0786110672 (Tap to WhatsApp)</a></p>
                             </div>
                         </div>
 
@@ -457,7 +380,7 @@
                         <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
                             <span class="stat-label" style="color: var(--accent);">Total Revenue ($)</span>
                             <span class="stat-val" id="stat-revenue" style="color: var(--text-light)">$0.00</span>
-                            <span class="stat-indicator">💰 Earnings from Confirmed stays</span>
+                            <span class="stat-indicator">💰 Earnings from stays & food</span>
                         </div>
                         <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
                             <span class="stat-label" style="color: var(--accent);">Active Bookings</span>
@@ -465,25 +388,18 @@
                             <span class="stat-indicator" id="stat-pending-indicator">0 Pending Approval</span>
                         </div>
                         <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
-                            <span class="stat-label" style="color: var(--accent);">2H Ensuite (Standard)</span>
-                            <span class="stat-val" id="stat-std-occupancy" style="color: var(--text-light)">0 / 5</span>
-                            <span class="stat-indicator">🚿 $10 hourly rate</span>
-                        </div>
-                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
-                            <span class="stat-label" style="color: var(--accent);">2H Ensuite (Premium)</span>
-                            <span class="stat-val" id="stat-dlx-occupancy" style="color: var(--text-light)">0 / 3</span>
-                            <span class="stat-indicator">🍹 $15 hourly rate</span>
-                        </div>
-                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
-                            <span class="stat-label" style="color: var(--accent);">Overnight (Premium)</span>
-                            <span class="stat-val" id="stat-exe-occupancy" style="color: var(--text-light)">0 / 5</span>
-                            <span class="stat-indicator">👑 $25 overnight rate</span>
+                            <span class="stat-label" style="color: var(--accent);">Active Food Orders</span>
+                            <span class="stat-val" id="stat-food-count" style="color: var(--text-light)">0</span>
+                            <span class="stat-indicator">🍔 Multi-item orders logged</span>
                         </div>
                     </div>
 
                     <!-- Dashboard Tabs -->
                     <div class="admin-tabs-nav">
-                        <button class="tab-btn active" data-tab="bookings" onclick="app.switchAdminTab('bookings')" style="color: var(--text-light);">Reservations Log</button>
+                        <button class="tab-btn active" data-tab="bookings" onclick="app.switchAdminTab('bookings')" style="color: var(--text-light);">Room Bookings</button>
+                        <button class="tab-btn" data-tab="food_bookings" onclick="app.switchAdminTab('food_bookings')" style="color: var(--text-light);">Food Bookings</button>
+                        <button class="tab-btn" data-tab="menu_manager" onclick="app.switchAdminTab('menu_manager')" style="color: var(--text-light);">Manage Menu</button>
+                        <button class="tab-btn" data-tab="room_manager" onclick="app.switchAdminTab('room_manager')" style="color: var(--text-light);">Manage Rooms</button>
                         <button class="tab-btn" data-tab="walkin" onclick="app.switchAdminTab('walkin')" style="color: var(--text-light);">Manual Walk-In</button>
                         <button class="tab-btn" data-tab="messages" onclick="app.switchAdminTab('messages')" style="color: var(--text-light);">Feedback (<span id="unread-msg-count">0</span>)</button>
                         <button class="tab-btn" data-tab="settings" onclick="app.switchAdminTab('settings')" style="color: var(--text-light);">Tariffs & Prices</button>
@@ -524,6 +440,152 @@
                         </div>
                     </div>
 
+                    <!-- TAB CONTENT: FOOD BOOKINGS LOG -->
+                    <div id="admin-tab-food_bookings" class="admin-tab-content">
+                        <div class="tab-header-row">
+                            <h3 style="color: var(--accent);">Active Food Orders Catalog</h3>
+                            <div class="filter-group">
+                                <label for="food-filter" style="color: var(--text-light);">Filter:</label>
+                                <select id="food-filter" onchange="app.filterFoodBookings(this.value)" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light);">
+                                    <option value="all">All Orders</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <table class="admin-table">
+                                <thead style="background-color: var(--primary-dark);">
+                                    <tr>
+                                        <th style="color: var(--accent);">Order ID</th>
+                                        <th style="color: var(--accent);">Guest Details</th>
+                                        <th style="color: var(--accent);">Booked Items</th>
+                                        <th style="color: var(--accent);">Date & Time</th>
+                                        <th style="color: var(--accent);">Total Price</th>
+                                        <th style="color: var(--accent);">Status</th>
+                                        <th style="color: var(--accent);">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="food-bookings-table-body" style="color: var(--text-light)">
+                                    <!-- Dynamic rows loaded from db -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: MANAGE MENU -->
+                    <div id="admin-tab-menu_manager" class="admin-tab-content">
+                        <div class="tab-split-layout">
+                            <!-- Add Menu Form -->
+                            <div class="form-panel-side" style="background-color: var(--primary-dark); border: 1px solid var(--accent-dark); padding: 1.5rem; border-radius: 8px;">
+                                <h3 style="color: var(--accent); margin-top: 0;">Add Menu / Food Item</h3>
+                                <form id="admin-add-menu-form" onsubmit="app.handleAddMenuItem(event)">
+                                    <div class="form-group">
+                                        <label for="menu-name" style="color: var(--accent)">Item Name</label>
+                                        <input type="text" id="menu-name" required placeholder="e.g., Crispy Chicken Wings" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="menu-description" style="color: var(--accent)">Description</label>
+                                        <textarea id="menu-description" required rows="3" placeholder="e.g., Spicy wings served with honey glaze dip" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="menu-price" style="color: var(--accent)">Price ($)</label>
+                                        <input type="number" step="0.01" id="menu-price" required placeholder="e.g., 4.50" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="menu-image" style="color: var(--accent)">Item Image (Upload from device)</label>
+                                        <input type="file" id="menu-image" accept="image/*" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                        <p style="font-size:0.7rem; color:var(--text-muted); margin:0.2rem 0 0 0;">Upload any room/food photo from your mobile or PC.</p>
+                                    </div>
+                                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Menu Item</button>
+                                </form>
+                            </div>
+
+                            <!-- List Menu Items -->
+                            <div class="list-panel-side">
+                                <h3 style="color: var(--accent);">Current Food & Beverage Menu</h3>
+                                <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="color: var(--accent)">Image</th>
+                                                <th style="color: var(--accent)">Name / Description</th>
+                                                <th style="color: var(--accent)">Price</th>
+                                                <th style="color: var(--accent)">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-menu-list-body">
+                                            <!-- Dynamic items loaded from database -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: MANAGE ROOMS -->
+                    <div id="admin-tab-room_manager" class="admin-tab-content">
+                        <div class="tab-split-layout">
+                            <!-- Add Room Form -->
+                            <div class="form-panel-side" style="background-color: var(--primary-dark); border: 1px solid var(--accent-dark); padding: 1.5rem; border-radius: 8px;">
+                                <h3 style="color: var(--accent); margin-top: 0;">Add Room / Stay Option</h3>
+                                <form id="admin-add-room-form" onsubmit="app.handleAddRoom(event)">
+                                    <div class="form-group">
+                                        <label for="room-type-id" style="color: var(--accent)">Room ID / Type (Unique URL Slug)</label>
+                                        <input type="text" id="room-type-id" required placeholder="e.g., suite_royal" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-name" style="color: var(--accent)">Room Name</label>
+                                        <input type="text" id="room-name" required placeholder="e.g., Royal Panoramic Suite" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-price" style="color: var(--accent)">Rate ($ per Night or stay block)</label>
+                                        <input type="number" step="0.01" id="room-price" required placeholder="e.g., 35.00" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-capacity" style="color: var(--accent)">Guest Capacity</label>
+                                        <input type="number" id="room-capacity" required value="2" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-description" style="color: var(--accent)">Description</label>
+                                        <textarea id="room-description" required rows="2" placeholder="Describe room ambiance..." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-amenities" style="color: var(--accent)">Amenities (comma separated)</label>
+                                        <input type="text" id="room-amenities" placeholder="e.g., Smart TV, Hot Tub, Mini Bar" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-image-upload" style="color: var(--accent)">Room Image (Upload from device)</label>
+                                        <input type="file" id="room-image-upload" accept="image/*" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Room Option</button>
+                                </form>
+                            </div>
+
+                            <!-- List Rooms -->
+                            <div class="list-panel-side">
+                                <h3 style="color: var(--accent);">Current Lodge Rooms & Suites</h3>
+                                <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="color: var(--accent)">Image</th>
+                                                <th style="color: var(--accent)">Name / Description</th>
+                                                <th style="color: var(--accent)">Price</th>
+                                                <th style="color: var(--accent)">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-room-list-body">
+                                            <!-- Dynamic rooms loaded from database -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- TAB CONTENT: WALKIN BOOKING INJECTOR -->
                     <div id="admin-tab-walkin" class="admin-tab-content">
                         <h3 style="color: var(--accent);">Inject Walk-In Stay</h3>
@@ -541,7 +603,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="mb-guest-phone" style="color: var(--accent)">Phone</label>
-                                    <input type="tel" id="mb-guest-phone" required placeholder="+1 (555) 123-4567" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    <input type="tel" id="mb-guest-phone" required placeholder="0786110672" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                                 </div>
                             </div>
                             <div class="form-row-three">
@@ -562,10 +624,7 @@
                                 <div class="form-group">
                                     <label for="mb-room-type" style="color: var(--accent)">Option Type</label>
                                     <select id="mb-room-type" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
-                                        <option value="ensuite_std">2-Hour Ensuite (Standard) - $10</option>
-                                        <option value="ensuite_premium">2-Hour Ensuite (Premium) - $15</option>
-                                        <option value="overnight_std">Overnight Stay (Standard) - $20</option>
-                                        <option value="overnight_premium" selected>Overnight Stay (Premium) - $25</option>
+                                        <!-- Dynamic load of active stay option keys -->
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -616,31 +675,15 @@
 
                     <!-- TAB CONTENT: SETTINGS & TARIFFS -->
                     <div id="admin-tab-settings" class="admin-tab-content">
-                        <h3 style="color: var(--accent);">Base Tariffs & Prices</h3>
-                        <p class="tab-description" style="color: var(--text-muted)">Configure room base rates or update administrative credentials.</p>
+                        <h3 style="color: var(--accent);">Admin Operations Credentials</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Configure administrative dashboard security access passwords.</p>
 
                         <form id="admin-settings-form" onsubmit="app.handleSettingsSave(event)" class="admin-dashboard-form" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
-                            <div class="form-row-two">
-                                <div class="form-group">
-                                    <label for="set-std-price" style="color: var(--accent)">2H Ensuite (Standard) Rate ($)</label>
-                                    <input type="number" id="set-std-price" required value="10" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
-                                </div>
-                                <div class="form-group">
-                                    <label for="set-dlx-price" style="color: var(--accent)">2H Ensuite (Premium) Rate ($)</label>
-                                    <input type="number" id="set-dlx-price" required value="15" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
-                                </div>
+                            <div class="form-group">
+                                <label for="set-admin-pass" style="color: var(--accent)">Change Admin Password</label>
+                                <input type="password" id="set-admin-pass" placeholder="Enter new password" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                             </div>
-                            <div class="form-row-two">
-                                <div class="form-group">
-                                    <label for="set-exe-price" style="color: var(--accent)">Overnight Stay (Premium) Rate ($)</label>
-                                    <input type="number" id="set-exe-price" required value="25" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
-                                </div>
-                                <div class="form-group">
-                                    <label for="set-admin-pass" style="color: var(--accent)">Change Admin Password</label>
-                                    <input type="password" id="set-admin-pass" placeholder="Enter new password" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Apply Rate Adjustments</button>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Apply Credentials Adjustments</button>
                         </form>
                     </div>
 
@@ -674,10 +717,7 @@
                     <div class="form-group">
                         <label for="book-room-type" style="color: var(--accent)">Stay Option</label>
                         <select id="book-room-type" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
-                            <option value="ensuite_std">2-Hour Ensuite (Standard) - $10</option>
-                            <option value="ensuite_premium">2-Hour Ensuite (Premium) - $15</option>
-                            <option value="overnight_std">Overnight Stay (Standard) - $20</option>
-                            <option value="overnight_premium" selected>Overnight Stay (Premium) - $25</option>
+                            <!-- Dynamic selector list load -->
                         </select>
                     </div>
                     <div class="form-group">
@@ -686,6 +726,7 @@
                             <option value="1" selected>1 Guest</option>
                             <option value="2">2 Guests</option>
                             <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
                         </select>
                     </div>
                 </div>
@@ -701,8 +742,8 @@
                         <input type="email" id="book-email" required placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                     </div>
                     <div class="form-group">
-                        <label for="book-phone" style="color: var(--accent)">Phone Number</label>
-                        <input type="tel" id="book-phone" required placeholder="+1 (555) 123-4567" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                        <label for="book-phone" style="color: var(--accent)">Phone / WhatsApp Number</label>
+                        <input type="tel" id="book-phone" required placeholder="0786110672" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
                     </div>
                 </div>
 
@@ -723,7 +764,63 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Confirm Reservation Stay</button>
+                <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Confirm Reservation & Chat on WhatsApp</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOD AND COMBO BOOKING ENGINE MODAL -->
+    <div class="modal-backdrop hidden" id="food-booking-modal">
+        <div class="booking-modal-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent); max-width: 600px;">
+            <div class="modal-header" style="border-bottom-color: var(--accent-dark);">
+                <h3 style="color: var(--accent); font-family: var(--font-heading);">Book Food & Combos</h3>
+                <button class="modal-close-btn" onclick="app.closeFoodBookingModal()">✕</button>
+            </div>
+
+            <form id="food-booking-form" onsubmit="app.handleFoodBookingSubmit(event)">
+                <p style="font-size:0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Choose your delicious signature combos and drinks from below. Adjust quantities and complete booking to send order via WhatsApp!</p>
+
+                <!-- Dynamic Items Quantities selectors -->
+                <div id="food-booking-items-list" style="display:flex; flex-direction:column; gap:1rem; margin-bottom: 1.5rem;">
+                    <!-- Dynamically populated by JS -->
+                </div>
+
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="food-delivery-date" style="color: var(--accent)">Delivery / Picnic Date</label>
+                        <input type="date" id="food-delivery-date" required style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                    <div class="form-group">
+                        <label for="food-delivery-time" style="color: var(--accent)">Delivery / Serving Time</label>
+                        <input type="time" id="food-delivery-time" required style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="food-guest-name" style="color: var(--accent)">Guest Full Name</label>
+                    <input type="text" id="food-guest-name" required placeholder="John Doe" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                </div>
+
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="food-guest-phone" style="color: var(--accent)">Phone / WhatsApp Number</label>
+                        <input type="tel" id="food-guest-phone" required placeholder="0786110672" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                    <div class="form-group">
+                        <label for="food-guest-email" style="color: var(--accent)">Email (Optional)</label>
+                        <input type="email" id="food-guest-email" placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                </div>
+
+                <!-- Live Price Calculation Panel -->
+                <div class="modal-pricing-box" style="background-color: var(--primary-dark); border-color: var(--accent); margin-top: 1rem;">
+                    <div class="pricing-total-row">
+                        <span style="color: var(--text-light)">Total Food & Beverage Cost:</span>
+                        <span id="food-booking-total-price" style="color: var(--accent)">$0.00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Confirm Food Order & Chat on WhatsApp</button>
             </form>
         </div>
     </div>
@@ -732,17 +829,18 @@
     <div class="modal-backdrop hidden" id="confirmation-modal">
         <div class="success-dialog-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent)">
             <span class="success-icon" style="color: var(--accent)">🌅</span>
-            <h3 style="color: var(--accent);">Stay Reservation Successful!</h3>
-            <p style="color: var(--text-muted)">Your booking reservation at Mountain View Lodge has been successfully logged. We look forward to hosting you!</p>
+            <h3 style="color: var(--accent);" id="confirmation-title">Stay Reservation Successful!</h3>
+            <p style="color: var(--text-muted)">Your booking reservation at Mountain View Lodge has been successfully logged. We are launching your WhatsApp chat to lock in the reservation directly with our host!</p>
 
             <div class="confirmation-summary-box" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
                 <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span>Booking Reference:</span><strong id="conf-id" style="color: var(--accent)">MVL-XXXX</strong></div>
                 <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Guest Name:</span><span id="conf-name" style="color: var(--text-light)">John Doe</span></div>
-                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Stay Option:</span><span id="conf-room" style="color: var(--text-light)">Overnight Stay (Premium)</span></div>
-                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Stay Dates:</span><span id="conf-dates" style="color: var(--text-light)">2026-07-20 to 2026-07-22</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Option Details:</span><span id="conf-room" style="color: var(--text-light)">Overnight Stay (Premium)</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Target Dates:</span><span id="conf-dates" style="color: var(--text-light)">2026-07-20 to 2026-07-22</span></div>
                 <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Total Price:</span><span id="conf-price" style="color: var(--accent)">$75.00</span></div>
             </div>
 
+            <button class="btn-primary" id="btn-whatsapp-confirm" style="width: 100%; margin-bottom: 0.5rem; background: #25D366; color:#fff; border:none;">Open Chat on WhatsApp</button>
             <button class="btn-primary" onclick="app.closeConfirmationModal()" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Close & Return</button>
         </div>
     </div>
@@ -768,6 +866,7 @@
             <div class="footer-info">
                 <h3 style="color: var(--accent);">Mountain View Lodge</h3>
                 <p style="color: var(--text-light); opacity: 0.85;">A peaceful and affordable getaway offering comfortable accommodations, safe & secure parking, mocktails, burgers, and cozy outdoor gazebo relaxation slots.</p>
+                <p style="color: var(--accent); font-weight:700;">📍 Location: 13 KM PEG(9MILES) MUTARE, ZIMUNYA RD</p>
                 <div class="footer-links">
                     <a href="#" onclick="app.showSection('home')" style="color: var(--text-light)">Home</a> •
                     <a href="#" onclick="app.showSection('rooms')" style="color: var(--text-light)">Accommodations</a> •
@@ -784,8 +883,8 @@
     </footer>
 
     <!-- Script binds -->
-    <script src="db.js?v=13"></script>
-    <script src="app_v1.js?v=13"></script>
+    <script src="db.js?v=14"></script>
+    <script src="app_v1.js?v=14"></script>
     <script>
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {

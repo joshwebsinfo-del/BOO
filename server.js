@@ -10,7 +10,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+// Increased payload limits for base64 image uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(__dirname)); // Serve frontend files
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -28,7 +30,9 @@ const mockDb = {
     messages: [],
     notifications: [],
     users: [],
-    settings: []
+    settings: [],
+    menu_items: [],
+    food_bookings: []
 };
 
 if (databaseUrl && !isLocalDatabase) {
@@ -100,7 +104,7 @@ function simulateMockQuery(sql, params) {
     const query = sql.trim().toUpperCase();
     
     let tableName = 'bookings';
-    for (const name of ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings']) {
+    for (const name of ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings', 'menu_items', 'food_bookings']) {
         if (query.includes(name.toUpperCase())) {
             tableName = name;
             break;
@@ -151,11 +155,20 @@ async function initDb() {
             DROP TABLE IF EXISTS notifications;
             DROP TABLE IF EXISTS users;
             DROP TABLE IF EXISTS settings;
+            DROP TABLE IF EXISTS menu_items;
+            DROP TABLE IF EXISTS food_bookings;
         `);
     } else if (dbType === 'postgres') {
         const client = await pgPool.connect();
         try {
-            await client.query('DROP TABLE IF EXISTS bookings CASCADE; DROP TABLE IF EXISTS rooms CASCADE; DROP TABLE IF EXISTS messages CASCADE; DROP TABLE IF EXISTS settings CASCADE;');
+            await client.query(`
+                DROP TABLE IF EXISTS bookings CASCADE;
+                DROP TABLE IF EXISTS rooms CASCADE;
+                DROP TABLE IF EXISTS messages CASCADE;
+                DROP TABLE IF EXISTS settings CASCADE;
+                DROP TABLE IF EXISTS menu_items CASCADE;
+                DROP TABLE IF EXISTS food_bookings CASCADE;
+            `);
         } catch (e) {
             console.warn('Postgres drop warning:', e.message);
         } finally {
@@ -191,7 +204,8 @@ async function initDb() {
                     "capacity" INTEGER,
                     "totalRooms" INTEGER,
                     "description" TEXT,
-                    "amenities" TEXT
+                    "amenities" TEXT,
+                    "image" TEXT
                 );
                 CREATE TABLE IF NOT EXISTS messages (
                     id SERIAL PRIMARY KEY,
@@ -223,6 +237,26 @@ async function initDb() {
                     "key" TEXT UNIQUE,
                     "value" TEXT
                 );
+                CREATE TABLE IF NOT EXISTS menu_items (
+                    id SERIAL PRIMARY KEY,
+                    "name" TEXT,
+                    "description" TEXT,
+                    "price" DECIMAL(10,2),
+                    "image" TEXT
+                );
+                CREATE TABLE IF NOT EXISTS food_bookings (
+                    id SERIAL PRIMARY KEY,
+                    "bookingId" TEXT UNIQUE,
+                    "guestName" TEXT,
+                    "guestPhone" TEXT,
+                    "guestEmail" TEXT,
+                    "items" TEXT,
+                    "totalPrice" DECIMAL(10,2),
+                    "deliveryDate" TEXT,
+                    "deliveryTime" TEXT,
+                    "status" TEXT DEFAULT 'Pending',
+                    "createdAt" TEXT
+                );
             `);
 
             // Seed default admin account
@@ -233,20 +267,28 @@ async function initDb() {
 
             // Seed rooms
             await client.query(`
-                INSERT INTO rooms ("type", "name", "price", "capacity", "totalRooms", "description", "amenities") VALUES
-                ('ensuite_std', '2-Hour Ensuite (Standard)', 10.00, 2, 5, 'Perfect private ensuite room for a quick 2-hour freshen-up, changes of clothes, or a brief rest.', 'Attached Bath, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Security'),
-                ('ensuite_premium', '2-Hour Ensuite (Premium)', 15.00, 2, 3, 'Premium short stay ensuite with luxury linen, priority mocktail bar delivery, and spacious hot shower.', 'Premium Attached Bath, Hot Shower, Luxury Fresh Linen, Fast Wi-Fi, Secure Parking'),
-                ('overnight_std', 'Overnight Stay (Standard)', 20.00, 2, 10, 'A peaceful and affordable standard overnight room. Wake up refreshed after a cozy night on fresh linen.', 'Standard Room, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Secure Parking'),
-                ('overnight_premium', 'Overnight Stay (Premium)', 25.00, 3, 5, 'A luxury overnight stay featuring scenic mountain views, spacious interior, and priority gazebo access.', 'Overnight Room, Scenic Mountain View, Hot Shower, Premium Linen, Fast Wi-Fi, Safe Parking, Priority Gazebo')
+                INSERT INTO rooms ("type", "name", "price", "capacity", "totalRooms", "description", "amenities", "image") VALUES
+                ('ensuite_std', '2-Hour Ensuite (Standard)', 10.00, 2, 5, 'Perfect private ensuite room for a quick 2-hour freshen-up, changes of clothes, or a brief rest.', 'Attached Bath, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Security', 'assets/room_standard.jpg'),
+                ('ensuite_premium', '2-Hour Ensuite (Premium)', 15.00, 2, 3, 'Premium short stay ensuite with luxury linen, priority mocktail bar delivery, and spacious hot shower.', 'Premium Attached Bath, Hot Shower, Luxury Fresh Linen, Fast Wi-Fi, Secure Parking', 'assets/room_deluxe.jpg'),
+                ('overnight_std', 'Overnight Stay (Standard)', 20.00, 2, 10, 'A peaceful and affordable standard overnight room. Wake up refreshed after a cozy night on fresh linen.', 'Standard Room, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Secure Parking', 'assets/room_standard.jpg'),
+                ('overnight_premium', 'Overnight Stay (Premium)', 25.00, 3, 5, 'A luxury overnight stay featuring scenic mountain views, spacious interior, and priority gazebo access.', 'Overnight Room, Scenic Mountain View, Hot Shower, Premium Linen, Fast Wi-Fi, Safe Parking, Priority Gazebo', 'assets/room_deluxe.jpg')
             `);
 
             // Seed default settings
             await client.query(`
                 INSERT INTO settings ("key", "value") VALUES
                 ('lodge_name', 'Mountain View Lodge'),
-                ('lodge_location', 'Mountain View'),
-                ('lodge_phone', '+1 (555) 831-9023'),
+                ('lodge_location', '13 KM PEG(9MILES) MUTARE, ZIMUNYA RD'),
+                ('lodge_phone', '0786110672'),
                 ('lodge_email', 'bookings@mountainviewlodge.com')
+            `);
+
+            // Seed default menu items
+            await client.query(`
+                INSERT INTO menu_items ("name", "description", "price", "image") VALUES
+                ('Signature Burger & Mocktail Combo', 'Juicy freshly grilled gourmet beef/chicken burger served with a premium customizable mocktail.', 5.00, 'assets/food_combo.jpg'),
+                ('Artisanal Mocktail', 'Fruity, refreshing, and custom-blended fresh mocktail personalized to your mood and taste.', 3.00, ''),
+                ('Gourmet Burger Solo', 'Juicy freshly grilled flame burger with crisp garden lettuce, tomatoes, cheese, and special signature sauce.', 4.00, '')
             `);
 
             // Seed some mock bookings
@@ -258,16 +300,22 @@ async function initDb() {
 
             await client.query(`
                 INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES
-                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '+1 (555) 123-4567', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
-                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '+1 (555) 987-6543', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
-                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '+1 (555) 304-1928', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '0786110672', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
+                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '0786110672', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '0786110672', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+            `);
+
+            // Seed mock food bookings
+            await client.query(`
+                INSERT INTO food_bookings ("bookingId", "guestName", "guestPhone", "guestEmail", "items", "totalPrice", "deliveryDate", "deliveryTime", "status", "createdAt") VALUES
+                ('MVL-FOOD-9023', 'Emily Stone', '0786110672', 'emily@gmail.com', '[{"name":"Signature Burger & Mocktail Combo","price":5,"qty":2}]', 10.00, '${d1.toISOString().split('T')[0]}', '14:30', 'Pending', '${new Date().toISOString()}')
             `);
 
             // Seed some mock feedback messages
             await client.query(`
                 INSERT INTO messages ("name", "email", "phone", "subject", "message", "date", "status") VALUES
-                ('Emily Stone', 'emily@gmail.com', '+1 (555) 321-0987', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
-                ('Marcus Aurelius', 'marcus@philosophy.com', '+1 (555) 765-4321', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
+                ('Emily Stone', 'emily@gmail.com', '0786110672', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
+                ('Marcus Aurelius', 'marcus@philosophy.com', '0786110672', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
             `);
 
             await client.query('COMMIT');
@@ -305,7 +353,8 @@ async function initDb() {
                     capacity INTEGER,
                     totalRooms INTEGER,
                     description TEXT,
-                    amenities TEXT
+                    amenities TEXT,
+                    image TEXT
                 );
                 CREATE TABLE IF NOT EXISTS messages (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -337,6 +386,26 @@ async function initDb() {
                     key TEXT UNIQUE,
                     value TEXT
                 );
+                CREATE TABLE IF NOT EXISTS menu_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    description TEXT,
+                    price DECIMAL(10,2),
+                    image TEXT
+                );
+                CREATE TABLE IF NOT EXISTS food_bookings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    bookingId TEXT UNIQUE,
+                    guestName TEXT,
+                    guestPhone TEXT,
+                    guestEmail TEXT,
+                    items TEXT,
+                    totalPrice DECIMAL(10,2),
+                    deliveryDate TEXT,
+                    deliveryTime TEXT,
+                    status TEXT DEFAULT 'Pending',
+                    createdAt TEXT
+                );
             `);
 
             // Seed default admin user
@@ -344,20 +413,28 @@ async function initDb() {
 
             // Seed rooms
             sqliteDb.exec(`
-                INSERT INTO rooms (type, name, price, capacity, totalRooms, description, amenities) VALUES
-                ('ensuite_std', '2-Hour Ensuite (Standard)', 10.00, 2, 5, 'Perfect private ensuite room for a quick 2-hour freshen-up, changes of clothes, or a brief rest.', 'Attached Bath, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Security'),
-                ('ensuite_premium', '2-Hour Ensuite (Premium)', 15.00, 2, 3, 'Premium short stay ensuite with luxury linen, priority mocktail bar delivery, and spacious hot shower.', 'Premium Attached Bath, Hot Shower, Luxury Fresh Linen, Fast Wi-Fi, Secure Parking'),
-                ('overnight_std', 'Overnight Stay (Standard)', 20.00, 2, 10, 'A peaceful and affordable standard overnight room. Wake up refreshed after a cozy night on fresh linen.', 'Standard Room, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Secure Parking'),
-                ('overnight_premium', 'Overnight Stay (Premium)', 25.00, 3, 5, 'A luxury overnight stay featuring scenic mountain views, spacious interior, and priority gazebo access.', 'Overnight Room, Scenic Mountain View, Hot Shower, Premium Linen, Fast Wi-Fi, Safe Parking, Priority Gazebo')
+                INSERT INTO rooms (type, name, price, capacity, totalRooms, description, amenities, image) VALUES
+                ('ensuite_std', '2-Hour Ensuite (Standard)', 10.00, 2, 5, 'Perfect private ensuite room for a quick 2-hour freshen-up, changes of clothes, or a brief rest.', 'Attached Bath, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Security', 'assets/room_standard.jpg'),
+                ('ensuite_premium', '2-Hour Ensuite (Premium)', 15.00, 2, 3, 'Premium short stay ensuite with luxury linen, priority mocktail bar delivery, and spacious hot shower.', 'Premium Attached Bath, Hot Shower, Luxury Fresh Linen, Fast Wi-Fi, Secure Parking', 'assets/room_deluxe.jpg'),
+                ('overnight_std', 'Overnight Stay (Standard)', 20.00, 2, 10, 'A peaceful and affordable standard overnight room. Wake up refreshed after a cozy night on fresh linen.', 'Standard Room, Hot Refreshing Shower, Fresh Linen, Fast Wi-Fi, Secure Parking', 'assets/room_standard.jpg'),
+                ('overnight_premium', 'Overnight Stay (Premium)', 25.00, 3, 5, 'A luxury overnight stay featuring scenic mountain views, spacious interior, and priority gazebo access.', 'Overnight Room, Scenic Mountain View, Hot Shower, Premium Linen, Fast Wi-Fi, Safe Parking, Priority Gazebo', 'assets/room_deluxe.jpg')
             `);
 
             // Seed settings
             sqliteDb.exec(`
                 INSERT INTO settings (key, value) VALUES
                 ('lodge_name', 'Mountain View Lodge'),
-                ('lodge_location', 'Mountain View'),
-                ('lodge_phone', '+1 (555) 831-9023'),
+                ('lodge_location', '13 KM PEG(9MILES) MUTARE, ZIMUNYA RD'),
+                ('lodge_phone', '0786110672'),
                 ('lodge_email', 'bookings@mountainviewlodge.com')
+            `);
+
+            // Seed menu items
+            sqliteDb.exec(`
+                INSERT INTO menu_items (name, description, price, image) VALUES
+                ('Signature Burger & Mocktail Combo', 'Juicy freshly grilled gourmet beef/chicken burger served with a premium customizable mocktail.', 5.00, 'assets/food_combo.jpg'),
+                ('Artisanal Mocktail', 'Fruity, refreshing, and custom-blended fresh mocktail personalized to your mood and taste.', 3.00, ''),
+                ('Gourmet Burger Solo', 'Juicy freshly grilled flame burger with crisp garden lettuce, tomatoes, cheese, and special signature sauce.', 4.00, '')
             `);
 
             // Seed mock bookings
@@ -369,16 +446,22 @@ async function initDb() {
 
             sqliteDb.exec(`
                 INSERT INTO bookings (bookingId, guestName, guestEmail, guestPhone, roomType, checkIn, checkOut, guests, totalPrice, status, specialRequests, createdAt) VALUES
-                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '+1 (555) 123-4567', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
-                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '+1 (555) 987-6543', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
-                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '+1 (555) 304-1928', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '0786110672', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
+                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '0786110672', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '0786110672', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+            `);
+
+            // Seed mock food bookings
+            sqliteDb.exec(`
+                INSERT INTO food_bookings (bookingId, guestName, guestPhone, guestEmail, items, totalPrice, deliveryDate, deliveryTime, status, createdAt) VALUES
+                ('MVL-FOOD-9023', 'Emily Stone', '0786110672', 'emily@gmail.com', '[{"name":"Signature Burger & Mocktail Combo","price":5,"qty":2}]', 10.00, '${d1.toISOString().split('T')[0]}', '14:30', 'Pending', '${new Date().toISOString()}')
             `);
 
             // Seed mock messages
             sqliteDb.exec(`
                 INSERT INTO messages (name, email, phone, subject, message, date, status) VALUES
-                ('Emily Stone', 'emily@gmail.com', '+1 (555) 321-0987', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
-                ('Marcus Aurelius', 'marcus@philosophy.com', '+1 (555) 765-4321', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
+                ('Emily Stone', 'emily@gmail.com', '0786110672', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
+                ('Marcus Aurelius', 'marcus@philosophy.com', '0786110672', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
             `);
 
             console.log('✅ SQLite schema and seed data initialized successfully.');
@@ -389,21 +472,26 @@ async function initDb() {
         // Mock in-memory database seeding
         mockDb.users.push({ id: 1, username: 'admin', password: 'admin123', role: 'Admin', name: 'Mountain View Admin' });
         mockDb.rooms.push(
-            { id: 1, type: 'ensuite_std', name: '2-Hour Ensuite (Standard)', price: 10, capacity: 2, totalRooms: 5, description: 'Short stay ensuite', amenities: 'Attached Bath, Hot Shower, Fast Wi-Fi, Security' },
-            { id: 2, type: 'ensuite_premium', name: '2-Hour Ensuite (Premium)', price: 15, capacity: 2, totalRooms: 3, description: 'Premium short stay', amenities: 'Premium Bath, Hot Shower, Fast Wi-Fi, Security' },
-            { id: 3, type: 'overnight_std', name: 'Overnight Stay (Standard)', price: 20, capacity: 2, totalRooms: 10, description: 'Cozy overnight stay', amenities: 'Standard Room, Hot Shower, Wi-Fi' },
-            { id: 4, type: 'overnight_premium', name: 'Overnight Stay (Premium)', price: 25, capacity: 3, totalRooms: 5, description: 'Luxury overnight stay', amenities: 'Overnight Room, View, Hot Shower, Priority Gazebo' }
+            { id: 1, type: 'ensuite_std', name: '2-Hour Ensuite (Standard)', price: 10, capacity: 2, totalRooms: 5, description: 'Short stay ensuite', amenities: 'Attached Bath, Hot Shower, Fast Wi-Fi, Security', image: 'assets/room_standard.jpg' },
+            { id: 2, type: 'ensuite_premium', name: '2-Hour Ensuite (Premium)', price: 15, capacity: 2, totalRooms: 3, description: 'Premium short stay', amenities: 'Premium Bath, Hot Shower, Fast Wi-Fi, Security', image: 'assets/room_deluxe.jpg' },
+            { id: 3, type: 'overnight_std', name: 'Overnight Stay (Standard)', price: 20, capacity: 2, totalRooms: 10, description: 'Cozy overnight stay', amenities: 'Standard Room, Hot Shower, Wi-Fi', image: 'assets/room_standard.jpg' },
+            { id: 4, type: 'overnight_premium', name: 'Overnight Stay (Premium)', price: 25, capacity: 3, totalRooms: 5, description: 'Luxury overnight stay', amenities: 'Overnight Room, View, Hot Shower, Priority Gazebo', image: 'assets/room_deluxe.jpg' }
         );
         mockDb.settings.push(
             { id: 1, key: 'lodge_name', value: 'Mountain View Lodge' },
-            { id: 2, key: 'lodge_location', value: 'Mountain View' }
+            { id: 2, key: 'lodge_location', value: '13 KM PEG(9MILES) MUTARE, ZIMUNYA RD' },
+            { id: 3, key: 'lodge_phone', value: '0786110672' }
+        );
+        mockDb.menu_items.push(
+            { id: 1, name: 'Signature Burger & Mocktail Combo', description: 'Gourmet burger & personalized mocktail combo.', price: 5, image: 'assets/food_combo.jpg' },
+            { id: 2, name: 'Artisanal Mocktail', description: 'Fresh mocktail customizable.', price: 3, image: '' }
         );
         console.log('✅ Mock In-Memory Database initialized and seeded.');
     }
 }
 
 // Allowed tables for general API safety
-const ALLOWED_TABLES = ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings'];
+const ALLOWED_TABLES = ['bookings', 'rooms', 'messages', 'notifications', 'users', 'settings', 'menu_items', 'food_bookings'];
 
 function validateTable(table, res) {
     if (!ALLOWED_TABLES.includes(table)) {
