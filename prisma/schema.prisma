@@ -82,7 +82,7 @@ model Booking {
   roomId        Int
   room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   startDate     String   // YYYY-MM-DD
-  endDate       String   // YYYY-MM-DD
+  endDate     String   // YYYY-MM-DD
   isHourly      Boolean  @default(false)
   hourlyBlock   String?  // e.g., "10:00-12:00", "12:00-14:00", etc.
   totalPrice    Float
@@ -110,19 +110,20 @@ model Product {
 }
 
 model Job {
-  id           Int              @id @default(autoincrement())
-  title        String
-  company      String
-  description  String
-  location     String
-  salary       String?
-  type         String           @default("Full-time") // Full-time, Part-time, Contract, Internship
-  category     String           // Tech, Finance, Healthcare, Education, Hospitality, Admin, Engineering, Agriculture
-  isFeatured   Boolean          @default(false)
-  employerId   Int
-  employer     User             @relation("UserJobs", fields: [employerId], references: [id], onDelete: Cascade)
-  applications JobApplication[]
-  createdAt    DateTime         @default(now())
+  id            Int              @id @default(autoincrement())
+  title         String
+  company       String
+  description   String
+  location      String
+  salary        String?
+  type          String           @default("Full-time") // Full-time, Part-time, Contract, Internship
+  category      String           // Tech, Finance, Healthcare, Education, Hospitality, Admin, Engineering, Agriculture
+  employerEmail String?          // For direct candidate resume dispatch
+  isFeatured    Boolean          @default(false)
+  employerId    Int
+  employer      User             @relation("UserJobs", fields: [employerId], references: [id], onDelete: Cascade)
+  applications  JobApplication[]
+  createdAt     DateTime         @default(now())
 }
 
 model JobApplication {

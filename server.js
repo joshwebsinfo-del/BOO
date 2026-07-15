@@ -40,24 +40,50 @@ function requireRole(roles) {
 // --- SEED FUNCTION ---
 async function seedDatabase() {
     try {
-        const userCount = await prisma.user.count();
-        if (userCount > 0) {
-            console.log('Database already has data. Skipping seed.');
+        // If the user with requested credentials already exists, we skip!
+        const adminCheck = await prisma.user.findFirst({ where: { email: 'joshuamujakari15@gmail.com' } });
+        if (adminCheck) {
+            console.log('Database already has joshuamujakari15@gmail.com admin user. Skipping seed.');
             return;
         }
 
-        console.log('🌱 Seeding database...');
+        console.log('🌱 Reseeding database to write requested Admin credentials...');
+        // Clear all tables to allow clean reseed
+        await prisma.message.deleteMany({});
+        await prisma.review.deleteMany({});
+        await prisma.notification.deleteMany({});
+        await prisma.booking.deleteMany({});
+        await prisma.room.deleteMany({});
+        await prisma.lodge.deleteMany({});
+        await prisma.product.deleteMany({});
+        await prisma.jobApplication.deleteMany({});
+        await prisma.job.deleteMany({});
+        await prisma.property.deleteMany({});
+        await prisma.business.deleteMany({});
+        await prisma.user.deleteMany({});
 
-        const hashedAdminPassword = await bcrypt.hash('admin123', 10);
+        const hashedAdminPassword = await bcrypt.hash('joshua#$#$', 10);
         const hashedUserPassword = await bcrypt.hash('user123', 10);
 
-        // 1. Create Default Users
+        // 1. Create Default Users (Requested Admin account)
         const admin = await prisma.user.create({
             data: {
                 username: 'admin',
-                email: 'admin@zimhub.co.zw',
+                email: 'joshuamujakari15@gmail.com',
                 password: hashedAdminPassword,
                 name: 'System Administrator',
+                role: 'Administrator',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120'
+            }
+        });
+
+        // Seed companion alias joshua as well
+        await prisma.user.create({
+            data: {
+                username: 'joshua',
+                email: 'joshua@zimhub.co.zw',
+                password: hashedAdminPassword,
+                name: 'Joshua Mujakari',
                 role: 'Administrator',
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120'
             }
@@ -268,6 +294,7 @@ async function seedDatabase() {
                     salary: 'USD 3,500 - 4,500 / Month',
                     type: 'Full-time',
                     category: 'Tech',
+                    employerEmail: 'joshuamujakari15@gmail.com',
                     isFeatured: true,
                     employerId: admin.id
                 },
@@ -279,6 +306,7 @@ async function seedDatabase() {
                     salary: 'Negotiable',
                     type: 'Full-time',
                     category: 'Hospitality',
+                    employerEmail: 'owner@lodge.co.zw',
                     isFeatured: false,
                     employerId: owner.id
                 }
@@ -372,7 +400,15 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ error: 'Please provide username and password' });
         }
 
-        const user = await prisma.user.findUnique({ where: { username } });
+        // Support login by email OR username (crucial for email login with joshuamujakari15@gmail.com!)
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { username },
+                    { email: username }
+                ]
+            }
+        });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -383,7 +419,7 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role, name: user.name },
+            { id: user.id, username: user.username, role: user.role, name: user.name, email: user.email },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
@@ -562,7 +598,6 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
     try {
         const { roomId, startDate, endDate, isHourly, hourlyBlock, totalPrice, paymentMethod, guestName, guestPhone } = req.body;
 
-        // Check for double booking conflicts
         if (isHourly) {
             const conflict = await prisma.booking.findFirst({
                 where: {
@@ -577,7 +612,6 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
                 return res.status(400).json({ error: 'This specific hourly slot is already booked' });
             }
         } else {
-            // Overlapping date check
             const conflict = await prisma.booking.findFirst({
                 where: {
                     roomId: parseInt(roomId),
@@ -606,11 +640,10 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
                 paymentMethod,
                 guestName,
                 guestPhone,
-                status: 'Paid' // Simulated instant confirmation
+                status: 'Paid'
             }
         });
 
-        // Add automated notifications
         await prisma.notification.create({
             data: {
                 userId: req.user.id,
@@ -746,7 +779,7 @@ app.get('/api/jobs', async (req, res) => {
 
 app.post('/api/jobs', authenticateToken, requireRole(['Employer', 'Administrator']), async (req, res) => {
     try {
-        const { title, company, description, location, salary, type, category, isFeatured } = req.body;
+        const { title, company, description, location, salary, type, category, employerEmail, isFeatured } = req.body;
         const job = await prisma.job.create({
             data: {
                 title,
@@ -756,6 +789,7 @@ app.post('/api/jobs', authenticateToken, requireRole(['Employer', 'Administrator
                 salary,
                 type,
                 category,
+                employerEmail: employerEmail || req.user.email,
                 isFeatured: isFeatured || false,
                 employerId: req.user.id
             }

@@ -48,10 +48,9 @@ export default function Marketplace() {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Seller ratings mock storage
   const [sellerRatings, setSellerRatings] = useState<Record<number, { likes: number; dislikes: number }>>({
-    3: { likes: 14, dislikes: 1 }, // Default seed seller (bizowner)
-    1: { likes: 32, dislikes: 0 }  // Default seed admin
+    3: { likes: 14, dislikes: 1 },
+    1: { likes: 32, dislikes: 0 }
   });
 
   const fetchProducts = async () => {
@@ -84,7 +83,6 @@ export default function Marketplace() {
     fetchProducts();
   };
 
-  // Device gallery image upload as base64 reader
   const handleDeviceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -163,153 +161,122 @@ export default function Marketplace() {
   const categories = ['Phones & Laptops', 'Vehicles', 'Agriculture', 'Furniture & Electronics', 'Fashion & Books', 'Services & Food'];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
 
       {/* --- PAGE HEADER --- */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">ZimHub Classified Marketplace</h1>
-          <p className="text-slate-500 text-sm">Discover tech gadgets, agricultural inputs, used vehicles, and fresh food from verified sellers across Zimbabwe.</p>
-        </div>
-        {user ? (
-          <button
-            onClick={() => {
-              setShowAddModal(true);
-              setImagePreview(null);
-            }}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all active:scale-95"
-          >
-            <PlusCircle className="w-4 h-4" /> Post Classified Ad
-          </button>
-        ) : (
-          <div className="text-xs bg-slate-100 border border-slate-200 p-2.5 rounded-xl text-slate-500">
-            💡 Sign in to list items for sell or trade.
-          </div>
-        )}
+      <div className="flex flex-col gap-1 border-b pb-3">
+        <h1 className="text-xl font-black text-slate-900 leading-tight">Classifieds Market</h1>
+        <p className="text-slate-400 text-[10px]">Buy and sell tech, agriculture, fashion, and vehicles</p>
       </div>
 
       {/* --- FILTER CONTROL GRID --- */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3">
-        <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
-          <Search className="w-5 h-5 text-slate-400 shrink-0" />
+      <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <form onSubmit={handleSearchSubmit} className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-2.5 py-1.5">
+          <Search className="w-4 h-4 text-slate-400 shrink-0" />
           <input
             type="text"
-            placeholder="Search iPhones, laptops, SC727 seed maize..."
+            placeholder="Search items..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="bg-transparent border-none focus:outline-none focus:ring-0 text-slate-800 text-sm font-medium w-full"
+            className="bg-transparent border-none focus:outline-none focus:ring-0 text-slate-800 text-[11px] font-medium w-full"
           />
         </form>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           <select
             value={selectedCategory}
             onChange={e => setSelectedCategory(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 text-xs font-semibold cursor-pointer"
+            className="bg-slate-50 border border-slate-100 rounded-lg px-1.5 py-1 text-slate-700 text-[9px] font-black cursor-pointer"
           >
-            <option value="">All Categories</option>
+            <option value="">Categories</option>
             {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
 
           <select
             value={selectedCondition}
             onChange={e => setSelectedCondition(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 text-xs font-semibold cursor-pointer"
+            className="bg-slate-50 border border-slate-100 rounded-lg px-1.5 py-1 text-slate-700 text-[9px] font-black cursor-pointer"
           >
-            <option value="">Any Condition</option>
+            <option value="">Condition</option>
             <option value="New">New</option>
             <option value="Used">Used</option>
           </select>
 
           <input
-            type="number"
-            placeholder="Max Price ($)"
-            value={maxPrice}
-            onChange={e => setMaxPrice(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 text-xs font-semibold w-28 focus:outline-none focus:border-emerald-500"
+            type="number" placeholder="Max ($)" value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
+            className="bg-slate-50 border border-slate-100 rounded-lg px-1.5 py-1 text-slate-700 text-[9px] font-black focus:outline-none"
           />
         </div>
       </div>
 
-      {/* --- PRODUCTS GRID --- */}
+      {/* --- SLEEK SLIM CARDS GRID --- */}
       {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="text-slate-500 text-xs mt-2">Discovering items...</p>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mx-auto"></div>
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 space-y-2">
-          <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto" />
-          <p className="font-bold text-slate-700 text-sm">No marketplace products match your filters.</p>
-          <p className="text-slate-400 text-xs">Consider broadening your search parameters or list a new item!</p>
+        <div className="text-center py-10 bg-white rounded-2xl border border-slate-100 p-4 space-y-1">
+          <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto" />
+          <p className="font-bold text-slate-700 text-xs">No items found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4">
           {products.map(prod => {
             const rating = sellerRatings[prod.sellerId] || { likes: 0, dislikes: 0 };
             return (
-              <div key={prod.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+              <div key={prod.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex">
 
-                {/* Product Image */}
-                <div className="relative">
+                {/* Product Thumbnail (Compact layout) */}
+                <div className="relative w-28 h-28 shrink-0">
                   {prod.image ? (
-                    <img src={prod.image} className="w-full h-48 object-cover" alt={prod.name} />
+                    <img src={prod.image} className="w-full h-full object-cover" alt={prod.name} />
                   ) : (
-                    <div className="w-full h-48 bg-slate-100 flex items-center justify-center text-slate-400">
-                      <ShoppingBag className="w-12 h-12" />
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <ShoppingBag className="w-8 h-8" />
                     </div>
                   )}
-                  <span className="absolute top-3 left-3 text-[10px] bg-slate-900/80 backdrop-blur-sm text-white font-bold px-2 py-1 rounded-md">
+                  <span className="absolute top-1.5 left-1.5 text-[7px] bg-slate-900/80 text-white font-extrabold px-1 py-0.5 rounded">
                     {prod.condition}
-                  </span>
-                  <span className="absolute bottom-3 right-3 text-lg font-black bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-xl shadow-sm">
-                    ${prod.price.toLocaleString()}
                   </span>
                 </div>
 
-                {/* Product Info */}
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{prod.category}</p>
-                    <h3 className="font-extrabold text-base text-slate-900 tracking-tight leading-snug line-clamp-1">{prod.name}</h3>
-                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{prod.description}</p>
+                {/* Info and contact details (Right side of compact card) */}
+                <div className="p-3 flex-1 flex flex-col justify-between min-w-0 space-y-1.5">
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate">{prod.category}</p>
+                    <h3 className="font-extrabold text-[11px] text-slate-900 truncate leading-snug">{prod.name}</h3>
+                    <p className="text-[10px] text-emerald-700 font-black">${prod.price.toLocaleString()}</p>
                   </div>
 
-                  {/* Seller reputation panel */}
-                  <div className="bg-slate-50 border rounded-xl p-2.5 flex justify-between items-center text-[10px]">
-                    <div>
-                      <p className="font-extrabold text-slate-800">Seller: {prod.seller?.name || 'Local Seller'}</p>
-                      <p className="text-slate-400 font-medium">Reputation: {rating.likes} Likes</p>
-                    </div>
+                  {/* Seller Panel Compact */}
+                  <div className="flex justify-between items-center text-[8px] bg-slate-50 border rounded-lg p-1">
+                    <span className="text-slate-600 truncate max-w-[80px]">Seller: {prod.seller?.name || 'Local Seller'}</span>
                     <button
                       onClick={() => handleSellerLike(prod.sellerId)}
-                      className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md font-bold flex items-center gap-1 transition-all"
+                      className="text-emerald-700 font-extrabold flex items-center gap-0.5 hover:underline"
                     >
-                      <ThumbsUp className="w-3.5 h-3.5" /> Like ({rating.likes})
+                      👍 Like ({rating.likes})
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {prod.location}</span>
-
+                  <div className="flex justify-between items-center text-[9px] text-slate-400 font-semibold pt-1 border-t border-slate-50">
+                    <span className="flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" /> {prod.location}</span>
                     <div className="flex gap-1">
                       {prod.whatsapp && (
                         <a
                           href={`https://wa.me/${prod.whatsapp}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1"
+                          target="_blank" rel="noreferrer"
+                          className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-extrabold text-[8px] flex items-center gap-0.5 border border-emerald-100"
                         >
-                          <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Seller
+                          <MessageCircle className="w-2.5 h-2.5" /> WhatsApp
                         </a>
                       )}
                       {user && (user.id === prod.sellerId || user.role === 'Administrator') && (
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
-                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
-                          title="Delete Listing"
+                          className="text-rose-500 hover:text-rose-700 p-0.5"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
@@ -325,56 +292,47 @@ export default function Marketplace() {
       {/* --- ADD CLASSIFIED AD MODAL --- */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
-            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-              <h3 className="font-extrabold text-lg text-slate-900">Post a Classified Advert</h3>
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-5 border border-slate-200 space-y-4 max-h-[85vh] overflow-y-auto animate-in zoom-in-95">
+            <div className="flex justify-between items-center pb-2 border-b">
+              <h3 className="font-extrabold text-sm text-slate-900">Post Classified Ad</h3>
               <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleAddProduct} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Product Name *</label>
+                <label className="block text-[9px] font-bold text-slate-500 mb-1">Product Name *</label>
                 <input
-                  type="text"
-                  required
-                  placeholder="e.g. iPad Air 4th Gen 64GB"
-                  value={newProduct.name}
+                  type="text" required placeholder="iPhone 14" value={newProduct.name}
                   onChange={e => setNewProduct({...newProduct, name: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
+                  className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Description *</label>
+                <label className="block text-[9px] font-bold text-slate-500 mb-1">Description *</label>
                 <textarea
-                  required
-                  placeholder="Describe your item condition, specs, box accessories, etc..."
-                  value={newProduct.description}
+                  required placeholder="Details..." value={newProduct.description}
                   onChange={e => setNewProduct({...newProduct, description: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none h-16"
+                  className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none h-14"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Price ($ USD) *</label>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Price ($USD) *</label>
                   <input
-                    type="number"
-                    required
-                    placeholder="e.g. 450"
-                    value={newProduct.price}
+                    type="number" required placeholder="Price" value={newProduct.price}
                     onChange={e => setNewProduct({...newProduct, price: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Condition</label>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Condition</label>
                   <select
-                    value={newProduct.condition}
-                    onChange={e => setNewProduct({...newProduct, condition: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-semibold focus:outline-none cursor-pointer"
+                    value={newProduct.condition} onChange={e => setNewProduct({...newProduct, condition: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs font-semibold focus:outline-none"
                   >
                     <option value="New">New</option>
                     <option value="Used">Used</option>
@@ -382,73 +340,21 @@ export default function Marketplace() {
                 </div>
               </div>
 
-              {/* Device Gallery base64 attachment input */}
-              <div className="border border-dashed border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2">
-                <label className="block text-xs font-bold text-slate-600 flex items-center gap-1.5 cursor-pointer">
-                  <Upload className="w-4 h-4 text-emerald-600" />
-                  Upload from Device Gallery
+              <div className="border border-dashed rounded-lg p-2 bg-slate-50/50 space-y-1">
+                <label className="block text-[9px] font-bold text-slate-500 flex items-center gap-1 cursor-pointer">
+                  <Upload className="w-3.5 h-3.5 text-emerald-600" /> Upload Photo
                 </label>
-                <p className="text-[10px] text-slate-400">Load base64 data payloads (Supports mobile camera rolls)</p>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleDeviceImageUpload}
-                  className="w-full text-xs font-medium text-slate-500 cursor-pointer"
+                  type="file" accept="image/*" onChange={handleDeviceImageUpload}
+                  className="w-full text-[10px] text-slate-400 cursor-pointer"
                 />
                 {imagePreview && (
-                  <div className="mt-2 relative inline-block">
-                    <img src={imagePreview} className="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm" alt="Preview" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImagePreview(null);
-                        setNewProduct({ ...newProduct, image: '' });
-                      }}
-                      className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white rounded-full p-0.5 hover:bg-rose-700 shadow-sm"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <img src={imagePreview} className="w-10 h-10 rounded object-cover border" alt="" />
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Category</label>
-                  <select
-                    value={newProduct.category}
-                    onChange={e => setNewProduct({...newProduct, category: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-semibold focus:outline-none cursor-pointer"
-                  >
-                    {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">City Location</label>
-                  <input
-                    type="text"
-                    value={newProduct.location}
-                    onChange={e => setNewProduct({...newProduct, location: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">WhatsApp Contact (263...)</label>
-                <input
-                  type="text"
-                  value={newProduct.whatsapp}
-                  onChange={e => setNewProduct({...newProduct, whatsapp: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl shadow-sm transition-all active:scale-95"
-              >
-                Submit Classified Advertisement
+              <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm">
+                Publish Advertisement
               </button>
             </form>
           </div>
