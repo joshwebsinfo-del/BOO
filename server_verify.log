@@ -67,3 +67,33 @@ SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("b
   '2026-07-15T05:34:52.386Z'
 ]
 attempt to write a readonly database
+SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING * Params: [
+  'MVL-2026-9188',
+  'John Doe',
+  'johndoe@example.com',
+  '0771234567',
+  'ensuite_std',
+  '2026-07-16',
+  '2026-07-17',
+  1,
+  10,
+  'Pending',
+  'Vegan breakfast if possible, late check in.',
+  '2026-07-15T06:29:06.137Z'
+]
+attempt to write a readonly database
+SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING * Params: [
+  'MVL-2026-9309',
+  'John Doe',
+  'johndoe@example.com',
+  '0771234567',
+  'ensuite_std',
+  '2026-07-16',
+  '2026-07-17',
+  1,
+  10,
+  'Pending',
+  'Vegan breakfast if possible, late check in.',
+  '2026-07-15T06:31:29.092Z'
+]
+attempt to write a readonly database
