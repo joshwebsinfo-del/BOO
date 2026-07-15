@@ -1,0 +1,188 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               Int              @id @default(autoincrement())
+  username         String           @unique
+  email            String           @unique
+  password         String
+  name             String
+  role             String           @default("Customer") // Customer, Business Owner, Employer, Property Owner, Marketplace Seller, Lodge Owner, Administrator, Moderator
+  avatar           String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  businesses       Business[]       @relation("UserBusinesses")
+  lodges           Lodge[]          @relation("UserLodges")
+  products         Product[]        @relation("UserProducts")
+  jobs             Job[]            @relation("UserJobs")
+  applications     JobApplication[] @relation("UserApplications")
+  properties       Property[]       @relation("UserProperties")
+  bookings         Booking[]        @relation("UserBookings")
+  reviews          Review[]         @relation("UserReviews")
+}
+
+model Business {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  category    String   // Directory, Restaurant, Healthcare, Transport, Education, Government, Local Services
+  subCategory String?  // Electrician, Hospital, Bus, University, Ministry, photography, builders, tutors, etc.
+  logo        String?
+  coverImage  String?
+  phone       String?
+  whatsapp    String?
+  email       String?
+  website     String?
+  hours       String?
+  location    String   // City or suburb (e.g. Harare, Bulawayo, Mutare, Gweru)
+  rating      Float    @default(0)
+  isVerified  Boolean  @default(false)
+  ownerId     Int
+  owner       User     @relation("UserBusinesses", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Lodge {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  location    String   // Harare, Victoria Falls, Nyanga, Bulawayo, Kariba, etc.
+  image       String?
+  isFeatured  Boolean  @default(false)
+  ownerId     Int
+  owner       User     @relation("UserLodges", fields: [ownerId], references: [id], onDelete: Cascade)
+  rooms       Room[]
+  createdAt   DateTime @default(now())
+}
+
+model Room {
+  id           Int       @id @default(autoincrement())
+  lodgeId      Int
+  lodge        Lodge     @relation(fields: [lodgeId], references: [id], onDelete: Cascade)
+  name         String
+  type         String    // Standard, Deluxe, Executive, Suite, Guest House
+  pricePerDay  Float
+  pricePerHour Float     // 2-hour blocks
+  image        String?
+  capacity     Int       @default(2)
+  bookings     Booking[]
+}
+
+model Booking {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation("UserBookings", fields: [userId], references: [id], onDelete: Cascade)
+  roomId        Int
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  startDate     String   // YYYY-MM-DD
+  endDate     String   // YYYY-MM-DD
+  isHourly      Boolean  @default(false)
+  hourlyBlock   String?  // e.g., "10:00-12:00", "12:00-14:00", etc.
+  totalPrice    Float
+  status        String   @default("Pending") // Pending, Paid, Cancelled
+  paymentMethod String   @default("EcoCash") // EcoCash, Innbucks, ZIPIT, Paynow
+  guestName     String?
+  guestPhone    String?
+  createdAt     DateTime @default(now())
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  category    String   // Phones, Laptops, Furniture, Vehicles, Electronics, Agriculture, Fashion, Books, Services, Food
+  condition   String   // New, Used
+  image       String?
+  whatsapp    String?
+  location    String
+  isFeatured  Boolean  @default(false)
+  sellerId    Int
+  seller      User     @relation("UserProducts", fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Job {
+  id            Int              @id @default(autoincrement())
+  title         String
+  company       String
+  description   String
+  location      String
+  salary        String?
+  type          String           @default("Full-time") // Full-time, Part-time, Contract, Internship
+  category      String           // Tech, Finance, Healthcare, Education, Hospitality, Admin, Engineering, Agriculture
+  employerEmail String?          // For direct candidate resume dispatch
+  advertLink    String?          // Optional external advertisement/promo link
+  advertImage   String?          // Optional base64 device gallery banner photo
+  isFeatured    Boolean          @default(false)
+  employerId    Int
+  employer      User             @relation("UserJobs", fields: [employerId], references: [id], onDelete: Cascade)
+  applications  JobApplication[]
+  createdAt     DateTime         @default(now())
+}
+
+model JobApplication {
+  id          Int      @id @default(autoincrement())
+  jobId       Int
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User     @relation("UserApplications", fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  coverLetter String
+  cvUrl       String?
+  status      String   @default("Pending") // Pending, Reviewed, Accepted, Rejected
+  createdAt   DateTime @default(now())
+}
+
+model Property {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  type        String   // Rent, Sale, Student
+  category    String   // House, Commercial, Land, Apartment
+  price       Float
+  location    String
+  bedrooms    Int      @default(1)
+  image       String?
+  isFeatured  Boolean  @default(false)
+  ownerId     Int
+  owner       User     @relation("UserProperties", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+  targetId   Int      // ID of target (business, lodge, product)
+  targetType String   // "Business", "Lodge", "Product"
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  type      String   @default("General") // Booking, Job, Payment, Alert, Message
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  text       String
+  createdAt  DateTime @default(now())
+}
