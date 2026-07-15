@@ -1,12 +1,8 @@
-const CACHE_NAME = 'egles-smis-v-final-v3';
+const CACHE_NAME = 'zimhub-super-app-v1';
 const urlsToCache = [
     '/',
     '/index.html',
-    '/style.css?v=5',
-    '/app_v1.js?v=final-sync-v2',
-    '/db.js?v=final-sync-v2',
-    '/manifest.json',
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+    '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -26,17 +22,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // Network first for API calls
+    // Network first fallback for api calls
     if (event.request.url.includes('/api/')) {
         event.respondWith(
-            fetch(event.request).catch(() => new Response('{"error":"offline"}', {
+            fetch(event.request).catch(() => new Response('{"error":"offline","message":"ZimHub is currently running in offline support mode."}', {
                 headers: { 'Content-Type': 'application/json' }
             }))
         );
         return;
     }
 
-    // Cache first for static assets
+    // Cache first for index.html, static bundle assets, and public manifest
     event.respondWith(
         caches.match(event.request).then(response => {
             return response || fetch(event.request).then(res => {

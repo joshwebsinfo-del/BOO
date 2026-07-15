@@ -1,5 +1,7 @@
 node_modules/
 .env
 egles.db
+dev.db
+prisma/dev.db
+*.log
 .DS_Store
-
