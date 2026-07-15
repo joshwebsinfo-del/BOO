@@ -23,7 +23,7 @@ export const firebaseAuth = getAuth(firebaseApp);
 export const firestoreDb = getFirestore(firebaseApp);
 
 // Clean Supabase Anon/API Token for storage uploads
-const SUPABASE_ANON_TOKEN = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3eml3bml3Ymd1ZDIxbWZjaHBlYXgiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4NDEyOTgyMiwiZXhwIjoyMDk5NzA1ODIyfQ.uF25g9HVY9c5GVBL-Q2tUARcwl8VqdaF6Nqi8Fdu7W8`;
+const SUPABASE_ANON_TOKEN = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3eml3bml3Ymd1d21mY2hwZWF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMjk4MjIsImV4cCI6MjA5OTcwNTgyMn0.uF25g9HVY9c5GVBL-Q2tUARcwl8VqdaF6Nqi8Fdu7W8`;
 
 // SUPABASE STORAGE BINARY REST UPLOAD UTILITY
 export const uploadToSupabase = async (fileBase64: string, fileName: string): Promise<string> => {
@@ -50,7 +50,7 @@ export const uploadToSupabase = async (fileBase64: string, fileName: string): Pr
 
     // Sanitize and append timestamp to prevent filename collision
     const sanitizedFileName = `${Date.now()}_${fileName.replace(/\s+/g, '_')}`;
-    const uploadUrl = `https://jwziwniwbgud21mfchpeax.supabase.co/storage/v1/object/uploads/${sanitizedFileName}`;
+    const uploadUrl = `https://jwziwniwbguwmfchpeax.supabase.co/storage/v1/object/uploads/${sanitizedFileName}`;
 
     console.log(`[Supabase Storage] Dispatching binary stream: ${sanitizedFileName} (${mimeType})`);
 
@@ -65,7 +65,7 @@ export const uploadToSupabase = async (fileBase64: string, fileName: string): Pr
     });
 
     if (response.ok) {
-      const publicUrl = `https://jwziwniwbgud21mfchpeax.supabase.co/storage/v1/object/public/uploads/${sanitizedFileName}`;
+      const publicUrl = `https://jwziwniwbguwmfchpeax.supabase.co/storage/v1/object/public/uploads/${sanitizedFileName}`;
       console.log(`[Supabase Storage] Successfully uploaded! Public Access URL: ${publicUrl}`);
       return publicUrl;
     } else {
