@@ -443,6 +443,9 @@ export default function Dashboards() {
     );
   }
 
+  // Check if current logged in user role can manage job/advert listings (Any role except Customer!)
+  const canManageAdverts = user.role !== 'Customer';
+
   return (
     <div className="space-y-6">
 
@@ -537,46 +540,27 @@ export default function Dashboards() {
             </div>
           )}
 
-          {/* LODGE OWNER CONTROLS */}
-          {user.role === 'Lodge Owner' && (
+          {/* SHARED PROMOTION CONTROLS PANEL (Accessible to all provider roles except Customer!) */}
+          {canManageAdverts && (
             <div className="space-y-4">
               <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-3">
-                <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-1">
-                  🏨 Lodge Owner Dashboard
-                </h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-1">
+                    📢 Promo & Job Placement Board
+                  </h3>
+                  <span className="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">Active</span>
+                </div>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  As a Lodge Owner, you can view bookings, upload standard/executive suites, configure hourly guesthouse pricing blocks, and manage guest reservation lists.
+                  As an advertiser with role **{user.role}**, you have full access to publish vacancies on the job boards complete with optional custom external redirects and brand banner advertisements!
                 </p>
                 <div className="grid grid-cols-2 gap-3 text-center pt-2">
                   <div className="bg-slate-50 p-3 rounded-2xl border">
                     <span className="block text-lg font-black text-emerald-700">${adminStats.earnings.toLocaleString()}</span>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gross Bookings</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Yields</span>
                   </div>
                   <div className="bg-slate-50 p-3 rounded-2xl border">
-                    <span className="block text-lg font-black text-slate-800">{myBookings.length}</span>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Stays</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* EMPLOYER RECRUITER METRICS */}
-          {user.role === 'Employer' && (
-            <div className="space-y-4">
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-3 text-xs text-slate-600">
-                <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-1">
-                  💼 Recruiter Metrics
-                </h3>
-                <p>Post vacancies and evaluate candidate resume files.</p>
-                <div className="grid grid-cols-2 gap-2 text-center pt-2 font-mono text-slate-800">
-                  <div className="bg-slate-50 p-3 rounded-2xl border">
-                    <span className="block text-lg font-black text-indigo-700">{adminStats.jobs}</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Roles Active</span>
-                  </div>
-                  <div className="bg-slate-50 p-3 rounded-2xl border">
-                    <span className="block text-lg font-black text-slate-800">{myApplications.length}</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Resumes Filed</span>
+                    <span className="block text-lg font-black text-slate-800">{adminStats.jobs}</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vacancies Live</span>
                   </div>
                 </div>
               </div>
@@ -690,10 +674,10 @@ export default function Dashboards() {
           <form onSubmit={handleSendChatMessage} className="flex gap-2 pt-2 border-t border-slate-100">
             <input
               type="text"
-              placeholder="Type message in English, Shona, or Ndebele..."
+              placeholder="Type message..."
               value={chatMessage}
               onChange={e => setChatMessage(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full bg-slate-50 border rounded-xl p-2.5 text-xs font-medium focus:outline-none"
             />
             <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded-xl flex items-center justify-center shrink-0">
               <Send className="w-4 h-4" />
@@ -782,7 +766,7 @@ export default function Dashboards() {
             <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-8 text-center space-y-3">
               <Shield className="w-12 h-12 text-slate-300 mx-auto" />
               <h3 className="font-bold text-slate-700 text-sm">Access Denied</h3>
-              <p className="text-slate-500 text-xs max-w-sm mx-auto">This page contains corporate platform configurations, commission audits, and user lists restricted to system Administrators.</p>
+              <p className="text-slate-500 text-xs max-w-sm mx-auto">This page contains corporate platform configurations restricted to Administrators.</p>
             </div>
           )}
         </div>

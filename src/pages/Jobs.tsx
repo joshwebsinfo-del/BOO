@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Briefcase, Search, MapPin, DollarSign, Calendar, Upload,
-  PlusCircle, Mail, FileText, CheckCircle2, X, Users, ClipboardCheck, ThumbsUp, AlertCircle
+  PlusCircle, Mail, FileText, CheckCircle2, X, Users, ClipboardCheck, ThumbsUp, AlertCircle,
+  ExternalLink
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
@@ -15,6 +16,8 @@ interface Job {
   type: string;
   category: string;
   employerEmail?: string;
+  advertLink?: string;
+  advertImage?: string;
   isFeatured: boolean;
 }
 
@@ -54,8 +57,12 @@ export default function Jobs() {
     salary: 'USD 1,000 - 1,500 / Month',
     type: 'Full-time',
     category: 'Tech',
-    employerEmail: 'joshuamujakari15@gmail.com' // Default direct employer email
+    employerEmail: 'joshuamujakari15@gmail.com',
+    advertLink: '',
+    advertImage: ''
   });
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Apply form State
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -111,6 +118,19 @@ export default function Jobs() {
     fetchJobs();
   };
 
+  const handleDeviceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setNewJob(prev => ({ ...prev, advertImage: base64String }));
+        setImagePreview(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handlePostJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newJob.title || !newJob.company) return;
@@ -137,9 +157,12 @@ export default function Jobs() {
           salary: 'USD 1,000 - 1,500 / Month',
           type: 'Full-time',
           category: 'Tech',
-          employerEmail: 'joshuamujakari15@gmail.com'
+          employerEmail: 'joshuamujakari15@gmail.com',
+          advertLink: '',
+          advertImage: ''
         });
-        addNotification('Job Posted', `Successfully listed role "${added.title}" for ${added.company}!`, 'Recruitment');
+        setImagePreview(null);
+        addNotification('Job & Advert Posted', `Successfully listed role "${added.title}" with custom promo links!`, 'Recruitment');
       }
     } catch (e) {
       alert('Failed to list job.');
@@ -210,7 +233,8 @@ export default function Jobs() {
   const categories = ['Tech', 'Finance', 'Healthcare', 'Education', 'Hospitality', 'Engineering', 'Agriculture'];
   const locations = ['Harare', 'Bulawayo', 'Gweru', 'Mutare', 'Victoria Falls', 'Nyanga'];
 
-  const isEmployer = user?.role === 'Employer' || user?.role === 'Administrator';
+  // All roles except Customer can publish jobs/promotions
+  const canPostJob = user && user.role !== 'Customer';
 
   return (
     <div className="space-y-6">
@@ -219,18 +243,21 @@ export default function Jobs() {
       <div className="flex justify-between items-center gap-2 border-b pb-3">
         <div>
           <h1 className="text-xl font-black text-slate-900 leading-tight">Job Board</h1>
-          <p className="text-[10px] text-slate-400">Post vacancies or apply directly to recruiters</p>
+          <p className="text-[10px] text-slate-400">Post vacancies or optional advert promotions</p>
         </div>
-        {isEmployer ? (
+        {canPostJob ? (
           <button
-            onClick={() => setShowPostModal(true)}
+            onClick={() => {
+              setShowPostModal(true);
+              setImagePreview(null);
+            }}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm shrink-0"
           >
-            <PlusCircle className="w-3.5 h-3.5" /> Post Job
+            <PlusCircle className="w-3.5 h-3.5" /> Post Job / Advert
           </button>
         ) : (
           <div className="text-[9px] bg-slate-100 border p-2 rounded-lg text-slate-500">
-            💡 Employers list roles with direct email CV redirection.
+            💡 Providers can publish vacancies with direct resume forwardings.
           </div>
         )}
       </div>
@@ -269,8 +296,8 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* --- CANDIDATES LISTING SECTION (IF EMPLOYER) --- */}
-      {isEmployer && applications.length > 0 && (
+      {/* --- CANDIDATES LISTING SECTION (IF PROVIDER) --- */}
+      {canPostJob && applications.length > 0 && (
         <div className="space-y-3 bg-emerald-50/40 border border-emerald-100/50 p-4 rounded-2xl">
           <h2 className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-widest flex items-center gap-1.5">
             <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" /> Candidates Review Board ({applications.length})
@@ -316,7 +343,7 @@ export default function Jobs() {
         </div>
       )}
 
-      {/* --- JOBS GRID --- */}
+      {/* --- JOBS LIST --- */}
       {loading ? (
         <div className="text-center py-10">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mx-auto"></div>
@@ -327,9 +354,17 @@ export default function Jobs() {
           <p className="font-bold text-slate-700 text-xs mt-1">No vacancies listed.</p>
         </div>
       ) : (
-        <div className="space-y-3.5">
+        <div className="space-y-4">
           {jobs.map(job => (
-            <div key={job.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between space-y-3">
+            <div key={job.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between space-y-3 overflow-hidden">
+
+              {/* Optional Base64 Advert Banner display (device gallery uploaded photo) */}
+              {job.advertImage && (
+                <div className="w-full h-28 rounded-xl overflow-hidden border border-slate-100">
+                  <img src={job.advertImage} className="w-full h-full object-cover" alt="Vacancy Banner Promo" />
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-[8px] bg-slate-100 text-slate-600 font-extrabold px-1.5 py-0.5 rounded border border-slate-200 uppercase tracking-wider">
@@ -349,10 +384,24 @@ export default function Jobs() {
                 </div>
               </div>
 
+              {/* Optional external advertisement link display */}
+              {job.advertLink && (
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-2 flex justify-between items-center text-[9px]">
+                  <span className="text-amber-900 font-extrabold">External Promotion Offer:</span>
+                  <a
+                    href={job.advertLink.startsWith('http') ? job.advertLink : `https://${job.advertLink}`}
+                    target="_blank" rel="noreferrer"
+                    className="text-amber-950 font-black flex items-center gap-0.5 hover:underline"
+                  >
+                    Open Link <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
+
               <div className="flex justify-between items-center gap-1 pt-1.5 border-t">
                 {job.employerEmail && (
                   <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5">
-                    <Mail className="w-3 h-3 text-emerald-600" /> Redirects: {job.employerEmail}
+                    <Mail className="w-3 h-3 text-emerald-600" /> Deliver CV to: {job.employerEmail}
                   </span>
                 )}
                 {user ? (
@@ -434,7 +483,7 @@ export default function Jobs() {
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-5 border border-slate-200 space-y-4 max-h-[85vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex justify-between items-center pb-2 border-b">
-              <h3 className="font-extrabold text-sm text-slate-900">Post Job Vacancy</h3>
+              <h3 className="font-extrabold text-sm text-slate-900">Post Job Vacancy / Advert</h3>
               <button onClick={() => setShowPostModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-4 h-4" />
               </button>
@@ -490,12 +539,37 @@ export default function Jobs() {
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold text-slate-500 mb-1">Description *</label>
+                <label className="block text-[9px] font-bold text-slate-500 mb-1">Detailed Description *</label>
                 <textarea
-                  required placeholder="Details..." value={newJob.description}
+                  required placeholder="Specify qualifications..." value={newJob.description}
                   onChange={e => setNewJob({...newJob, description: e.target.value})}
                   className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none h-14"
                 />
+              </div>
+
+              {/* Optional Advert link and photo uploads */}
+              <div className="border border-dashed border-slate-200 p-2.5 rounded-xl space-y-2 bg-slate-50/50">
+                <span className="block font-extrabold text-slate-700 text-[9px]">Optional Promotional Advert Attachment</span>
+
+                <div>
+                  <label className="block text-[8px] font-bold text-slate-400 mb-1 uppercase">External Advert URL Link</label>
+                  <input
+                    type="text" placeholder="e.g. www.econet.co.zw/careers" value={newJob.advertLink}
+                    onChange={e => setNewJob({...newJob, advertLink: e.target.value})}
+                    className="w-full bg-white border rounded-lg p-1.5 text-[10px] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-bold text-slate-400 mb-1 uppercase">Upload Promotional Image</label>
+                  <input
+                    type="file" accept="image/*" onChange={handleDeviceImageUpload}
+                    className="w-full text-[10px] text-slate-400 cursor-pointer"
+                  />
+                  {imagePreview && (
+                    <img src={imagePreview} className="w-14 h-10 object-cover rounded mt-1.5 border" alt="Preview" />
+                  )}
+                </div>
               </div>
 
               <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm">

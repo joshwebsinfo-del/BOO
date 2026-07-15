@@ -119,6 +119,8 @@ model Job {
   type          String           @default("Full-time") // Full-time, Part-time, Contract, Internship
   category      String           // Tech, Finance, Healthcare, Education, Hospitality, Admin, Engineering, Agriculture
   employerEmail String?          // For direct candidate resume dispatch
+  advertLink    String?          // Optional external advertisement/promo link
+  advertImage   String?          // Optional base64 device gallery banner photo
   isFeatured    Boolean          @default(false)
   employerId    Int
   employer      User             @relation("UserJobs", fields: [employerId], references: [id], onDelete: Cascade)

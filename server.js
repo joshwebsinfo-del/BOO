@@ -40,7 +40,6 @@ function requireRole(roles) {
 // --- SEED FUNCTION ---
 async function seedDatabase() {
     try {
-        // If the user with requested credentials already exists, we skip!
         const adminCheck = await prisma.user.findFirst({ where: { email: 'joshuamujakari15@gmail.com' } });
         if (adminCheck) {
             console.log('Database already has joshuamujakari15@gmail.com admin user. Skipping seed.');
@@ -400,7 +399,6 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ error: 'Please provide username and password' });
         }
 
-        // Support login by email OR username (crucial for email login with joshuamujakari15@gmail.com!)
         const user = await prisma.user.findFirst({
             where: {
                 OR: [
@@ -777,9 +775,10 @@ app.get('/api/jobs', async (req, res) => {
     }
 });
 
-app.post('/api/jobs', authenticateToken, requireRole(['Employer', 'Administrator']), async (req, res) => {
+// Expanded route permissions to allow all roles except 'Customer'
+app.post('/api/jobs', authenticateToken, requireRole(['Employer', 'Business Owner', 'Lodge Owner', 'Property Owner', 'Administrator']), async (req, res) => {
     try {
-        const { title, company, description, location, salary, type, category, employerEmail, isFeatured } = req.body;
+        const { title, company, description, location, salary, type, category, employerEmail, advertLink, advertImage, isFeatured } = req.body;
         const job = await prisma.job.create({
             data: {
                 title,
@@ -790,6 +789,8 @@ app.post('/api/jobs', authenticateToken, requireRole(['Employer', 'Administrator
                 type,
                 category,
                 employerEmail: employerEmail || req.user.email,
+                advertLink,
+                advertImage,
                 isFeatured: isFeatured || false,
                 employerId: req.user.id
             }
@@ -823,7 +824,7 @@ app.post('/api/jobs/:id/apply', authenticateToken, async (req, res) => {
 
 app.put('/api/applications/:id', authenticateToken, async (req, res) => {
     try {
-        const { status } = req.body; // Accepted, Rejected, Reviewed
+        const { status } = req.body;
         const appRecord = await prisma.jobApplication.findUnique({
             where: { id: parseInt(req.params.id) },
             include: { job: true }
@@ -839,7 +840,6 @@ app.put('/api/applications/:id', authenticateToken, async (req, res) => {
             data: { status }
         });
 
-        // Notify Candidate
         await prisma.notification.create({
             data: {
                 userId: appRecord.userId,
@@ -947,7 +947,6 @@ app.post('/api/reviews', authenticateToken, async (req, res) => {
             }
         });
 
-        // Recalculate average rating for business if targetType === Business
         if (targetType === 'Business') {
             const allReviews = await prisma.review.findMany({
                 where: { targetId: parseInt(targetId), targetType: 'Business' }
@@ -1074,7 +1073,7 @@ app.get('/api/messages/contacts', authenticateToken, async (req, res) => {
 app.post('/api/payments/checkout', authenticateToken, async (req, res) => {
     try {
         const { amount, phone, paymentMethod, reference } = req.body;
-        const isSuccess = !phone.endsWith('00'); // Simulate failure for phones ending with 00
+        const isSuccess = !phone.endsWith('00');
         if (!isSuccess) {
             return res.status(400).json({ error: 'Payment declined by mobile operator. Try another number.' });
         }
@@ -1094,7 +1093,7 @@ app.post('/api/payments/checkout', authenticateToken, async (req, res) => {
 // --- 9. AI CHAT & SEARCH & TRANSLATION ROUTE ---
 app.post('/api/ai/chat', async (req, res) => {
     try {
-        const { message, language } = req.body; // English, Shona, Ndebele
+        const { message, language } = req.body;
         const lower = message.toLowerCase();
         let reply = "I am ZimHub's AI assistant. Ask me anything about Zimbabwe lodges, jobs, businesses, or real estate!";
 
@@ -1124,7 +1123,7 @@ app.post('/api/ai/chat', async (req, res) => {
 
 app.post('/api/ai/translate', async (req, res) => {
     try {
-        const { text, targetLang } = req.body; // 'English', 'Shona', 'Ndebele'
+        const { text, targetLang } = req.body;
         let translation = text;
 
         if (targetLang === 'Shona') {
