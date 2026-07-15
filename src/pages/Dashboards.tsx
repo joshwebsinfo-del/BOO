@@ -8,9 +8,10 @@ import {
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
-// Import Firebase Authentication SDK methods
+// Import Firebase Authentication & Firestore SDK methods
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { firebaseAuth } from '../firebase.ts';
+import { collection, addDoc } from 'firebase/firestore';
+import { firebaseAuth, firestoreDb } from '../firebase.ts';
 
 interface Message {
   id: number;
@@ -217,6 +218,21 @@ export default function Dashboards() {
       const data = await res.json();
       if (res.ok) {
         login(data.user, data.token);
+
+        // Sync user profile metadata to Firebase Firestore database as requested!
+        try {
+          await addDoc(collection(firestoreDb, 'users'), {
+            username: data.user.username,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role,
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Firestore] Successfully synchronized user profile document.');
+        } catch (fsErr: any) {
+          console.warn(`[Firestore sync warning] ${fsErr.message}`);
+        }
+
         setSearchParams({});
       } else {
         alert(data.error || 'Signup failed.');
@@ -309,6 +325,20 @@ export default function Dashboards() {
       if (res.ok) {
         const added = await res.json();
         setP2pMessages([...p2pMessages, added]);
+
+        // Sync P2P chat message log to Firebase Firestore database as requested!
+        try {
+          await addDoc(collection(firestoreDb, 'messages'), {
+            senderId: user.id,
+            receiverId: activeChatUser.id,
+            text: p2pInput,
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Firestore] Successfully synchronized P2P chat message log.');
+        } catch (fsErr: any) {
+          console.warn(`[Firestore sync warning] ${fsErr.message}`);
+        }
+
         setP2pInput('');
       }
     } catch (e) {

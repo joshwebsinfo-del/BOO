@@ -7,6 +7,10 @@ import {
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
+// Import Firestore SDK hooks
+import { collection, addDoc } from 'firebase/firestore';
+import { firestoreDb } from '../firebase.ts';
+
 interface Room {
   id: number;
   lodgeId: number;
@@ -56,7 +60,7 @@ export default function LodgeBooking() {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Add Lodge Modal (for lodge owners)
+  // Add Lodge Modal (for guesthouses)
   const [showAddLodgeModal, setShowAddLodgeModal] = useState(false);
   const [newLodge, setNewLodge] = useState({
     name: '',
@@ -170,8 +174,29 @@ export default function LodgeBooking() {
         return;
       }
 
+      // Sync stay details to Firebase Firestore database as requested!
+      try {
+        await addDoc(collection(firestoreDb, 'bookings'), {
+          roomId: selectedRoom.id,
+          roomName: selectedRoom.name,
+          lodgeName: selectedLodge?.name,
+          startDate,
+          endDate: isHourly ? startDate : endDate,
+          isHourly,
+          hourlyBlock: isHourly ? hourlyBlock : null,
+          totalPrice,
+          guestName,
+          guestPhone,
+          userEmail: user?.email,
+          createdAt: new Date().toISOString()
+        });
+        console.log('[Firestore] Successfully synced lodge booking record.');
+      } catch (fsErr: any) {
+        console.warn(`[Firestore Warning] ${fsErr.message}`);
+      }
+
       // Compile detailed inquiry message
-      const inquiryText = `👋 [ZimHub Lodge Reservation Inquiry]\n\nHello ${selectedLodge?.name}!\nI want to confirm my booking on the ZimHub platform. Here are my reservation details:\n\n🏨 *Lodge*: ${selectedLodge?.name}\n🛌 *Suite*: ${selectedRoom.name}\n📆 *Type*: ${isHourly ? '2-Hour Block (' + hourlyBlock + ')' : 'Overnight Stay'}\n📅 *Stay Date*: ${startDate} ${!isHourly ? 'to ' + endDate : ''}\n👥 *Guest Name*: ${guestName}\n📞 *Guest Contact*: ${guestPhone}\n💵 *Total Value*: $${totalPrice.toFixed(2)}`;
+      const inquiryText = `👋 [ZimHub Lodge Reservation Inquiry]\n\nHello ${selectedLodge?.name}!\nI want to confirm my booking on the ZimHub platform. Here are my reservation details:\n\n🏨 *Lodge*: ${selectedLodge?.name}\n🛌 *Suite*: ${selectedRoom.name}\ngm *Type*: ${isHourly ? '2-Hour Block (' + hourlyBlock + ')' : 'Overnight Stay'}\n📅 *Stay Date*: ${startDate} ${!isHourly ? 'to ' + endDate : ''}\n👥 *Guest Name*: ${guestName}\n📞 *Guest Contact*: ${guestPhone}\n💵 *Total Value*: $${totalPrice.toFixed(2)}`;
 
       // 2. Dispatch inquiry based on routing choice
       if (submitRouting === 'whatsapp') {
@@ -285,7 +310,7 @@ export default function LodgeBooking() {
       <div className="flex justify-between items-center gap-2 border-b pb-3 border-slate-100">
         <div>
           <h1 className="text-xl font-black text-slate-900 leading-tight">Premium Lodging</h1>
-          <p className="text-[10px] text-slate-400">Book overnight stays or hourly ensuite blocks</p>
+          <p className="text-[10px] text-slate-400">Book overnight stays or hourly guesthouse blocks</p>
         </div>
 
         {user?.role === 'Lodge Owner' || user?.role === 'Administrator' ? (

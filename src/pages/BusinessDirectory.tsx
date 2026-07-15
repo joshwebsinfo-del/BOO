@@ -5,6 +5,10 @@ import {
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
+// Import Firestore SDK hooks
+import { collection, addDoc } from 'firebase/firestore';
+import { firestoreDb } from '../firebase.ts';
+
 interface Business {
   id: number;
   name: string;
@@ -111,6 +115,28 @@ export default function BusinessDirectory() {
       if (res.ok) {
         const added = await res.json();
         setBusinesses([added, ...businesses]);
+
+        // Sync listed business to Firebase Firestore database as requested!
+        try {
+          await addDoc(collection(firestoreDb, 'businesses'), {
+            name: added.name,
+            description: added.description,
+            category: added.category,
+            subCategory: added.subCategory,
+            phone: added.phone,
+            whatsapp: added.whatsapp,
+            email: added.email,
+            website: added.website,
+            hours: added.hours,
+            location: added.location,
+            rating: added.rating,
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Firestore] Successfully synchronized business directory document.');
+        } catch (fsErr: any) {
+          console.warn(`[Firestore sync warning] ${fsErr.message}`);
+        }
+
         setShowAddModal(false);
         setNewBiz({
           name: '',
@@ -174,6 +200,21 @@ export default function BusinessDirectory() {
 
       if (res.ok) {
         const newRev = await res.json();
+
+        // Sync rating feedback review to Firebase Firestore database
+        try {
+          await addDoc(collection(firestoreDb, 'reviews'), {
+            bizId: bizId,
+            rating: reviewRating,
+            comment: reviewComment,
+            userEmail: user?.email,
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Firestore] Successfully synchronized business feedback review document.');
+        } catch (fsErr: any) {
+          console.warn(`[Firestore sync warning] ${fsErr.message}`);
+        }
+
         // Refresh reviews list
         setActiveReviewsList([newRev, ...activeReviewsList]);
         setReviewComment('');

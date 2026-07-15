@@ -6,6 +6,10 @@ import {
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
+// Import Supabase Upload and Firestore SDK hooks
+import { uploadToSupabase, firestoreDb } from '../firebase.ts';
+import { collection, addDoc } from 'firebase/firestore';
+
 interface Job {
   id: number;
   title: string;
@@ -43,7 +47,7 @@ export default function Jobs() {
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedLocation, setSearchLocation] = useState('');
 
   // Selected Job for expanded views
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -71,7 +75,7 @@ export default function Jobs() {
     name: user ? user.name : '',
     email: user ? user.email : '',
     coverLetter: '',
-    cvUrl: '' // This will contain the Base64 file string (PDF or Image)
+    cvUrl: '' // This will contain the Supabase Hosted URL
   });
   const [cvFileName, setCvFileName] = useState('');
 
@@ -124,24 +128,28 @@ export default function Jobs() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64String = reader.result as string;
-        setNewJob(prev => ({ ...prev, advertImage: base64String }));
-        setImagePreview(base64String);
+        // Upload to Supabase Storage!
+        const publicUrl = await uploadToSupabase(base64String, file.name);
+        setNewJob(prev => ({ ...prev, advertImage: publicUrl }));
+        setImagePreview(publicUrl);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Convert uploaded resume PDF or Image file to base64 string
+  // Convert uploaded resume PDF or Image file and upload to Supabase Storage
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setCvFileName(file.name);
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64String = reader.result as string;
-        setApplyForm(prev => ({ ...prev, cvUrl: base64String }));
+        // Upload to Supabase Storage!
+        const publicUrl = await uploadToSupabase(base64String, file.name);
+        setApplyForm(prev => ({ ...prev, cvUrl: publicUrl }));
       };
       reader.readAsDataURL(file);
     }
@@ -164,6 +172,27 @@ export default function Jobs() {
       if (res.ok) {
         const added = await res.json();
         setJobs([added, ...jobs]);
+
+        // Sync job vacancy metadata to Firebase Firestore database
+        try {
+          await addDoc(collection(firestoreDb, 'jobs'), {
+            title: added.title,
+            company: added.company,
+            description: added.description,
+            location: added.location,
+            salary: added.salary,
+            type: added.type,
+            category: added.category,
+            employerEmail: added.employerEmail,
+            advertLink: added.advertLink,
+            advertImage: added.advertImage,
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Firestore] Successfully synchronized job vacancy document.');
+        } catch (fsErr: any) {
+          console.warn(`[Firestore sync warning] ${fsErr.message}`);
+        }
+
         setShowPostModal(false);
         setNewJob({
           title: '',
@@ -213,6 +242,23 @@ export default function Jobs() {
       });
 
       if (res.ok) {
+        // Sync application metadata to Firebase Firestore database
+        try {
+          await addDoc(collection(firestoreDb, 'applications'), {
+            jobId: selectedJob.id,
+            jobTitle: selectedJob.title,
+            company: selectedJob.company,
+            name: applyForm.name,
+            email: applyForm.email,
+            coverLetter: applyForm.coverLetter,
+            cvUrl: applyForm.cvUrl, // Supabase hosted file URL!
+            createdAt: new Date().toISOString()
+          });
+          console.log('[Firestore] Successfully synchronized candidate application document.');
+        } catch (fsErr: any) {
+          console.warn(`[Firestore sync warning] ${fsErr.message}`);
+        }
+
         // Direct email routing check
         const targetEmail = selectedJob.employerEmail;
         if (targetEmail && targetEmail.trim().length > 0) {
@@ -229,7 +275,7 @@ export default function Jobs() {
           alert(`Application Sent Straight to Email!\n\nWe launched your email client to send your PDF/Image resume directly to the employer at: ${targetEmail}!`);
         } else {
           // Fallback to in-app P2P messaging to employer!
-          const chatMsgText = `📢 [New Job Application]\n\nI have applied for your position: "${selectedJob.title}" at "${selectedJob.company}".\n\n- Name: ${applyForm.name}\n- Email: ${applyForm.email}\n- Cover Letter: ${applyForm.coverLetter}\n- Attached Resume (Base64 file uploaded successfully)`;
+          const chatMsgText = `📢 [New Job Application]\n\nI have applied for your position: "${selectedJob.title}" at "${selectedJob.company}".\n\n- Name: ${applyForm.name}\n- Email: ${applyForm.email}\n- Cover Letter: ${applyForm.coverLetter}\n- Attached Resume: ${applyForm.cvUrl}`;
 
           const msgRes = await fetch('/api/messages', {
             method: 'POST',
@@ -349,7 +395,7 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* --- CANDIDATES LISTING SECTION (IF PROVIDER) --- */}
+      {/* --- CANDIDATES LISTING SECTION --- */}
       {canPostJob && applications.length > 0 && (
         <div className="space-y-3 bg-emerald-50/40 border border-emerald-100/50 p-4 rounded-2xl">
           <h2 className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-widest flex items-center gap-1.5">
@@ -370,12 +416,10 @@ export default function Jobs() {
                 <p className="text-slate-500 italic">" {app.coverLetter} "</p>
                 {app.cvUrl && (
                   <div className="text-[9px] text-emerald-700 font-mono bg-emerald-50 p-2 rounded-lg border border-emerald-100/30 flex justify-between items-center">
-                    <span>📄 CV Resume File Attached</span>
-                    {app.cvUrl.startsWith('data:') && (
-                      <a href={app.cvUrl} download="candidate-resume.pdf" className="text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded shadow-sm hover:bg-emerald-700">
-                        Download File
-                      </a>
-                    )}
+                    <span>📄 Supabase Hosted CV Attached</span>
+                    <a href={app.cvUrl} target="_blank" rel="noreferrer" className="text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded shadow-sm hover:bg-emerald-700">
+                      Open Document
+                    </a>
                   </div>
                 )}
                 <div className="flex justify-between items-center pt-2 border-t">
@@ -416,7 +460,7 @@ export default function Jobs() {
           {jobs.map(job => (
             <div key={job.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between space-y-3 overflow-hidden">
 
-              {/* Optional Base64 Advert Banner display (device gallery uploaded photo) */}
+              {/* Optional Supabase Advert Banner display */}
               {job.advertImage && (
                 <div className="w-full h-28 rounded-xl overflow-hidden border border-slate-100">
                   <img src={job.advertImage} className="w-full h-full object-cover" alt="Vacancy Banner Promo" />

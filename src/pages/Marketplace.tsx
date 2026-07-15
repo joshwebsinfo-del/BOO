@@ -6,6 +6,9 @@ import {
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
+// Import Supabase upload helper
+import { uploadToSupabase } from '../firebase.ts';
+
 interface Product {
   id: number;
   name: string;
@@ -93,10 +96,12 @@ export default function Marketplace() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64String = reader.result as string;
-        setNewProduct(prev => ({ ...prev, image: base64String }));
-        setImagePreview(base64String);
+        // Upload to Supabase Storage!
+        const publicUrl = await uploadToSupabase(base64String, file.name);
+        setNewProduct(prev => ({ ...prev, image: publicUrl }));
+        setImagePreview(publicUrl);
       };
       reader.readAsDataURL(file);
     }
