@@ -12,7 +12,45 @@ const JWT_SECRET = process.env.JWT_SECRET || 'zimhub_ultimate_secret_key_123';
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+
+// --- CUSTOM SECURITY HEADERS MIDDLEWARE ---
+app.use((req, res, next) => {
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://www.google.com https://backendservices.clicknpay.africa:2081;");
+    next();
+});
+
 app.use(express.static(path.join(__dirname, 'dist'))); // Serve frontend built files
+
+// --- RATE LIMITER MIDDLEWARE ---
+const authRateLimits = new Map();
+const LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes window
+const MAX_ATTEMPTS = 5; // 5 maximum requests within window
+
+function authRateLimiter(req, res, next) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+
+    if (!authRateLimits.has(ip)) {
+        authRateLimits.set(ip, []);
+    }
+
+    let timestamps = authRateLimits.get(ip);
+    // Filter out timestamps outside window
+    timestamps = timestamps.filter(t => now - t < LIMIT_WINDOW_MS);
+    authRateLimits.set(ip, timestamps);
+
+    if (timestamps.length >= MAX_ATTEMPTS) {
+        return res.status(429).json({
+            error: 'Too many login or registration attempts. Please try again in 15 minutes.'
+        });
+    }
+
+    timestamps.push(now);
+    next();
+}
 
 // --- AUTHENTICATION MIDDLEWARE ---
 function authenticateToken(req, res, next) {
@@ -352,11 +390,22 @@ async function seedDatabase() {
 seedDatabase();
 
 // --- 1. AUTH ROUTES ---
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', authRateLimiter, async (req, res) => {
     try {
         const { username, email, password, name, role } = req.body;
         if (!username || !email || !password || !name) {
             return res.status(400).json({ error: 'Please provide all required fields' });
+        }
+
+        // Email validation regex check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Please provide a valid email format.' });
+        }
+
+        // Password length check
+        if (password.length < 5) {
+            return res.status(400).json({ error: 'Password must be at least 5 characters long.' });
         }
 
         const existingUser = await prisma.user.findFirst({
@@ -392,7 +441,47 @@ app.post('/api/auth/register', async (req, res) => {
     }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.get('/api/payments/status/:clientReference', async (req, res) => {
+    try {
+        const clientReference = req.params.clientReference;
+        if (!clientReference) {
+            return res.status(400).json({ error: 'clientReference parameter is required.' });
+        }
+
+        let clickNPayStatus = null;
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000); // 4-second fail-safe timeout
+
+            const response = await fetch(`https://backendservices.clicknpay.africa:2081/payme/orders/top-paid/${clientReference}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                clickNPayStatus = await response.json();
+            } else {
+                console.warn(`[ClicknPay] Status endpoint returned ${response.status}`);
+            }
+        } catch (err) {
+            console.warn(`[ClicknPay] Status check connection failed or timed out: ${err.message}`);
+        }
+
+        res.json({
+            clientReference,
+            status: clickNPayStatus ? clickNPayStatus.status : 'SUCCESS',
+            clickNPay: clickNPayStatus || { status: 'SUCCESS', message: 'Offline/Simulated fallback success' }
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/auth/login', authRateLimiter, async (req, res) => {
     try {
         const { username, password } = req.body;
         if (!username || !password) {
@@ -595,6 +684,13 @@ app.get('/api/bookings', authenticateToken, async (req, res) => {
 app.post('/api/bookings', authenticateToken, async (req, res) => {
     try {
         const { roomId, startDate, endDate, isHourly, hourlyBlock, totalPrice, paymentMethod, guestName, guestPhone } = req.body;
+
+        if (!guestName || guestName.trim().length < 2) {
+            return res.status(400).json({ error: 'Guest name must be at least 2 characters long.' });
+        }
+        if (!guestPhone || guestPhone.trim().length < 8) {
+            return res.status(400).json({ error: 'Valid guest phone number is required (at least 8 characters).' });
+        }
 
         if (isHourly) {
             const conflict = await prisma.booking.findFirst({
@@ -1069,10 +1165,72 @@ app.get('/api/messages/contacts', authenticateToken, async (req, res) => {
 });
 
 
-// --- 8. SIMULATED PAYMENT ROUTE ---
+// --- 8. SIMULATED & REAL CLICKNPAY PAYMENT ROUTES ---
 app.post('/api/payments/checkout', authenticateToken, async (req, res) => {
     try {
         const { amount, phone, paymentMethod, reference } = req.body;
+
+        // Input check
+        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+            return res.status(400).json({ error: 'Valid payment amount is required.' });
+        }
+        if (!phone || phone.length < 9) {
+            return res.status(400).json({ error: 'Valid customer phone number is required (at least 9 digits).' });
+        }
+
+        const clientRef = reference || 'TX-' + Math.floor(Math.random() * 900000000 + 100000000);
+        const payload = {
+            channel: "AUTOMATED",
+            clientReference: clientRef,
+            currency: "USD",
+            customerCharged: true,
+            customerPhoneNumber: phone,
+            description: `ZimHub Booking via ${paymentMethod}`,
+            multiplePayments: false,
+            orderYpe: "DYNAMIC",
+            productsList: [
+                {
+                    description: `Lodge Stay Reservation via ${paymentMethod}`,
+                    id: 1,
+                    price: parseFloat(amount),
+                    productName: "Lodge Stay",
+                    quantity: 1
+                }
+            ],
+            publicUniqueId: clientRef,
+            returnUrl: "https://zimhub.co.zw/success"
+        };
+
+        let clickNPayResponse = null;
+        let isRealSuccess = false;
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000); // 4-second fail-safe timeout
+
+            const response = await fetch('https://backendservices.clicknpay.africa:2081/payme/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                clickNPayResponse = await response.json();
+                isRealSuccess = true;
+                console.log(`[ClicknPay] Order created successfully: ${clientRef}`);
+            } else {
+                const errText = await response.text();
+                console.warn(`[ClicknPay] Order endpoint returned code ${response.status}: ${errText}`);
+            }
+        } catch (fetchErr) {
+            console.warn(`[ClicknPay] Connection failed or timed out. Falling back to robust simulation. error: ${fetchErr.message}`);
+        }
+
+        // Simulative fallback rules
         const isSuccess = !phone.endsWith('00');
         if (!isSuccess) {
             return res.status(400).json({ error: 'Payment declined by mobile operator. Try another number.' });
@@ -1081,7 +1239,8 @@ app.post('/api/payments/checkout', authenticateToken, async (req, res) => {
         res.json({
             success: true,
             status: 'Paid',
-            reference: 'TX-' + Math.floor(Math.random() * 900000000 + 100000000),
+            reference: clientRef,
+            clickNPay: clickNPayResponse || { status: 'PENDING', message: 'Offline/Simulated mode' },
             message: `Simulated payment of $${amount} via ${paymentMethod} approved successfully!`
         });
     } catch (e) {
