@@ -735,7 +735,7 @@ app.get('/api/jobs', async (req, res) => {
 
         const jobs = await prisma.job.findMany({
             where,
-            include: { employer: true },
+            include: { employer: true, applications: true },
             orderBy: { createdAt: 'desc' }
         });
         res.json(jobs);
@@ -787,6 +787,40 @@ app.post('/api/jobs/:id/apply', authenticateToken, async (req, res) => {
     }
 });
 
+app.put('/api/applications/:id', authenticateToken, async (req, res) => {
+    try {
+        const { status } = req.body; // Accepted, Rejected, Reviewed
+        const appRecord = await prisma.jobApplication.findUnique({
+            where: { id: parseInt(req.params.id) },
+            include: { job: true }
+        });
+
+        if (!appRecord) return res.status(404).json({ error: 'Application not found' });
+        if (appRecord.job.employerId !== req.user.id && req.user.role !== 'Administrator') {
+            return res.status(403).json({ error: 'Unauthorized to review this application' });
+        }
+
+        const updated = await prisma.jobApplication.update({
+            where: { id: appRecord.id },
+            data: { status }
+        });
+
+        // Notify Candidate
+        await prisma.notification.create({
+            data: {
+                userId: appRecord.userId,
+                title: 'Application Status Updated',
+                message: `Your application status for "${appRecord.job.title}" at ${appRecord.job.company} was updated to "${status}".`,
+                type: 'Job'
+            }
+        });
+
+        res.json(updated);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.get('/api/applications', authenticateToken, async (req, res) => {
     try {
         let applications;
@@ -795,7 +829,6 @@ app.get('/api/applications', authenticateToken, async (req, res) => {
                 include: { job: true, user: true }
             });
         } else {
-            // Employer gets applications to their posted jobs, or normal user gets their own applications
             const isEmp = req.user.role === 'Employer';
             if (isEmp) {
                 applications = await prisma.jobApplication.findMany({
@@ -938,12 +971,75 @@ app.post('/api/notifications/:id/read', authenticateToken, async (req, res) => {
     }
 });
 
+// --- 7.5 REAL-TIME CHAT MESSAGES ROUTING ---
+app.post('/api/messages', authenticateToken, async (req, res) => {
+    try {
+        const { receiverId, text } = req.body;
+        const msg = await prisma.message.create({
+            data: {
+                senderId: req.user.id,
+                receiverId: parseInt(receiverId),
+                text
+            }
+        });
+        res.status(201).json(msg);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/messages', authenticateToken, async (req, res) => {
+    try {
+        const chatWithId = parseInt(req.query.chatWithId);
+        if (!chatWithId) return res.status(400).json({ error: 'chatWithId query param required' });
+
+        const messages = await prisma.message.findMany({
+            where: {
+                OR: [
+                    { senderId: req.user.id, receiverId: chatWithId },
+                    { senderId: chatWithId, receiverId: req.user.id }
+                ]
+            },
+            orderBy: { createdAt: 'asc' }
+        });
+        res.json(messages);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/messages/contacts', authenticateToken, async (req, res) => {
+    try {
+        const sent = await prisma.message.findMany({
+            where: { senderId: req.user.id },
+            select: { receiverId: true }
+        });
+        const received = await prisma.message.findMany({
+            where: { receiverId: req.user.id },
+            select: { senderId: true }
+        });
+
+        const contactIds = Array.from(new Set([
+            ...sent.map(m => m.receiverId),
+            ...received.map(m => m.senderId)
+        ]));
+
+        const contacts = await prisma.user.findMany({
+            where: { id: { in: contactIds } },
+            select: { id: true, username: true, name: true, role: true, avatar: true }
+        });
+
+        res.json(contacts);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // --- 8. SIMULATED PAYMENT ROUTE ---
 app.post('/api/payments/checkout', authenticateToken, async (req, res) => {
     try {
         const { amount, phone, paymentMethod, reference } = req.body;
-        // Innbucks / EcoCash / ZIPIT / Paynow simulation
         const isSuccess = !phone.endsWith('00'); // Simulate failure for phones ending with 00
         if (!isSuccess) {
             return res.status(400).json({ error: 'Payment declined by mobile operator. Try another number.' });
@@ -980,7 +1076,6 @@ app.post('/api/ai/chat', async (req, res) => {
             reply = "Mhoro! Sani-bonani! Hello! Welcome to ZimHub. How can I help you find lodges, jobs, products, or services in Zimbabwe today?";
         }
 
-        // Handle Shona and Ndebele Translations
         if (language === 'Shona' || lower.includes('shona')) {
             reply += " [ZimHub AI in Shona]: Ndinogona kukubatsira kutsvaga mahotera, mabasa, nemba dzekuroja zviri nyore muZimbabwe.";
         } else if (language === 'Ndebele' || lower.includes('ndebele')) {
@@ -1028,7 +1123,6 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
         const productsCount = await prisma.product.count();
         const bookingsCount = await prisma.booking.count();
 
-        // Calculate earnings for the dashboard
         const bookingsList = await prisma.booking.findMany({ where: { status: 'Paid' } });
         const totalEarnings = bookingsList.reduce((sum, b) => sum + b.totalPrice, 0);
 
@@ -1041,8 +1135,48 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             products: productsCount,
             bookings: bookingsCount,
             earnings: totalEarnings,
-            commission: parseFloat((totalEarnings * 0.1).toFixed(2)) // 10% booking commission
+            commission: parseFloat((totalEarnings * 0.1).toFixed(2))
         });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+
+// --- 11. ADMIN DASHBOARD CONTROL PANEL ENDPOINTS ---
+app.get('/api/admin/users', authenticateToken, requireRole(['Administrator']), async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: { id: true, username: true, email: true, name: true, role: true, createdAt: true }
+        });
+        res.json(users);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/admin/users/:id', authenticateToken, requireRole(['Administrator']), async (req, res) => {
+    try {
+        const targetId = parseInt(req.params.id);
+        if (targetId === req.user.id) return res.status(400).json({ error: 'Cannot delete own admin profile.' });
+        await prisma.user.delete({ where: { id: targetId } });
+        res.json({ success: true, message: 'User account successfully pruned.' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/admin/businesses/:id/verify', authenticateToken, requireRole(['Administrator']), async (req, res) => {
+    try {
+        const bizId = parseInt(req.params.id);
+        const biz = await prisma.business.findUnique({ where: { id: bizId } });
+        if (!biz) return res.status(404).json({ error: 'Business not found.' });
+
+        const updated = await prisma.business.update({
+            where: { id: bizId },
+            data: { isVerified: !biz.isVerified }
+        });
+        res.json(updated);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

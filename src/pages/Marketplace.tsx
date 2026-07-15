@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   ShoppingBag, Search, MapPin, Tag, MessageCircle, Filter,
-  PlusCircle, Star, Trash2, X, AlertCircle
+  PlusCircle, Star, Trash2, X, AlertCircle, Upload, ThumbsUp
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
@@ -11,11 +11,15 @@ interface Product {
   description: string;
   price: number;
   category: string;
-  condition: string; // New, Used
+  condition: string;
   image?: string;
   whatsapp?: string;
   location: string;
   sellerId: number;
+  seller?: {
+    name: string;
+    role: string;
+  };
 }
 
 export default function Marketplace() {
@@ -23,7 +27,7 @@ export default function Marketplace() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter States
+  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCondition, setSelectedCondition] = useState('');
@@ -40,6 +44,14 @@ export default function Marketplace() {
     image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&q=80&w=600',
     whatsapp: '263786110762',
     location: 'Harare'
+  });
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Seller ratings mock storage
+  const [sellerRatings, setSellerRatings] = useState<Record<number, { likes: number; dislikes: number }>>({
+    3: { likes: 14, dislikes: 1 }, // Default seed seller (bizowner)
+    1: { likes: 32, dislikes: 0 }  // Default seed admin
   });
 
   const fetchProducts = async () => {
@@ -72,6 +84,20 @@ export default function Marketplace() {
     fetchProducts();
   };
 
+  // Device gallery image upload as base64 reader
+  const handleDeviceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setNewProduct(prev => ({ ...prev, image: base64String }));
+        setImagePreview(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProduct.name || !newProduct.price) return;
@@ -100,6 +126,7 @@ export default function Marketplace() {
           whatsapp: '263786110762',
           location: 'Harare'
         });
+        setImagePreview(null);
         addNotification('Product Posted', `Successfully listed "${added.name}" on the marketplace!`, 'Classified');
       }
     } catch (err) {
@@ -123,6 +150,16 @@ export default function Marketplace() {
     }
   };
 
+  const handleSellerLike = (sellerId: number) => {
+    setSellerRatings(prev => {
+      const curr = prev[sellerId] || { likes: 0, dislikes: 0 };
+      return {
+        ...prev,
+        [sellerId]: { ...curr, likes: curr.likes + 1 }
+      };
+    });
+  };
+
   const categories = ['Phones & Laptops', 'Vehicles', 'Agriculture', 'Furniture & Electronics', 'Fashion & Books', 'Services & Food'];
 
   return (
@@ -136,7 +173,10 @@ export default function Marketplace() {
         </div>
         {user ? (
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              setShowAddModal(true);
+              setImagePreview(null);
+            }}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all active:scale-95"
           >
             <PlusCircle className="w-4 h-4" /> Post Classified Ad
@@ -205,63 +245,80 @@ export default function Marketplace() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map(prod => (
-            <div key={prod.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+          {products.map(prod => {
+            const rating = sellerRatings[prod.sellerId] || { likes: 0, dislikes: 0 };
+            return (
+              <div key={prod.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
 
-              {/* Product Image */}
-              <div className="relative">
-                {prod.image ? (
-                  <img src={prod.image} className="w-full h-48 object-cover" alt={prod.name} />
-                ) : (
-                  <div className="w-full h-48 bg-slate-100 flex items-center justify-center text-slate-400">
-                    <ShoppingBag className="w-12 h-12" />
-                  </div>
-                )}
-                <span className="absolute top-3 left-3 text-[10px] bg-slate-900/80 backdrop-blur-sm text-white font-bold px-2 py-1 rounded-md">
-                  {prod.condition}
-                </span>
-                <span className="absolute bottom-3 right-3 text-lg font-black bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-xl shadow-sm">
-                  ${prod.price.toLocaleString()}
-                </span>
-              </div>
-
-              {/* Product Info */}
-              <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{prod.category}</p>
-                  <h3 className="font-extrabold text-base text-slate-900 tracking-tight leading-snug line-clamp-1">{prod.name}</h3>
-                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{prod.description}</p>
+                {/* Product Image */}
+                <div className="relative">
+                  {prod.image ? (
+                    <img src={prod.image} className="w-full h-48 object-cover" alt={prod.name} />
+                  ) : (
+                    <div className="w-full h-48 bg-slate-100 flex items-center justify-center text-slate-400">
+                      <ShoppingBag className="w-12 h-12" />
+                    </div>
+                  )}
+                  <span className="absolute top-3 left-3 text-[10px] bg-slate-900/80 backdrop-blur-sm text-white font-bold px-2 py-1 rounded-md">
+                    {prod.condition}
+                  </span>
+                  <span className="absolute bottom-3 right-3 text-lg font-black bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-xl shadow-sm">
+                    ${prod.price.toLocaleString()}
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {prod.location}</span>
+                {/* Product Info */}
+                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{prod.category}</p>
+                    <h3 className="font-extrabold text-base text-slate-900 tracking-tight leading-snug line-clamp-1">{prod.name}</h3>
+                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{prod.description}</p>
+                  </div>
 
-                  <div className="flex gap-1">
-                    {prod.whatsapp && (
-                      <a
-                        href={`https://wa.me/${prod.whatsapp}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Seller
-                      </a>
-                    )}
-                    {user && (user.id === prod.sellerId || user.role === 'Administrator') && (
-                      <button
-                        onClick={() => handleDeleteProduct(prod.id)}
-                        className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
-                        title="Delete Listing"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                  {/* Seller reputation panel */}
+                  <div className="bg-slate-50 border rounded-xl p-2.5 flex justify-between items-center text-[10px]">
+                    <div>
+                      <p className="font-extrabold text-slate-800">Seller: {prod.seller?.name || 'Local Seller'}</p>
+                      <p className="text-slate-400 font-medium">Reputation: {rating.likes} Likes</p>
+                    </div>
+                    <button
+                      onClick={() => handleSellerLike(prod.sellerId)}
+                      className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md font-bold flex items-center gap-1 transition-all"
+                    >
+                      <ThumbsUp className="w-3.5 h-3.5" /> Like ({rating.likes})
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {prod.location}</span>
+
+                    <div className="flex gap-1">
+                      {prod.whatsapp && (
+                        <a
+                          href={`https://wa.me/${prod.whatsapp}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Seller
+                        </a>
+                      )}
+                      {user && (user.id === prod.sellerId || user.role === 'Administrator') && (
+                        <button
+                          onClick={() => handleDeleteProduct(prod.id)}
+                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
+                          title="Delete Listing"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -296,7 +353,7 @@ export default function Marketplace() {
                   placeholder="Describe your item condition, specs, box accessories, etc..."
                   value={newProduct.description}
                   onChange={e => setNewProduct({...newProduct, description: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none h-20"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none h-16"
                 />
               </div>
 
@@ -325,6 +382,36 @@ export default function Marketplace() {
                 </div>
               </div>
 
+              {/* Device Gallery base64 attachment input */}
+              <div className="border border-dashed border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2">
+                <label className="block text-xs font-bold text-slate-600 flex items-center gap-1.5 cursor-pointer">
+                  <Upload className="w-4 h-4 text-emerald-600" />
+                  Upload from Device Gallery
+                </label>
+                <p className="text-[10px] text-slate-400">Load base64 data payloads (Supports mobile camera rolls)</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleDeviceImageUpload}
+                  className="w-full text-xs font-medium text-slate-500 cursor-pointer"
+                />
+                {imagePreview && (
+                  <div className="mt-2 relative inline-block">
+                    <img src={imagePreview} className="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm" alt="Preview" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview(null);
+                        setNewProduct({ ...newProduct, image: '' });
+                      }}
+                      className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white rounded-full p-0.5 hover:bg-rose-700 shadow-sm"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-bold text-slate-600 mb-1">Category</label>
@@ -347,25 +434,14 @@ export default function Marketplace() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">WhatsApp Contact (263...)</label>
-                  <input
-                    type="text"
-                    value={newProduct.whatsapp}
-                    onChange={e => setNewProduct({...newProduct, whatsapp: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Product Image URL</label>
-                  <input
-                    type="text"
-                    value={newProduct.image}
-                    onChange={e => setNewProduct({...newProduct, image: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1">WhatsApp Contact (263...)</label>
+                <input
+                  type="text"
+                  value={newProduct.whatsapp}
+                  onChange={e => setNewProduct({...newProduct, whatsapp: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
+                />
               </div>
 
               <button

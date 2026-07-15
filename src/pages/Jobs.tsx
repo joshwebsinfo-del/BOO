@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Briefcase, Search, MapPin, DollarSign, Calendar, Upload,
-  PlusCircle, Mail, FileText, CheckCircle2, X, Users
+  PlusCircle, Mail, FileText, CheckCircle2, X, Users, ClipboardCheck, ThumbsUp, AlertCircle
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
@@ -17,18 +17,34 @@ interface Job {
   isFeatured: boolean;
 }
 
+interface Application {
+  id: number;
+  jobId: number;
+  userId: number;
+  name: string;
+  email: string;
+  coverLetter: string;
+  cvUrl?: string;
+  status: string;
+  job?: Job;
+}
+
 export default function Jobs() {
   const { user, token, addNotification } = useApp();
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter States
+  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
 
+  // Selected Job for expanded views
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
   // Post Job Modal State
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showPostModal, setShowPostModal] = useState(false);
   const [newJob, setNewJob] = useState({
     title: '',
     company: '',
@@ -39,13 +55,13 @@ export default function Jobs() {
     category: 'Tech'
   });
 
-  // Apply Modal State
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  // Apply form State
+  const [showApplyModal, setShowApplyModal] = useState(false);
   const [applyForm, setApplyForm] = useState({
     name: user ? user.name : '',
     email: user ? user.email : '',
     coverLetter: '',
-    cvUrl: 'https://zimhub.co.zw/cvs/mock-uploaded-resume.pdf' // Mock file path string
+    cvUrl: 'https://zimhub.co.zw/cvs/resume-draft.pdf'
   });
 
   const fetchJobs = async () => {
@@ -68,9 +84,25 @@ export default function Jobs() {
     }
   };
 
+  const fetchApplications = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/applications', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setApplications(data);
+      }
+    } catch (e) {
+      console.warn('Could not load candidate applications.');
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
-  }, [selectedCategory, selectedLocation]);
+    fetchApplications();
+  }, [selectedCategory, selectedLocation, token]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +126,7 @@ export default function Jobs() {
       if (res.ok) {
         const added = await res.json();
         setJobs([added, ...jobs]);
-        setShowAddModal(false);
+        setShowPostModal(false);
         setNewJob({
           title: '',
           company: '',
@@ -109,6 +141,11 @@ export default function Jobs() {
     } catch (e) {
       alert('Failed to list job.');
     }
+  };
+
+  const handleApplyClick = (job: Job) => {
+    setSelectedJob(job);
+    setShowApplyModal(true);
   };
 
   const handleApplySubmit = async (e: React.FormEvent) => {
@@ -131,22 +168,45 @@ export default function Jobs() {
           `Your application for "${selectedJob.title}" at ${selectedJob.company} was sent successfully.`,
           'Recruitment'
         );
-        setSelectedJob(null);
+        setShowApplyModal(false);
         setApplyForm({
           name: user ? user.name : '',
           email: user ? user.email : '',
           coverLetter: '',
-          cvUrl: 'https://zimhub.co.zw/cvs/mock-uploaded-resume.pdf'
+          cvUrl: 'https://zimhub.co.zw/cvs/resume-draft.pdf'
         });
         alert(`Application sent! Employers will contact you at ${applyForm.email}.`);
+        fetchApplications();
       }
     } catch (err) {
       alert('Application failed.');
     }
   };
 
+  // Employer candidates review status updates (Accept/Reject/Review)
+  const handleUpdateAppStatus = async (appId: number, status: string) => {
+    try {
+      const res = await fetch(`/api/applications/${appId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        setApplications(applications.map(app => app.id === appId ? { ...app, status } : app));
+        addNotification('Application Reviewed', `Candidate status updated to "${status}".`, 'Recruitment');
+      }
+    } catch (e) {
+      alert('Could not update application status.');
+    }
+  };
+
   const categories = ['Tech', 'Finance', 'Healthcare', 'Education', 'Hospitality', 'Engineering', 'Agriculture'];
   const locations = ['Harare', 'Bulawayo', 'Gweru', 'Mutare', 'Victoria Falls', 'Nyanga'];
+
+  const isEmployer = user?.role === 'Employer' || user?.role === 'Administrator';
 
   return (
     <div className="space-y-8">
@@ -157,16 +217,16 @@ export default function Jobs() {
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Zimbabwe Job Board</h1>
           <p className="text-slate-500 text-sm">Post vacancies, find rewarding tech contracts, management roles, and medical internships across the nation.</p>
         </div>
-        {user?.role === 'Employer' || user?.role === 'Administrator' ? (
+        {isEmployer ? (
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => setShowPostModal(true)}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all active:scale-95"
           >
             <PlusCircle className="w-4 h-4" /> Post a Vacancy
           </button>
         ) : (
           <div className="text-xs bg-slate-100 border border-slate-200 p-2.5 rounded-xl text-slate-500">
-            💡 Employers can post job listings directly with custom dashboards.
+            💡 Employers can post job listings directly with candidate review portals.
           </div>
         )}
       </div>
@@ -205,7 +265,56 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* --- JOBS GRID LIST --- */}
+      {/* --- SUBTAB VIEW: MY APPLICATIONS (IF RECRUITER) --- */}
+      {isEmployer && applications.length > 0 && (
+        <div className="space-y-4 bg-emerald-50/40 border border-emerald-100/50 p-5 rounded-3xl">
+          <h2 className="text-sm font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+            <ClipboardCheck className="w-4 h-4 text-emerald-600" /> Candidate Applications Received ({applications.length})
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {applications.map(app => (
+              <div key={app.id} className="bg-white border rounded-2xl p-4 shadow-sm text-xs space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-extrabold text-slate-900">{app.name}</h4>
+                    <p className="text-slate-500 font-semibold">{app.email}</p>
+                  </div>
+                  <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md uppercase border">
+                    {app.job?.title || 'Seeded Job'}
+                  </span>
+                </div>
+                <p className="text-slate-600 leading-relaxed italic">" {app.coverLetter} "</p>
+
+                {app.cvUrl && (
+                  <p className="text-[10px] text-emerald-700 font-mono bg-emerald-50/50 p-1.5 rounded-md">
+                    📄 Attachment: {app.cvUrl}
+                  </p>
+                )}
+
+                <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                  <span className="text-slate-400 font-bold uppercase text-[9px]">Status: {app.status}</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleUpdateAppStatus(app.id, 'Accepted')}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => handleUpdateAppStatus(app.id, 'Rejected')}
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[10px] px-2.5 py-1 rounded-lg"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* --- JOBS LIST --- */}
       {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
@@ -243,7 +352,7 @@ export default function Jobs() {
 
               {user ? (
                 <button
-                  onClick={() => setSelectedJob(job)}
+                  onClick={() => handleApplyClick(job)}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm tracking-wide transition-all shrink-0 active:scale-95 self-end md:self-auto"
                 >
                   Apply to Job
@@ -260,7 +369,7 @@ export default function Jobs() {
       )}
 
       {/* --- APPLY TO JOB MODAL --- */}
-      {selectedJob && (
+      {showApplyModal && selectedJob && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
@@ -268,7 +377,7 @@ export default function Jobs() {
                 <h3 className="font-extrabold text-base text-slate-900">Apply to: {selectedJob.title}</h3>
                 <p className="text-[11px] text-slate-500">Corporate Recruiter: {selectedJob.company}</p>
               </div>
-              <button onClick={() => setSelectedJob(null)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowApplyModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -301,7 +410,7 @@ export default function Jobs() {
                 <label className="block text-xs font-bold text-slate-600 mb-1">Cover Letter (Brief Introduction) *</label>
                 <textarea
                   required
-                  placeholder="Tell the employer why you are a perfect fit for this Zimbabwean vacancy..."
+                  placeholder="Specify key qualifications, past experience, and start availability date..."
                   value={applyForm.coverLetter}
                   onChange={e => setApplyForm({...applyForm, coverLetter: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none h-24"
@@ -313,7 +422,6 @@ export default function Jobs() {
                 <div className="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-2xl p-4 text-center cursor-pointer space-y-1 bg-slate-50/50">
                   <Upload className="w-6 h-6 text-slate-400 mx-auto" />
                   <p className="text-xs font-bold text-slate-700">Simulate Resume Attachment</p>
-                  <p className="text-[10px] text-slate-400">PDF, DOCX up to 10MB (Local Sandbox Upload)</p>
                   <input
                     type="text"
                     value={applyForm.cvUrl}
@@ -335,12 +443,12 @@ export default function Jobs() {
       )}
 
       {/* --- POST JOB MODAL --- */}
-      {showAddModal && (
+      {showPostModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <h3 className="font-extrabold text-lg text-slate-900">Post a Corporate Vacancy</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowPostModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -425,7 +533,7 @@ export default function Jobs() {
                 <label className="block text-xs font-bold text-slate-600 mb-1">Detailed Description *</label>
                 <textarea
                   required
-                  placeholder="Specify key roles, mandatory qualifications, working days, and resume deadlines..."
+                  placeholder="Specify key roles, qualifications..."
                   value={newJob.description}
                   onChange={e => setNewJob({...newJob, description: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none h-24"

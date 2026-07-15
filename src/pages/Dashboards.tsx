@@ -3,20 +3,48 @@ import { useSearchParams } from 'react-router-dom';
 import {
   User, Shield, Briefcase, Building, ShoppingBag, Mail, Lock,
   CreditCard, Sparkles, Star, CheckCircle, Clock, Trash2, Globe, Send,
-  ChevronRight, Phone, MessageSquare, ListFilter, TrendingUp, Compass, Plus, LogIn
+  ChevronRight, Phone, MessageSquare, ListFilter, TrendingUp, Compass, Plus, LogIn,
+  MessageCircle, ShieldAlert, Award, UserCheck, ShieldCheck, DollarSign
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
+
+interface Message {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  text: string;
+  createdAt: string;
+}
+
+interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt?: string;
+}
+
+interface Business {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  location: string;
+  rating: number;
+  isVerified: boolean;
+}
 
 export default function Dashboards() {
   const { user, token, login, logout, addNotification, language } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Dashboard Tabs
+  // Tabs
   const [activeTab, setActiveTab] = useState(() => {
     return searchParams.get('tab') || 'profile';
   });
 
-  // Auth Card forms
+  // Auth Forms
   const [isRegister, setIsRegister] = useState(() => {
     return searchParams.get('auth') === 'signup';
   });
@@ -24,11 +52,17 @@ export default function Dashboards() {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('Customer'); // Customer, Business Owner, Employer, Property Owner, Marketplace Seller, Lodge Owner, Administrator
+  const [role, setRole] = useState('Customer');
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
 
-  // Admin Dashboard stats
+  // Lists & Data States
+  const [myBookings, setMyBookings] = useState<any[]>([]);
+  const [myApplications, setMyApplications] = useState<any[]>([]);
+
+  // Admin Data lists
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+  const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [adminStats, setAdminStats] = useState({
     users: 0,
     businesses: 0,
@@ -41,17 +75,18 @@ export default function Dashboards() {
     commission: 0
   });
 
-  // List of bookings, jobs, applications, properties for specific roles
-  const [myBookings, setMyBookings] = useState<any[]>([]);
-  const [myApplications, setMyApplications] = useState<any[]>([]);
-  const [myStats, setMyStats] = useState<any>(null);
-
-  // AI Chat states
+  // AI assistant states
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'ai'; text: string }>>([
     { sender: 'ai', text: 'Mhoroi! Sani-bonani! Welcome to ZimHub AI Assistant. Ask me about seed maize, Nyanga lodges, EcoNet jobs, or Borrowdale houses!' }
   ]);
   const [chatLanguage, setChatLanguage] = useState<'English' | 'Shona' | 'Ndebele'>('English');
+
+  // Real-Time P2P Chat States
+  const [chatContacts, setChatContacts] = useState<UserProfile[]>([]);
+  const [activeChatUser, setActiveChatUser] = useState<UserProfile | null>(null);
+  const [p2pMessages, setP2pMessages] = useState<Message[]>([]);
+  const [p2pInput, setP2pInput] = useState('');
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -61,32 +96,67 @@ export default function Dashboards() {
     if (auth) setIsRegister(auth === 'signup');
   }, [searchParams]);
 
-  useEffect(() => {
+  const loadAdminData = async () => {
+    if (!token || user?.role !== 'Administrator') return;
+    try {
+      const uRes = await fetch('/api/admin/users', { headers: { Authorization: `Bearer ${token}` } });
+      const bRes = await fetch('/api/businesses');
+      if (uRes.ok && bRes.ok) {
+        setAllUsers(await uRes.json());
+        setAllBusinesses(await bRes.json());
+      }
+    } catch (e) {
+      console.warn('Could not load administrative details.');
+    }
+  };
+
+  const loadUserData = async () => {
     if (!token) return;
+    try {
+      const statsRes = await fetch('/api/dashboard/stats', { headers: { Authorization: `Bearer ${token}` } });
+      if (statsRes.ok) setAdminStats(await statsRes.json());
 
-    // Fetch custom stats/histories based on roles
-    fetch('/api/dashboard/stats', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => setAdminStats(data))
-      .catch(() => console.warn('Local admin stats fallback'));
+      const bookRes = await fetch('/api/bookings', { headers: { Authorization: `Bearer ${token}` } });
+      if (bookRes.ok) setMyBookings(await bookRes.json());
 
-    fetch('/api/bookings', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => setMyBookings(data))
-      .catch(() => console.warn('Local bookings fallback'));
+      const appRes = await fetch('/api/applications', { headers: { Authorization: `Bearer ${token}` } });
+      if (appRes.ok) setMyApplications(await appRes.json());
 
-    fetch('/api/applications', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => setMyApplications(data))
-      .catch(() => console.warn('Local applications fallback'));
+      // Load active P2P Chat Contacts
+      const contactRes = await fetch('/api/messages/contacts', { headers: { Authorization: `Bearer ${token}` } });
+      if (contactRes.ok) setChatContacts(await contactRes.json());
+    } catch (e) {
+      console.warn('Error loading dashboard statistics.');
+    }
+  };
 
+  useEffect(() => {
+    loadUserData();
+    loadAdminData();
   }, [token, activeTab]);
+
+  // Real-Time Message Polling loop (Simulates socket/realtime)
+  useEffect(() => {
+    if (!token || !activeChatUser) return;
+
+    const fetchP2PMessages = async () => {
+      try {
+        const res = await fetch(`/api/messages?chatWithId=${activeChatUser.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setP2pMessages(await res.json());
+        }
+      } catch (e) {
+        console.warn('Polling messages fail.');
+      }
+    };
+
+    fetchP2PMessages();
+    const interval = setInterval(fetchP2PMessages, 3000); // Poll every 3 seconds!
+
+    return () => clearInterval(interval);
+  }, [token, activeChatUser]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +201,6 @@ export default function Dashboards() {
   };
 
   const handleGoogleLoginSimulate = () => {
-    // Simulate instant secure login via Google Firebase auth
     const mockUser = {
       id: 99,
       username: 'google_user',
@@ -206,15 +275,70 @@ export default function Dashboards() {
         setChatHistory(prev => [...prev, { sender: 'ai', text: data.reply }]);
       }
     } catch (e) {
-      setChatHistory(prev => [...prev, { sender: 'ai', text: 'Offline AI: Yes, ZimHub directory is always fully featured.' }]);
+      setChatHistory(prev => [...prev, { sender: 'ai', text: 'Offline AI: Yes, ZimHub is fully featured.' }]);
     }
   };
 
-  const handleQuickPromptClick = (prompt: string) => {
-    setChatMessage(prompt);
+  // P2P Custom Chat dispatch
+  const handleSendP2PMsg = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeChatUser || !p2pInput) return;
+
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ receiverId: activeChatUser.id, text: p2pInput })
+      });
+      if (res.ok) {
+        const added = await res.json();
+        setP2pMessages([...p2pMessages, added]);
+        setP2pInput('');
+      }
+    } catch (e) {
+      alert('Could not dispatch message.');
+    }
   };
 
-  // --- UNAUTHENTICATED GUEST LOGIN/SIGNUP UI ---
+  // Administrator Actions
+  const handleVerifyBusiness = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/businesses/${id}/verify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setAllBusinesses(allBusinesses.map(b => b.id === id ? { ...b, isVerified: updated.isVerified } : b));
+        addNotification('Listing Verified', `Toggled verification tag for business ID ${id}.`, 'System');
+      }
+    } catch (e) {
+      alert('Verification toggling failed.');
+    }
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    if (!window.confirm('Prune/Delete this user account completely?')) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setAllUsers(allUsers.filter(u => u.id !== id));
+        addNotification('User Purged', 'Cleaned up system account database records.', 'System');
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to delete.');
+      }
+    } catch (e) {
+      alert('Pruning user account failed.');
+    }
+  };
+
   if (!user) {
     return (
       <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-lg max-w-sm mx-auto space-y-6">
@@ -231,17 +355,11 @@ export default function Dashboards() {
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-600 mb-1">Enter 4-Digit OTP Code (Simulated: 1234)</label>
               <input
-                type="text"
-                placeholder="XXXX"
-                value={otpCode}
-                onChange={e => setOtpCode(e.target.value)}
+                type="text" placeholder="XXXX" value={otpCode} onChange={e => setOtpCode(e.target.value)}
                 className="w-full text-center bg-slate-50 border border-slate-200 rounded-xl p-3 text-lg font-bold tracking-widest focus:outline-none"
               />
             </div>
-            <button
-              onClick={handleVerifyOtpSimulate}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl transition-all"
-            >
+            <button onClick={handleVerifyOtpSimulate} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl transition-all">
               Verify OTP
             </button>
           </div>
@@ -267,9 +385,9 @@ export default function Dashboards() {
             )}
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Username / Contact *</label>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Username *</label>
               <input
-                type="text" required placeholder="e.g. tinashe_admin or phone" value={username} onChange={e => setUsername(e.target.value)}
+                type="text" required placeholder="e.g. customer" value={username} onChange={e => setUsername(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none"
               />
             </div>
@@ -298,37 +416,24 @@ export default function Dashboards() {
               </div>
             )}
 
-            <button
-              type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl shadow-sm transition-all"
-            >
+            <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl shadow-sm transition-all">
               {isRegister ? 'Register Account' : 'Sign In'}
             </button>
           </form>
         )}
 
-        {/* --- ALTERNATE LOGIN METHODS --- */}
         {!otpSent && (
           <div className="space-y-3 pt-3 border-t border-slate-100">
-            <button
-              onClick={handleSendOtpSimulate}
-              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
-            >
+            <button onClick={handleSendOtpSimulate} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
               💬 Get Simulated SMS OTP
             </button>
-            <button
-              onClick={handleGoogleLoginSimulate}
-              className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
-            >
+            <button onClick={handleGoogleLoginSimulate} className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
               🔥 Simulate Google Login
             </button>
 
             <p className="text-center text-[11px] text-slate-400">
               {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <button
-                onClick={() => setIsRegister(!isRegister)}
-                className="text-emerald-600 font-bold hover:underline"
-              >
+              <button onClick={() => setIsRegister(!isRegister)} className="text-emerald-600 font-bold hover:underline">
                 {isRegister ? 'Sign In' : 'Sign Up'}
               </button>
             </p>
@@ -338,7 +443,6 @@ export default function Dashboards() {
     );
   }
 
-  // --- AUTHENTICATED USER HUB SCREEN ---
   return (
     <div className="space-y-6">
 
@@ -363,24 +467,30 @@ export default function Dashboards() {
       </div>
 
       {/* Dashboard Subtabs Selector */}
-      <div className="grid grid-cols-3 gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+      <div className="grid grid-cols-4 gap-1 bg-slate-100 p-1.5 rounded-2xl">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`py-2 text-center text-xs font-bold rounded-xl transition-all ${activeTab === 'profile' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`py-2 text-[10px] font-bold rounded-xl transition-all ${activeTab === 'profile' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500'}`}
         >
           My Dashboard
         </button>
         <button
-          onClick={() => setActiveTab('ai')}
-          className={`py-2 text-center text-xs font-bold rounded-xl transition-all ${activeTab === 'ai' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          onClick={() => setActiveTab('chat')}
+          className={`py-2 text-[10px] font-bold rounded-xl transition-all ${activeTab === 'chat' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500'}`}
         >
-          AI Chat Bot
+          P2P Chat
+        </button>
+        <button
+          onClick={() => setActiveTab('ai')}
+          className={`py-2 text-[10px] font-bold rounded-xl transition-all ${activeTab === 'ai' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500'}`}
+        >
+          AI Chat
         </button>
         <button
           onClick={() => setActiveTab('admin')}
-          className={`py-2 text-center text-xs font-bold rounded-xl transition-all ${activeTab === 'admin' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`py-2 text-[10px] font-bold rounded-xl transition-all ${activeTab === 'admin' ? 'bg-white text-emerald-950 shadow-sm' : 'text-slate-500'}`}
         >
-          Admin Center
+          Admin
         </button>
       </div>
 
@@ -427,42 +537,6 @@ export default function Dashboards() {
             </div>
           )}
 
-          {/* EMPLOYER RECRUITER METRICS */}
-          {user.role === 'Employer' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Candidate Resumes Recieved</h3>
-                <span className="text-[10px] bg-sky-50 text-sky-700 font-bold px-2 py-1 rounded-md">Employer View</span>
-              </div>
-              {myApplications.length === 0 ? (
-                <p className="text-center text-xs py-10 bg-white rounded-2xl border border-slate-200 text-slate-400">No applications received yet.</p>
-              ) : (
-                <div className="space-y-3">
-                  {myApplications.map(app => (
-                    <div key={app.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm text-xs space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-extrabold text-slate-900">{app.name}</h4>
-                          <p className="text-slate-500 text-[10px]">{app.email}</p>
-                        </div>
-                        <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md uppercase border">
-                          {app.job?.title || 'Lead Developer'}
-                        </span>
-                      </div>
-                      <p className="text-slate-600 italic">" {app.coverLetter} "</p>
-                      <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-[10px]">
-                        <span className="text-slate-400">Uploaded Resume:</span>
-                        <a href={app.cvUrl} className="text-emerald-600 hover:underline font-bold" target="_blank" rel="noreferrer">
-                          Download-CV.pdf
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* LODGE OWNER CONTROLS */}
           {user.role === 'Lodge Owner' && (
             <div className="space-y-4">
@@ -487,20 +561,23 @@ export default function Dashboards() {
             </div>
           )}
 
-          {/* BUSINESS OWNER CONTROLS */}
-          {user.role === 'Business Owner' && (
+          {/* EMPLOYER RECRUITER METRICS */}
+          {user.role === 'Employer' && (
             <div className="space-y-4">
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-2 text-xs text-slate-600">
+              <div className="bg-white p-5 rounded-3xl border border-slate-200 space-y-3 text-xs text-slate-600">
                 <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-1">
-                  ⭐ Business Owner Board
+                  💼 Recruiter Metrics
                 </h3>
-                <p>Monitor your listed directory categories (Local services, restaurants, transport, schools).</p>
-                <div className="border border-emerald-100 bg-emerald-50/50 p-3.5 rounded-2xl flex justify-between items-center">
-                  <div>
-                    <p className="font-bold text-emerald-950">Verification Status</p>
-                    <p className="text-[11px] text-emerald-800">Your profile badge is fully verified!</p>
+                <p>Post vacancies and evaluate candidate resume files.</p>
+                <div className="grid grid-cols-2 gap-2 text-center pt-2 font-mono text-slate-800">
+                  <div className="bg-slate-50 p-3 rounded-2xl border">
+                    <span className="block text-lg font-black text-indigo-700">{adminStats.jobs}</span>
+                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Roles Active</span>
                   </div>
-                  <span className="bg-emerald-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">Active</span>
+                  <div className="bg-slate-50 p-3 rounded-2xl border">
+                    <span className="block text-lg font-black text-slate-800">{myApplications.length}</span>
+                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Resumes Filed</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -509,11 +586,77 @@ export default function Dashboards() {
         </div>
       )}
 
-      {/* --- AI CHAT BOT ASSISTANT TAB --- */}
+      {/* --- REAL-TIME P2P INTERNAL MESSAGING TAB --- */}
+      {activeTab === 'chat' && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-[500px]">
+          <div className="border-b border-slate-100 pb-2.5 flex justify-between items-center text-xs">
+            <div>
+              <h3 className="font-extrabold text-slate-950 flex items-center gap-1">
+                <MessageSquare className="w-4 h-4 text-emerald-600" /> P2P Chat Contacts
+              </h3>
+              <p className="text-[10px] text-slate-400">Real-time polling communication thread</p>
+            </div>
+          </div>
+
+          <div className="flex-1 grid grid-cols-3 gap-2 py-3 overflow-hidden">
+            {/* Contacts list */}
+            <div className="col-span-1 border-r border-slate-100 pr-2 space-y-2 overflow-y-auto">
+              <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">Chats</span>
+              {chatContacts.length === 0 ? (
+                <p className="text-[10px] text-slate-400 italic">No threads. Message a seller on marketplace!</p>
+              ) : (
+                chatContacts.map(contact => (
+                  <button
+                    key={contact.id}
+                    onClick={() => setActiveChatUser(contact)}
+                    className={`w-full text-left p-2 rounded-xl text-[10px] font-bold block truncate transition-all ${activeChatUser?.id === contact.id ? 'bg-emerald-50 text-emerald-950 border-l-2 border-emerald-600' : 'hover:bg-slate-50 text-slate-700'}`}
+                  >
+                    {contact.name}
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Chat Box Conversation */}
+            <div className="col-span-2 flex flex-col justify-between overflow-hidden">
+              {activeChatUser ? (
+                <>
+                  {/* Messages list */}
+                  <div className="flex-1 overflow-y-auto space-y-2 pr-1 text-[11px] leading-relaxed">
+                    {p2pMessages.map(msg => (
+                      <div key={msg.id} className={`flex ${msg.senderId === user.id ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`p-2.5 rounded-xl max-w-[160px] ${msg.senderId === user.id ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-tl-none'}`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Send form */}
+                  <form onSubmit={handleSendP2PMsg} className="flex gap-1.5 pt-2 border-t border-slate-100">
+                    <input
+                      type="text"
+                      placeholder="Type chat..."
+                      value={p2pInput}
+                      onChange={e => setP2pInput(e.target.value)}
+                      className="w-full bg-slate-50 border rounded-xl p-2 text-[11px] focus:outline-none"
+                    />
+                    <button type="submit" className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl flex items-center justify-center shrink-0">
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <p className="text-center text-[10px] text-slate-400 my-auto">Select a contact to view real-time chat history.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- AI CHAT BOT TAB --- */}
       {activeTab === 'ai' && (
         <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-[500px]">
-
-          {/* Conversational Screen Header */}
           <div className="border-b border-slate-100 pb-3 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
@@ -534,7 +677,6 @@ export default function Dashboards() {
             </select>
           </div>
 
-          {/* Messages History List */}
           <div className="flex-1 overflow-y-auto py-3 space-y-3 pr-1">
             {chatHistory.map((chat, idx) => (
               <div key={idx} className={`flex ${chat.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -545,20 +687,6 @@ export default function Dashboards() {
             ))}
           </div>
 
-          {/* Quick prompt suggestions */}
-          <div className="flex flex-wrap gap-1.5 py-2 border-t border-slate-100 overflow-x-auto select-none">
-            {['Find Nyanga lodges', 'SC727 maize price', 'EcoNet Developer job', 'Borrowdale Real Estate'].map(prompt => (
-              <button
-                key={prompt}
-                onClick={() => handleQuickPromptClick(prompt)}
-                className="text-[10px] bg-slate-50 border hover:border-emerald-500 text-slate-600 px-2 py-1 rounded-full whitespace-nowrap transition-all font-semibold"
-              >
-                {prompt}
-              </button>
-            ))}
-          </div>
-
-          {/* Message input form */}
           <form onSubmit={handleSendChatMessage} className="flex gap-2 pt-2 border-t border-slate-100">
             <input
               type="text"
@@ -567,67 +695,88 @@ export default function Dashboards() {
               onChange={e => setChatMessage(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
-            <button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
-            >
+            <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded-xl flex items-center justify-center shrink-0">
               <Send className="w-4 h-4" />
             </button>
           </form>
-
         </div>
       )}
 
-      {/* --- ADMINISTRATOR CONTROL PANEL TAB --- */}
+      {/* --- COMPLETE ADMIN DASHBOARD TAB --- */}
       {activeTab === 'admin' && (
         <div className="space-y-6">
           {user.role === 'Administrator' ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
+
+              {/* Gross stats panel */}
               <div className="bg-slate-900 text-white p-5 rounded-3xl space-y-4 shadow-md border border-slate-800">
                 <div className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-amber-500" />
-                  <h3 className="font-extrabold text-sm">ZimHub Admin Panel</h3>
+                  <h3 className="font-extrabold text-sm">ZH Administration Dashboard</h3>
                 </div>
 
-                {/* Global Metrics Counters */}
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="bg-slate-800/50 p-2 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <div className="bg-slate-800/50 p-2.5 rounded-xl border border-slate-800">
                     <span className="block font-black text-emerald-400">${adminStats.earnings.toLocaleString()}</span>
                     <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Gross Platform</span>
                   </div>
-                  <div className="bg-slate-800/50 p-2 rounded-xl border border-slate-800">
+                  <div className="bg-slate-800/50 p-2.5 rounded-xl border border-slate-800">
                     <span className="block font-black text-amber-400">${adminStats.commission.toLocaleString()}</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">ZH Commission (10%)</span>
-                  </div>
-                  <div className="bg-slate-800/50 p-2 rounded-xl border border-slate-800">
-                    <span className="block font-black text-slate-200">{adminStats.bookings}</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Reservations</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-center text-xs pt-1">
-                  <div className="bg-slate-800/50 p-2 rounded-xl border border-slate-800">
-                    <span className="block font-black text-slate-200">{adminStats.users}</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Registered Users</span>
-                  </div>
-                  <div className="bg-slate-800/50 p-2 rounded-xl border border-slate-800">
-                    <span className="block font-black text-slate-200">{adminStats.businesses}</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Listed Businesses</span>
+                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Platform Commission (10%)</span>
                   </div>
                 </div>
               </div>
 
-              {/* Administrative Logs */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 text-xs text-slate-600">
-                <h4 className="font-extrabold text-slate-900 uppercase tracking-wide text-[10px]">Real-Time Platform Logs</h4>
-                <div className="space-y-2 bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[10px] overflow-x-auto leading-normal">
-                  <p className="text-emerald-400">[06:34:11] DB initialized dev.db successfully</p>
-                  <p className="text-emerald-400">[06:34:11] 4 Verified Businesses seeded</p>
-                  <p className="text-indigo-400">[07:12:03] Secure JWT Token authorized for Admin</p>
-                  <p className="text-amber-400">[08:44:59] Paynow simulation authorized - Approved $160.00</p>
-                  <p className="text-emerald-400">[08:44:59] Lodge reservation created successfully for Tendai Moyo</p>
+              {/* Users account management */}
+              <div className="bg-white border rounded-2xl p-4 space-y-3 text-xs">
+                <h4 className="font-extrabold text-slate-950 uppercase tracking-wider text-[10px] flex items-center gap-1">
+                  <UserCheck className="w-4 h-4 text-emerald-600" /> User Accounts Control ({allUsers.length})
+                </h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto divide-y divide-slate-100 pr-1">
+                  {allUsers.map(u => (
+                    <div key={u.id} className="pt-2 pb-2 flex justify-between items-center">
+                      <div>
+                        <p className="font-extrabold text-slate-950">{u.name}</p>
+                        <p className="text-[10px] text-slate-500">Role: {u.role} | username: @{u.username}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteUser(u.id)}
+                        className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded"
+                        title="Delete User"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
+
+              {/* Businesses Verification toggle control */}
+              <div className="bg-white border rounded-2xl p-4 space-y-3 text-xs">
+                <h4 className="font-extrabold text-slate-950 uppercase tracking-wider text-[10px] flex items-center gap-1">
+                  <Award className="w-4 h-4 text-emerald-600" /> Business Directory Verification
+                </h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto divide-y divide-slate-100 pr-1">
+                  {allBusinesses.map(b => (
+                    <div key={b.id} className="pt-2 pb-2 flex justify-between items-center">
+                      <div>
+                        <p className="font-extrabold text-slate-950 flex items-center gap-1">
+                          {b.name}
+                          {b.isVerified && <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />}
+                        </p>
+                        <p className="text-[10px] text-slate-500">Location: {b.location} | rating: {b.rating}</p>
+                      </div>
+                      <button
+                        onClick={() => handleVerifyBusiness(b.id)}
+                        className={`text-[9px] font-bold px-2 py-1 rounded-lg ${b.isVerified ? 'bg-slate-100 text-slate-600' : 'bg-amber-500 text-slate-950'}`}
+                      >
+                        {b.isVerified ? 'Unverify' : 'Verify'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           ) : (
             <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-8 text-center space-y-3">
