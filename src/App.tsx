@@ -39,6 +39,8 @@ interface AppContextType {
   addNotification: (title: string, message: string, type?: string) => void;
   markNotificationsRead: () => void;
   isOnline: boolean;
+  activeToast: { id: number; title: string; message: string } | null;
+  dismissToast: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -47,6 +49,62 @@ export const useApp = () => {
   const context = useContext(AppContext);
   if (!context) throw new Error('useApp must be used within an AppProvider');
   return context;
+};
+
+// --- DYNAMIC AUDIO SYNTHESIZER FOR POPUP SOUNDS ---
+const playNotificationSound = () => {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+
+    // Tone 1: C5 (523.25 Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+    gain1.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    osc1.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.35);
+
+    // Tone 2: E5 (659.25 Hz) after 90ms offset
+    setTimeout(() => {
+      try {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(659.25, ctx.currentTime);
+        gain2.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc2.start(ctx.currentTime);
+        osc2.stop(ctx.currentTime + 0.35);
+      } catch (e) {}
+    }, 90);
+
+    // Tone 3: G5 (783.99 Hz) after 180ms offset
+    setTimeout(() => {
+      try {
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(783.99, ctx.currentTime);
+        gain3.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc3.start(ctx.currentTime);
+        osc3.stop(ctx.currentTime + 0.35);
+      } catch (e) {}
+    }, 180);
+
+  } catch (e) {
+    console.warn('Audio synthesis blocked by browser auto-play policy.');
+  }
 };
 
 // --- APP PROVIDER COMPONENT ---
@@ -66,6 +124,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
+  // Real-time Toast popup state
+  const [activeToast, setActiveToast] = useState<{ id: number; title: string; message: string } | null>(null);
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -81,6 +142,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       window.removeEventListener('offline', handleOffline);
     };
   }, [token]);
+
+  // Dismiss Toast automatically after 4 seconds
+  useEffect(() => {
+    if (activeToast) {
+      const timer = setTimeout(() => {
+        setActiveToast(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeToast]);
 
   const fetchNotifications = async () => {
     try {
@@ -126,6 +197,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newNotif = { id: Date.now(), title, message, isRead: false, createdAt: new Date() };
     setNotifications(prev => [newNotif, ...prev]);
 
+    // Launch beautiful animated toast popup
+    setActiveToast({ id: Date.now(), title, message });
+    // Play beautiful synthesized dynamic audio cue
+    playNotificationSound();
+
     if (token) {
       try {
         await fetch('/api/notifications', {
@@ -146,10 +222,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
   };
 
+  const dismissToast = () => setActiveToast(null);
+
   return (
     <AppContext.Provider value={{
       user, token, language, setLanguage, favorites, toggleFavorite, login, logout,
-      notifications, addNotification, markNotificationsRead, isOnline
+      notifications, addNotification, markNotificationsRead, isOnline, activeToast, dismissToast
     }}>
       {children}
     </AppContext.Provider>
@@ -158,7 +236,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 // --- MOBILE APP CONTAINER SHELL ---
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, logout, language, setLanguage, notifications, markNotificationsRead, isOnline } = useApp();
+  const { user, logout, language, setLanguage, notifications, markNotificationsRead, isOnline, activeToast, dismissToast } = useApp();
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -198,7 +276,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div className="relative w-full max-w-md h-full sm:h-[840px] bg-slate-900 sm:rounded-[45px] sm:border-[12px] sm:border-slate-800 sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col transition-all">
 
         {/* --- SMARTPHONE TOP STATUS BAR (Carrier, Notch, Signal, Battery) --- */}
-        <div className="bg-emerald-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-bold shrink-0 select-none">
+        <div className="bg-emerald-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-bold shrink-0 select-none relative">
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] tracking-wider uppercase">ZimCell</span>
             {!isOnline && <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></span>}
@@ -223,8 +301,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <ChevronLeft className="w-5 h-5 text-white" />
               </button>
             ) : (
-              <div className="bg-white text-emerald-800 font-extrabold w-7 h-7 rounded-lg flex items-center justify-center text-sm tracking-tighter shadow-sm">
-                ZH
+              /* --- EXQUISITE BRAND LOGO FEATURING ZIMBABWE FLAG MIX --- */
+              <div className="flex items-center gap-2">
+                <svg className="w-9 h-6 rounded shadow-sm border border-emerald-950 shrink-0 select-none" viewBox="0 0 70 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Stripes of the Zimbabwean flag: Green, Gold, Red, Black, Red, Gold, Green */}
+                  <rect width="70" height="5.7" fill="#319251" />
+                  <rect y="5.7" width="70" height="5.7" fill="#FCD116" />
+                  <rect y="11.4" width="70" height="5.7" fill="#DE2110" />
+                  <rect y="17.1" width="70" height="5.7" fill="#000000" />
+                  <rect y="22.8" width="70" height="5.7" fill="#DE2110" />
+                  <rect y="28.5" width="70" height="5.7" fill="#FCD116" />
+                  <rect y="34.2" width="70" height="5.7" fill="#319251" />
+                  {/* Triangle (White) */}
+                  <polygon points="0,0 26,20 0,40" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
+                  {/* Star (Red) */}
+                  <polygon points="8,17 10,13 12,17 15,18 12,21 13,25 10,23 7,25 8,21 5,18" fill="#DE2110" />
+                  {/* Zimbabwe Bird Emblem (Gold) */}
+                  <path d="M10,15 C9,16 9,18 10,19 C11,20 12,20 12,18 Z" fill="#FCD116" stroke="#5c4403" strokeWidth="0.3" />
+                </svg>
+                <div className="bg-gradient-to-r from-amber-400 to-yellow-300 text-emerald-950 font-extrabold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider shadow-inner">
+                  ZimHub
+                </div>
               </div>
             )}
             <div>
@@ -314,6 +411,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Link>
           </div>
         </header>
+
+        {/* --- HIGH-FIDELITY ANIMATED POP-DOWN NOTIFICATION TOAST --- */}
+        {activeToast && (
+          <div className="absolute top-14 left-4 right-4 z-50 bg-slate-900 border border-emerald-500/50 rounded-2xl shadow-2xl p-3.5 flex items-start gap-3 animate-in slide-in-from-top-4 fade-in duration-350 ease-out border-l-4 border-l-emerald-500">
+            <div className="bg-emerald-900/50 p-2 rounded-xl text-emerald-400">
+              <Bell className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-black text-slate-100 truncate">{activeToast.title}</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">{activeToast.message}</p>
+            </div>
+            <button
+              onClick={dismissToast}
+              className="text-slate-500 hover:text-slate-300 p-0.5 rounded-lg transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* --- NATIVE SCROLLABLE PHONE SCREEN BODY --- */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-24 bg-slate-50 text-slate-800">
