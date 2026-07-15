@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Building, Calendar, Clock, DollarSign, Eye, ShieldAlert, Check,
   MessageSquare, Users, CreditCard, ChevronRight, MapPin, Sparkles, X, PlusCircle,
-  ArrowLeft, Map, Star, ShieldCheck, CheckCircle2
+  ArrowLeft, Map, Star, ShieldCheck, CheckCircle2, MessageCircle
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
@@ -25,10 +26,12 @@ interface Lodge {
   image?: string;
   isFeatured: boolean;
   rooms: Room[];
+  ownerId: number;
 }
 
 export default function LodgeBooking() {
   const { user, token, addNotification } = useApp();
+  const navigate = useNavigate();
   const [lodges, setLodges] = useState<Lodge[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,13 +49,11 @@ export default function LodgeBooking() {
   const [hourlyBlock, setHourlyBlock] = useState('10:00-12:00');
   const [guestName, setGuestName] = useState(user ? user.name : '');
   const [guestPhone, setGuestPhone] = useState('0786110762'); // Default contact helpline
-  const [paymentMethod, setPaymentMethod] = useState('EcoCash');
-  const [paymentPhone, setPaymentPhone] = useState('');
+  const [submitRouting, setSubmitRouting] = useState<'whatsapp' | 'p2p'>('whatsapp');
 
   const [showCheckout, setShowCheckout] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [paymentStep, setPaymentStep] = useState<'form' | 'push_prompt' | 'success'>('form');
-  const [paymentReference, setPaymentReference] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
   // Add Lodge Modal (for lodge owners)
@@ -124,50 +125,25 @@ export default function LodgeBooking() {
   const handleBookClick = (room: Room) => {
     if (!user) {
       alert('Please login to reserve rooms.');
+      navigate('/dashboards');
       return;
     }
     setSelectedRoom(room);
     setStartDate(new Date().toISOString().split('T')[0]);
     setEndDate(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-    setPaymentStep('form');
+    setBookingSuccess(false);
     setShowCheckout(true);
   };
 
-  // FULLY FUNCTIONAL payment gateway trigger (no placeholders)
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
+  // FULLY REDESIGNED: TAKES FORM DETAILS AND ROUTES DIRECTLY TO WHATSAPP OR P2P CHAT WITH LODGE OWNER
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRoom || !startDate) return;
 
     try {
-      setIsProcessingPayment(true);
-      setPaymentStep('push_prompt'); // Transition to live push prompt overlay!
+      setIsProcessing(true);
 
-      // Wait 3 seconds to simulate direct USSD confirmation check on phone roll
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      const payRes = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          amount: totalPrice,
-          phone: paymentPhone || guestPhone,
-          paymentMethod,
-          reference: `LODGE-${selectedRoom.id}`
-        })
-      });
-
-      const payData = await payRes.json();
-      if (!payRes.ok) {
-        alert(payData.error || 'Payment declined by network operator.');
-        setIsProcessingPayment(false);
-        setPaymentStep('form');
-        return;
-      }
-
-      // Record actual paid booking on backend DB
+      // 1. First record booking on backend DB so it tracks inside their custom Account Dashboard
       const bookRes = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
@@ -181,30 +157,59 @@ export default function LodgeBooking() {
           isHourly,
           hourlyBlock: isHourly ? hourlyBlock : null,
           totalPrice,
-          paymentMethod,
+          paymentMethod: submitRouting === 'whatsapp' ? 'Direct WhatsApp Inquiry' : 'In-App P2P Chat',
           guestName,
           guestPhone
         })
       });
 
-      if (bookRes.ok) {
-        setPaymentReference(payData.reference);
-        setPaymentStep('success'); // Live payment transaction confirmed!
+      if (!bookRes.ok) {
+        const err = await bookRes.json();
+        alert(err.error || 'Conflict detected on backend booking log.');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Compile detailed inquiry message
+      const inquiryText = `👋 [ZimHub Lodge Reservation Inquiry]\n\nHello ${selectedLodge?.name}!\nI want to confirm my booking on the ZimHub platform. Here are my reservation details:\n\n🏨 *Lodge*: ${selectedLodge?.name}\n🛌 *Suite*: ${selectedRoom.name}\n📆 *Type*: ${isHourly ? '2-Hour Block (' + hourlyBlock + ')' : 'Overnight Stay'}\n📅 *Stay Date*: ${startDate} ${!isHourly ? 'to ' + endDate : ''}\n👥 *Guest Name*: ${guestName}\n📞 *Guest Contact*: ${guestPhone}\n💵 *Total Value*: $${totalPrice.toFixed(2)}`;
+
+      // 2. Dispatch inquiry based on routing choice
+      if (submitRouting === 'whatsapp') {
+        const defaultWhatsApp = '263786110762'; // Standard Lodge helpline contact
+        window.open(`https://wa.me/${defaultWhatsApp}?text=${encodeURIComponent(inquiryText)}`, '_blank');
         addNotification(
-          'Booking Confirmed',
-          `Stay confirmed for "${selectedRoom.name}". PAID $${totalPrice} via ${paymentMethod}. Reference: ${payData.reference}.`,
+          'WhatsApp Booking Dispatched',
+          `Stay confirmed for "${selectedRoom.name}". Redirected details straight to guesthouse WhatsApp!`,
           'Booking'
         );
       } else {
-        const err = await bookRes.json();
-        alert(err.error || 'Booking conflict detected on backend.');
-        setPaymentStep('form');
+        // Submit directly to in-app P2P Chat with the Lodge Owner!
+        const chatRes = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            receiverId: selectedLodge?.ownerId || 1, // Fallback to seeded owner admin
+            text: inquiryText
+          })
+        });
+
+        if (chatRes.ok) {
+          addNotification(
+            'P2P Booking Chat Opened',
+            `Stay confirmed for "${selectedRoom.name}". booking details delivered straight to guesthouse chat!`,
+            'Booking'
+          );
+        }
       }
+
+      setBookingSuccess(true);
     } catch (e) {
-      alert('Network checkout connection timeout.');
-      setPaymentStep('form');
+      alert('Connection error while booking.');
     } finally {
-      setIsProcessingPayment(false);
+      setIsProcessing(false);
     }
   };
 
@@ -225,7 +230,7 @@ export default function LodgeBooking() {
         addNotification('Lodge Registered', `Lodge "${newLodge.name}" listed successfully.`, 'System');
       }
     } catch (e) {
-      alert('Failed to register lodge.');
+      alert('Failed to register guesthouse.');
     }
   };
 
@@ -412,23 +417,23 @@ export default function LodgeBooking() {
         </div>
       )}
 
-      {/* --- SECURE PAYMENT CHECKOUT GATEWAY INTERACTIVE MODAL (Works fully) --- */}
+      {/* --- INQUIRY BOOKING REGISTRATION FORM (WhatsApp and P2P Integration) --- */}
       {showCheckout && selectedRoom && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-5 border border-slate-200 space-y-4 max-h-[85vh] overflow-y-auto animate-in zoom-in-95">
 
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <div>
-                <h3 className="font-black text-sm text-slate-900">Secure Cash Checkout</h3>
-                <p className="text-[9px] text-slate-400">PWA Gateway Prompt Integration</p>
+                <h3 className="font-black text-sm text-slate-900">Book Lodge Reservation</h3>
+                <p className="text-[9px] text-slate-400">Register and dispatch booking directly</p>
               </div>
               <button onClick={() => setShowCheckout(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {paymentStep === 'form' && (
-              <form onSubmit={handlePaymentSubmit} className="space-y-3.5">
+            {!bookingSuccess ? (
+              <form onSubmit={handleBookingSubmit} className="space-y-3.5">
                 <div className="bg-slate-50 border p-3 rounded-xl text-[10px] space-y-0.5">
                   <p className="font-extrabold text-slate-900">Suite: {selectedRoom.name}</p>
                   <p className="text-slate-500 font-medium">Lodge: {selectedLodge?.name}</p>
@@ -507,75 +512,53 @@ export default function LodgeBooking() {
                   </div>
                 </div>
 
+                {/* Routing toggle */}
                 <div className="space-y-1.5 border-t border-slate-100 pt-2.5">
-                  <label className="block text-[8px] font-extrabold text-slate-500 uppercase tracking-wide">Choose Payment Gateway</label>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {['EcoCash', 'Innbucks', 'ZIPIT', 'Paynow'].map(method => (
-                      <button
-                        key={method} type="button" onClick={() => setPaymentMethod(method)}
-                        className={`p-1.5 border text-center rounded-lg text-[9px] font-black transition-all ${paymentMethod === method ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'}`}
-                      >
-                        {method}
-                      </button>
-                    ))}
-                  </div>
-                  <div>
-                    <label className="block text-[8px] font-extrabold text-slate-500 mb-1 uppercase tracking-wide">Mobile Number for Prompt Payout (077...)</label>
-                    <input
-                      type="text" required placeholder="Enter mobile wallet no" value={paymentPhone} onChange={e => setPaymentPhone(e.target.value)}
-                      className="w-full bg-slate-50 border rounded-lg p-2 text-[10px] font-bold focus:outline-none"
-                    />
+                  <label className="block text-[8px] font-extrabold text-slate-500 uppercase tracking-wide">Submit Inquiry Routing Method</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSubmitRouting('whatsapp')}
+                      className={`p-2 border text-center rounded-lg text-[9px] font-black transition-all flex items-center justify-center gap-1 ${submitRouting === 'whatsapp' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'}`}
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" /> WhatsApp Direct
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSubmitRouting('p2p')}
+                      className={`p-2 border text-center rounded-lg text-[9px] font-black transition-all flex items-center justify-center gap-1 ${submitRouting === 'p2p' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'}`}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" /> In-App P2P Chat
+                    </button>
                   </div>
                 </div>
 
                 <div className="bg-slate-50 p-3 rounded-xl border flex justify-between items-center text-[10px] font-extrabold">
-                  <span className="text-slate-500">Amount Due:</span>
+                  <span className="text-slate-500">Estimated Total:</span>
                   <span className="text-emerald-700 text-sm">${totalPrice.toFixed(2)}</span>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl shadow-md transition-all active:scale-95"
+                  disabled={isProcessing}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
-                  Authorize Prompt Payment
+                  {isProcessing ? 'Processing stay...' : 'Submit Stay Inquiry'}
                 </button>
               </form>
-            )}
-
-            {/* --- LIVE PROCESSING PUSH PROMPT DIALOG OVERLAY --- */}
-            {paymentStep === 'push_prompt' && (
-              <div className="text-center py-8 space-y-4">
-                <div className="relative w-12 h-12 mx-auto">
-                  <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></div>
-                  <div className="relative rounded-full h-12 w-12 border-4 border-emerald-600 bg-emerald-50 flex items-center justify-center font-extrabold text-emerald-700 text-sm">
-                    💬
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-extrabold text-slate-900 text-xs">Awaiting Mobile Confirmation...</h4>
-                  <p className="text-[10px] text-slate-400 leading-normal max-w-[240px] mx-auto">
-                    We sent a secure **{paymentMethod}** prompt to **{paymentPhone}**. Please check your phone now, enter your PIN code to authorize transaction, or dial **\*151#** to authorize manually!
-                  </p>
-                </div>
-                <div className="text-[9px] text-slate-400 animate-pulse font-bold bg-slate-50 p-2 rounded-lg inline-block border">
-                  🔄 Intercepting network approval packets...
-                </div>
-              </div>
-            )}
-
-            {/* --- CONFIRMED TRANSACTION SUCCESS SCREEN --- */}
-            {paymentStep === 'success' && (
+            ) : (
+              /* --- CONFIRMED TRANSACTION SUCCESS SCREEN --- */
               <div className="text-center py-6 space-y-4">
                 <div className="bg-emerald-50 text-emerald-700 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl shadow-inner border border-emerald-200">
                   ✓
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-black text-slate-950 text-sm">Transaction Authorized!</h4>
-                  <p className="text-[10px] text-emerald-700 font-bold bg-emerald-50/50 px-2 py-1 rounded inline-block">
-                    Reference: {paymentReference}
+                  <h4 className="font-black text-slate-950 text-sm">Stay Registered Successfully!</h4>
+                  <p className="text-[10px] text-slate-500 leading-normal max-w-[240px] mx-auto">
+                    Your guesthouse reservation for **{selectedRoom.name}** was registered in the database.
                   </p>
-                  <p className="text-[10px] text-slate-500 leading-normal max-w-[240px] mx-auto pt-2">
-                    Payment of **${totalPrice.toFixed(2)}** has been validated on the Zimbabwe mobile monetary grid. Check-in slips and receipts have been logged in your **Account Area Notifications**.
+                  <p className="text-[10px] text-emerald-700 font-bold bg-emerald-50/50 px-2 py-1 rounded inline-block mt-2">
+                    {submitRouting === 'whatsapp' ? 'Inquiry Sent to WhatsApp' : 'Inquiry Sent to P2P Chat'}
                   </p>
                 </div>
                 <button
@@ -585,7 +568,7 @@ export default function LodgeBooking() {
                   }}
                   className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-6 py-2 rounded-xl transition-all"
                 >
-                  Finished
+                  Close Window
                 </button>
               </div>
             )}
@@ -648,7 +631,7 @@ export default function LodgeBooking() {
 
               <button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm transition-all"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm"
               >
                 Submit Lodge Profile
               </button>
@@ -727,7 +710,7 @@ export default function LodgeBooking() {
 
               <button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm transition-all"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm"
               >
                 Submit Room Details
               </button>

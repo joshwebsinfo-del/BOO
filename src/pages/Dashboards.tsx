@@ -427,9 +427,6 @@ export default function Dashboards() {
             <button onClick={handleSendOtpSimulate} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
               💬 Get Simulated SMS OTP
             </button>
-            <button onClick={handleGoogleLoginSimulate} className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
-              🔥 Simulate Google Login
-            </button>
 
             <p className="text-center text-[11px] text-slate-400">
               {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}

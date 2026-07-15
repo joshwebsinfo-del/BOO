@@ -78,9 +78,9 @@ function requireRole(roles) {
 // --- SEED FUNCTION ---
 async function seedDatabase() {
     try {
-        const adminCheck = await prisma.user.findFirst({ where: { email: 'joshuamujakari15@gmail.com' } });
+        const adminCheck = await prisma.user.findFirst({ where: { username: 'josh' } });
         if (adminCheck) {
-            console.log('Database already has joshuamujakari15@gmail.com admin user. Skipping seed.');
+            console.log('Database already has josh admin user. Skipping seed.');
             return;
         }
 
@@ -102,25 +102,13 @@ async function seedDatabase() {
         const hashedAdminPassword = await bcrypt.hash('joshua#$#$', 10);
         const hashedUserPassword = await bcrypt.hash('user123', 10);
 
-        // 1. Create Default Users (Requested Admin account)
+        // 1. Create Default Users (Requested Admin account with username 'josh')
         const admin = await prisma.user.create({
             data: {
-                username: 'admin',
+                username: 'josh',
                 email: 'joshuamujakari15@gmail.com',
                 password: hashedAdminPassword,
-                name: 'System Administrator',
-                role: 'Administrator',
-                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120'
-            }
-        });
-
-        // Seed companion alias joshua as well
-        await prisma.user.create({
-            data: {
-                username: 'joshua',
-                email: 'joshua@zimhub.co.zw',
-                password: hashedAdminPassword,
-                name: 'Joshua Mujakari',
+                name: 'Joshua Mujakari (Admin)',
                 role: 'Administrator',
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120'
             }

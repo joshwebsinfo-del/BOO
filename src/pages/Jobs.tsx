@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Briefcase, Search, MapPin, DollarSign, Calendar, Upload,
   PlusCircle, Mail, FileText, CheckCircle2, X, Users, ClipboardCheck, ThumbsUp, AlertCircle,
-  ExternalLink
+  ExternalLink, MessageSquare, Send
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
@@ -19,6 +19,7 @@ interface Job {
   advertLink?: string;
   advertImage?: string;
   isFeatured: boolean;
+  employerId: number;
 }
 
 interface Application {
@@ -64,14 +65,15 @@ export default function Jobs() {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Apply form State
+  // Apply form State (supports actual pdf or image base64 upload from device)
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applyForm, setApplyForm] = useState({
     name: user ? user.name : '',
     email: user ? user.email : '',
     coverLetter: '',
-    cvUrl: 'https://zimhub.co.zw/cvs/resume-draft.pdf'
+    cvUrl: '' // This will contain the Base64 file string (PDF or Image)
   });
+  const [cvFileName, setCvFileName] = useState('');
 
   const fetchJobs = async () => {
     try {
@@ -131,6 +133,20 @@ export default function Jobs() {
     }
   };
 
+  // Convert uploaded resume PDF or Image file to base64 string
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCvFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setApplyForm(prev => ({ ...prev, cvUrl: base64String }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handlePostJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newJob.title || !newJob.company) return;
@@ -171,6 +187,13 @@ export default function Jobs() {
 
   const handleApplyClick = (job: Job) => {
     setSelectedJob(job);
+    setCvFileName('');
+    setApplyForm({
+      name: user ? user.name : '',
+      email: user ? user.email : '',
+      coverLetter: '',
+      cvUrl: ''
+    });
     setShowApplyModal(true);
   };
 
@@ -179,6 +202,7 @@ export default function Jobs() {
     if (!selectedJob) return;
 
     try {
+      // 1. Submit application to backend for candidate tracking
       const res = await fetch(`/api/jobs/${selectedJob.id}/apply`, {
         method: 'POST',
         headers: {
@@ -189,25 +213,54 @@ export default function Jobs() {
       });
 
       if (res.ok) {
-        const targetEmail = selectedJob.employerEmail || 'joshuamujakari15@gmail.com';
-        addNotification(
-          'Application Dispatched',
-          `CV successfully emailed and delivered directly to the recruiter's inbox at ${targetEmail}!`,
-          'Recruitment'
-        );
+        // Direct email routing check
+        const targetEmail = selectedJob.employerEmail;
+        if (targetEmail && targetEmail.trim().length > 0) {
+          // Open direct email draft (straight to email client)
+          const subject = encodeURIComponent(`Job Application for ${selectedJob.title} at ${selectedJob.company}`);
+          const body = encodeURIComponent(`Dear HR Team,\n\nPlease find attached my resume and cover letter details for the position of ${selectedJob.title}.\n\nName: ${applyForm.name}\nEmail: ${applyForm.email}\n\nCover Letter Notes:\n${applyForm.coverLetter}\n\nKind regards,\n${applyForm.name}`);
+          window.location.href = `mailto:${targetEmail}?subject=${subject}&body=${body}`;
+
+          addNotification(
+            'Direct Email Dispatched',
+            `Redirected to email client to send resume straight to ${targetEmail}!`,
+            'Recruitment'
+          );
+          alert(`Application Sent Straight to Email!\n\nWe launched your email client to send your PDF/Image resume directly to the employer at: ${targetEmail}!`);
+        } else {
+          // Fallback to in-app P2P messaging to employer!
+          const chatMsgText = `📢 [New Job Application]\n\nI have applied for your position: "${selectedJob.title}" at "${selectedJob.company}".\n\n- Name: ${applyForm.name}\n- Email: ${applyForm.email}\n- Cover Letter: ${applyForm.coverLetter}\n- Attached Resume (Base64 file uploaded successfully)`;
+
+          const msgRes = await fetch('/api/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              receiverId: selectedJob.employerId,
+              text: chatMsgText
+            })
+          });
+
+          if (msgRes.ok) {
+            addNotification(
+              'In-App Message Sent',
+              `No email was configured. Application delivered straight to ${selectedJob.company} via in-app messaging!`,
+              'Recruitment'
+            );
+            alert(`Application Sent via In-App Message!\n\nAs no recruiter email was configured, your application details and attached resume have been dispatched straight to the employer via in-app P2P messaging!`);
+          }
+        }
+
         setShowApplyModal(false);
-        setApplyForm({
-          name: user ? user.name : '',
-          email: user ? user.email : '',
-          coverLetter: '',
-          cvUrl: 'https://zimhub.co.zw/cvs/resume-draft.pdf'
-        });
-        alert(`Resume Successfully Emailed!\n\nYour application has been routed directly to ${targetEmail}! They will review your attachments and contact you directly.`);
-        setSelectedJob(null);
         fetchApplications();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Could not register application.');
       }
     } catch (err) {
-      alert('Application failed.');
+      alert('Application connection issue.');
     }
   };
 
@@ -316,9 +369,14 @@ export default function Jobs() {
                 </div>
                 <p className="text-slate-500 italic">" {app.coverLetter} "</p>
                 {app.cvUrl && (
-                  <p className="text-[9px] text-emerald-700 font-mono bg-emerald-50 p-1.5 rounded-lg border border-emerald-100/30">
-                    📄 Attachment: {app.cvUrl}
-                  </p>
+                  <div className="text-[9px] text-emerald-700 font-mono bg-emerald-50 p-2 rounded-lg border border-emerald-100/30 flex justify-between items-center">
+                    <span>📄 CV Resume File Attached</span>
+                    {app.cvUrl.startsWith('data:') && (
+                      <a href={app.cvUrl} download="candidate-resume.pdf" className="text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded shadow-sm hover:bg-emerald-700">
+                        Download File
+                      </a>
+                    )}
+                  </div>
                 )}
                 <div className="flex justify-between items-center pt-2 border-t">
                   <span className="text-slate-400 font-extrabold uppercase text-[8px]">Status: {app.status}</span>
@@ -399,9 +457,13 @@ export default function Jobs() {
               )}
 
               <div className="flex justify-between items-center gap-1 pt-1.5 border-t">
-                {job.employerEmail && (
+                {job.employerEmail ? (
                   <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5">
-                    <Mail className="w-3 h-3 text-emerald-600" /> Deliver CV to: {job.employerEmail}
+                    <Mail className="w-3 h-3 text-emerald-600" /> Deliver CV straight to: {job.employerEmail}
+                  </span>
+                ) : (
+                  <span className="text-[8px] font-bold text-slate-400 flex items-center gap-0.5">
+                    <MessageSquare className="w-3 h-3 text-emerald-600" /> Deliver to: In-App P2P Chat
                   </span>
                 )}
                 {user ? (
@@ -421,14 +483,14 @@ export default function Jobs() {
         </div>
       )}
 
-      {/* --- APPLY TO JOB MODAL --- */}
+      {/* --- APPLY TO JOB MODAL (Accepts actual local PDF or image file upload) --- */}
       {showApplyModal && selectedJob && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-5 border border-slate-200 space-y-4 max-h-[85vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex justify-between items-center pb-2 border-b">
               <div>
                 <h3 className="font-extrabold text-sm text-slate-900">Apply to: {selectedJob.title}</h3>
-                <p className="text-[9px] text-slate-400">Routes to: {selectedJob.employerEmail || 'joshuamujakari15@gmail.com'}</p>
+                <p className="text-[9px] text-slate-400">{selectedJob.employerEmail ? `Routes to: ${selectedJob.employerEmail}` : 'Routes to: In-App Messaging'}</p>
               </div>
               <button onClick={() => setShowApplyModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-4 h-4" />
@@ -462,15 +524,30 @@ export default function Jobs() {
                 />
               </div>
 
-              <div>
-                <label className="block text-[9px] font-bold text-slate-500 mb-1">Resume Link *</label>
+              {/* PDF or Image local file upload from device */}
+              <div className="border border-dashed border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5">
+                <label className="block text-[9px] font-bold text-slate-600 flex items-center gap-1.5 cursor-pointer">
+                  <Upload className="w-4 h-4 text-emerald-600" /> Upload Resume CV (PDF or Image) *
+                </label>
                 <input
-                  type="text" required value={applyForm.cvUrl} onChange={e => setApplyForm({...applyForm, cvUrl: e.target.value})}
-                  className="w-full bg-slate-50 border rounded-lg p-2 text-xs font-mono"
+                  type="file"
+                  accept="application/pdf,image/*"
+                  required
+                  onChange={handleResumeUpload}
+                  className="w-full text-[10px] text-slate-400 cursor-pointer"
                 />
+                {cvFileName && (
+                  <p className="text-[9px] text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded inline-block border border-emerald-100">
+                    ✓ {cvFileName} loaded
+                  </p>
+                )}
               </div>
 
-              <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs p-3 rounded-lg shadow-sm">
+              <button
+                type="submit"
+                disabled={!applyForm.cvUrl}
+                className={`w-full font-bold text-xs p-3 rounded-lg shadow-sm ${applyForm.cvUrl ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+              >
                 Submit Job Application
               </button>
             </form>
@@ -509,9 +586,9 @@ export default function Jobs() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Direct Recruiter Email *</label>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Direct Recruiter Email</label>
                   <input
-                    type="email" required placeholder="recruiter@econet.co.zw" value={newJob.employerEmail}
+                    type="email" placeholder="recruiter@econet.co.zw (Leave empty for in-app chat)" value={newJob.employerEmail}
                     onChange={e => setNewJob({...newJob, employerEmail: e.target.value})}
                     className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
                   />

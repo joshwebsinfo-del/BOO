@@ -4,7 +4,7 @@ import {
   Search, Menu, X, Globe, LogIn, LogOut, Heart, Bell, MessageSquare,
   User, Shield, Briefcase, Home as HomeIcon, MapPin, Phone, MessageCircle,
   Grid, Building, ShoppingBag, PlusCircle, Sparkles, CheckCircle2, ChevronRight,
-  Wifi, Battery, Signal, ArrowLeft, Send, Languages, CreditCard, ChevronLeft
+  Wifi, Battery, Signal, ArrowLeft, Send, Languages, CreditCard, ChevronLeft, Download
 } from 'lucide-react';
 
 // Import Pages
@@ -41,6 +41,9 @@ interface AppContextType {
   isOnline: boolean;
   activeToast: { id: number; title: string; message: string } | null;
   dismissToast: () => void;
+  showInstallBanner: boolean;
+  handleInstallClick: () => void;
+  setShowInstallBanner: (show: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -127,11 +130,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Real-time Toast popup state
   const [activeToast, setActiveToast] = useState<{ id: number; title: string; message: string } | null>(null);
 
+  // PWA install prompt states
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBanner(true);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     if (token) {
       fetchNotifications();
@@ -140,6 +154,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, [token]);
 
@@ -152,6 +167,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return () => clearTimeout(timer);
     }
   }, [activeToast]);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User installation choice outcome: ${outcome}`);
+      setDeferredPrompt(null);
+      setShowInstallBanner(false);
+    } else {
+      // Fallback manual notification instructions
+      alert("To Install ZimHub on iPhone/iOS:\n1. Open Safari\n2. Press Share button\n3. Choose 'Add to Home Screen'!");
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -227,7 +255,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider value={{
       user, token, language, setLanguage, favorites, toggleFavorite, login, logout,
-      notifications, addNotification, markNotificationsRead, isOnline, activeToast, dismissToast
+      notifications, addNotification, markNotificationsRead, isOnline, activeToast, dismissToast,
+      showInstallBanner, handleInstallClick, setShowInstallBanner
     }}>
       {children}
     </AppContext.Provider>
@@ -236,7 +265,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 // --- MOBILE APP CONTAINER SHELL ---
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, logout, language, setLanguage, notifications, markNotificationsRead, isOnline, activeToast, dismissToast } = useApp();
+  const { user, logout, language, setLanguage, notifications, markNotificationsRead, isOnline, activeToast, dismissToast, showInstallBanner, handleInstallClick, setShowInstallBanner } = useApp();
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -264,209 +293,209 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    // Centered smartphone frame container on desktop, expands beautifully on real mobile viewports
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center py-0 sm:py-8 font-sans selection:bg-emerald-500 selection:text-white antialiased">
-      <div className="bg-blobs">
-        <div className="blob blob-1"></div>
-        <div className="blob blob-2"></div>
-        <div className="blob blob-3"></div>
-      </div>
+    // Beautiful full-screen responsive container for iPhones and standard browsers
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-emerald-500 selection:text-white antialiased max-w-md mx-auto relative shadow-xl border-x border-slate-200">
 
-      {/* Smartphone Outer Bezel & Shadow (Only visible on desktop/tablets) */}
-      <div className="relative w-full max-w-md h-full sm:h-[840px] bg-slate-900 sm:rounded-[45px] sm:border-[12px] sm:border-slate-800 sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col transition-all">
-
-        {/* --- SMARTPHONE TOP STATUS BAR (Carrier, Notch, Signal, Battery) --- */}
-        <div className="bg-emerald-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-bold shrink-0 select-none relative">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] tracking-wider uppercase">ZimCell</span>
-            {!isOnline && <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></span>}
-          </div>
-
-          {/* Mock Camera Notch */}
-          <div className="hidden sm:block absolute left-1/2 transform -translate-x-1/2 top-2 w-28 h-4 bg-slate-800 rounded-b-xl z-50"></div>
-
-          <div className="flex items-center gap-1.5 text-[10px]">
-            <Signal className="w-3.5 h-3.5" />
-            <Wifi className="w-3.5 h-3.5" />
-            <span className="font-semibold">89%</span>
-            <Battery className="w-4 h-4 text-emerald-300" />
+      {/* --- MOBILE APP TOP HEADER BAR (Directly takes device status area) --- */}
+      <header className="bg-emerald-800 text-white px-4 py-4 flex items-center justify-between shadow-md shrink-0 relative z-30">
+        <div className="flex items-center gap-3">
+          {location.pathname !== '/' ? (
+            <button onClick={handleBack} className="p-1.5 hover:bg-emerald-700/60 rounded-full transition-all" title="Back">
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+          ) : (
+            /* --- EXQUISITE BRAND LOGO FEATURING ZIMBABWE FLAG MIX --- */
+            <div className="flex items-center gap-2">
+              <svg className="w-9 h-6 rounded shadow-sm border border-emerald-950 shrink-0 select-none" viewBox="0 0 70 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Stripes of the Zimbabwean flag: Green, Gold, Red, Black, Red, Gold, Green */}
+                <rect width="70" height="5.7" fill="#319251" />
+                <rect y="5.7" width="70" height="5.7" fill="#FCD116" />
+                <rect y="11.4" width="70" height="5.7" fill="#DE2110" />
+                <rect y="17.1" width="70" height="5.7" fill="#000000" />
+                <rect y="22.8" width="70" height="5.7" fill="#DE2110" />
+                <rect y="28.5" width="70" height="5.7" fill="#FCD116" />
+                <rect y="34.2" width="70" height="5.7" fill="#319251" />
+                {/* Triangle (White) */}
+                <polygon points="0,0 26,20 0,40" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
+                {/* Star (Red) */}
+                <polygon points="8,17 10,13 12,17 15,18 12,21 13,25 10,23 7,25 8,21 5,18" fill="#DE2110" />
+                {/* Zimbabwe Bird Emblem (Gold) */}
+                <path d="M10,15 C9,16 9,18 10,19 C11,20 12,20 12,18 Z" fill="#FCD116" stroke="#5c4403" strokeWidth="0.3" />
+              </svg>
+              <div className="bg-gradient-to-r from-amber-400 to-yellow-300 text-emerald-950 font-extrabold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider shadow-inner">
+                ZimHub
+              </div>
+            </div>
+          )}
+          <div>
+            <h1 className="font-extrabold text-sm tracking-tight">{getPageTitle()}</h1>
+            <p className="text-[9px] text-emerald-200 uppercase tracking-widest font-bold -mt-0.5">Everything Zimbabwe</p>
           </div>
         </div>
 
-        {/* --- MOBILE APP TOP HEADER BAR --- */}
-        <header className="bg-emerald-800 text-white px-4 py-3.5 flex items-center justify-between shadow-md shrink-0 relative z-30">
-          <div className="flex items-center gap-3">
-            {location.pathname !== '/' ? (
-              <button onClick={handleBack} className="p-1.5 hover:bg-emerald-700/60 rounded-full transition-all" title="Back">
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </button>
-            ) : (
-              /* --- EXQUISITE BRAND LOGO FEATURING ZIMBABWE FLAG MIX --- */
-              <div className="flex items-center gap-2">
-                <svg className="w-9 h-6 rounded shadow-sm border border-emerald-950 shrink-0 select-none" viewBox="0 0 70 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Stripes of the Zimbabwean flag: Green, Gold, Red, Black, Red, Gold, Green */}
-                  <rect width="70" height="5.7" fill="#319251" />
-                  <rect y="5.7" width="70" height="5.7" fill="#FCD116" />
-                  <rect y="11.4" width="70" height="5.7" fill="#DE2110" />
-                  <rect y="17.1" width="70" height="5.7" fill="#000000" />
-                  <rect y="22.8" width="70" height="5.7" fill="#DE2110" />
-                  <rect y="28.5" width="70" height="5.7" fill="#FCD116" />
-                  <rect y="34.2" width="70" height="5.7" fill="#319251" />
-                  {/* Triangle (White) */}
-                  <polygon points="0,0 26,20 0,40" fill="#FFFFFF" stroke="#000000" strokeWidth="0.5" />
-                  {/* Star (Red) */}
-                  <polygon points="8,17 10,13 12,17 15,18 12,21 13,25 10,23 7,25 8,21 5,18" fill="#DE2110" />
-                  {/* Zimbabwe Bird Emblem (Gold) */}
-                  <path d="M10,15 C9,16 9,18 10,19 C11,20 12,20 12,18 Z" fill="#FCD116" stroke="#5c4403" strokeWidth="0.3" />
-                </svg>
-                <div className="bg-gradient-to-r from-amber-400 to-yellow-300 text-emerald-950 font-extrabold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider shadow-inner">
-                  ZimHub
+        <div className="flex items-center gap-2">
+          {/* Language Switcher */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setLangMenuOpen(!langMenuOpen);
+                setNotifPanelOpen(false);
+              }}
+              className="p-1.5 hover:bg-emerald-700/60 rounded-full flex items-center text-xs gap-1 font-bold"
+            >
+              <Languages className="w-4 h-4 text-emerald-100" />
+              <span className="text-[10px] text-emerald-100">{language.slice(0, 3)}</span>
+            </button>
+            {langMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-1 w-24 overflow-hidden z-50">
+                {(['English', 'Shona', 'Ndebele'] as const).map(lang => (
+                  <button
+                    key={lang}
+                    onClick={() => {
+                      setLanguage(lang);
+                      setLangMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-emerald-800 hover:text-white ${language === lang ? 'text-emerald-400 bg-emerald-950/50' : 'text-slate-300'}`}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Notifications Alert Bell */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setNotifPanelOpen(!notifPanelOpen);
+                setLangMenuOpen(false);
+                markNotificationsRead();
+              }}
+              className="p-1.5 hover:bg-emerald-700/60 rounded-full relative"
+            >
+              <Bell className="w-4 h-4 text-emerald-100" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-3 h-3 bg-rose-500 rounded-full border border-emerald-800"></span>
+              )}
+            </button>
+
+            {/* Notification Slide Panel */}
+            {notifPanelOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in slide-in-from-top-1">
+                <div className="p-3 border-b border-slate-800 bg-slate-950 flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-200">Alerts & Receipts</span>
+                  <button onClick={() => setNotifPanelOpen(false)} className="text-[10px] text-emerald-400 font-bold hover:text-emerald-300">
+                    Clear
+                  </button>
+                </div>
+                <div className="max-h-56 overflow-y-auto divide-y divide-slate-800 bg-slate-900">
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-[11px] text-center text-slate-400">No active alerts.</p>
+                  ) : (
+                    notifications.map(n => (
+                      <div key={n.id} className="p-3 hover:bg-slate-950 transition-colors">
+                        <p className="font-bold text-[11px] text-slate-200 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full inline-block"></span>
+                          {n.title}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{n.message}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
-            <div>
-              <h1 className="font-extrabold text-sm tracking-tight">{getPageTitle()}</h1>
-              <p className="text-[9px] text-emerald-200 uppercase tracking-widest font-bold -mt-0.5">Everything Zimbabwe</p>
-            </div>
           </div>
 
+          {/* AI Assistant Floating Access */}
+          <Link to="/dashboards?tab=ai" className="p-1.5 hover:bg-emerald-700/60 rounded-full text-amber-300">
+            <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+          </Link>
+        </div>
+      </header>
+
+      {/* --- HIGH-FIDELITY ANIMATED POP-DOWN NOTIFICATION TOAST --- */}
+      {activeToast && (
+        <div className="absolute top-16 left-4 right-4 z-50 bg-slate-900 border border-emerald-500/50 rounded-2xl shadow-2xl p-3.5 flex items-start gap-3 animate-in slide-in-from-top-4 fade-in duration-350 ease-out border-l-4 border-l-emerald-500">
+          <div className="bg-emerald-900/50 p-2 rounded-xl text-emerald-400">
+            <Bell className="w-4 h-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-black text-slate-100 truncate">{activeToast.title}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">{activeToast.message}</p>
+          </div>
+          <button
+            onClick={dismissToast}
+            className="text-slate-500 hover:text-slate-300 p-0.5 rounded-lg transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* --- NATIVE SCROLLABLE PHONE SCREEN BODY --- */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-24 bg-slate-50 text-slate-800">
+        {children}
+      </div>
+
+      {/* --- HIGH-FIDELITY AUTOMATIC PWA INSTALLATION BANNER --- */}
+      {showInstallBanner && (
+        <div className="absolute bottom-20 left-4 right-4 z-50 bg-slate-900 text-white rounded-2xl p-3 shadow-2xl border border-slate-800 flex items-center justify-between gap-3 animate-bounce">
           <div className="flex items-center gap-2">
-            {/* Language Switcher */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setLangMenuOpen(!langMenuOpen);
-                  setNotifPanelOpen(false);
-                }}
-                className="p-1.5 hover:bg-emerald-700/60 rounded-full flex items-center text-xs gap-1 font-bold"
-              >
-                <Languages className="w-4 h-4 text-emerald-100" />
-                <span className="text-[10px] text-emerald-100">{language.slice(0, 3)}</span>
-              </button>
-              {langMenuOpen && (
-                <div className="absolute right-0 top-full mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-1 w-24 overflow-hidden z-50">
-                  {(['English', 'Shona', 'Ndebele'] as const).map(lang => (
-                    <button
-                      key={lang}
-                      onClick={() => {
-                        setLanguage(lang);
-                        setLangMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-emerald-800 hover:text-white ${language === lang ? 'text-emerald-400 bg-emerald-950/50' : 'text-slate-300'}`}
-                    >
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="bg-emerald-600 p-2 rounded-lg text-white">
+              <Download className="w-4 h-4" />
             </div>
-
-            {/* Notifications Alert Bell */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setNotifPanelOpen(!notifPanelOpen);
-                  setLangMenuOpen(false);
-                  markNotificationsRead();
-                }}
-                className="p-1.5 hover:bg-emerald-700/60 rounded-full relative"
-              >
-                <Bell className="w-4 h-4 text-emerald-100" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-3 h-3 bg-rose-500 rounded-full border border-emerald-800"></span>
-                )}
-              </button>
-
-              {/* Notification Slide Panel */}
-              {notifPanelOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in slide-in-from-top-1">
-                  <div className="p-3 border-b border-slate-800 bg-slate-950 flex justify-between items-center text-xs">
-                    <span className="font-bold text-slate-200">Alerts & Receipts</span>
-                    <button onClick={() => setNotifPanelOpen(false)} className="text-[10px] text-emerald-400 font-bold hover:text-emerald-300">
-                      Clear
-                    </button>
-                  </div>
-                  <div className="max-h-56 overflow-y-auto divide-y divide-slate-800 bg-slate-900">
-                    {notifications.length === 0 ? (
-                      <p className="p-4 text-[11px] text-center text-slate-400">No active alerts.</p>
-                    ) : (
-                      notifications.map(n => (
-                        <div key={n.id} className="p-3 hover:bg-slate-950 transition-colors">
-                          <p className="font-bold text-[11px] text-slate-200 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full inline-block"></span>
-                            {n.title}
-                          </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{n.message}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
+            <div>
+              <p className="text-xs font-black">Install ZimHub App</p>
+              <p className="text-[9px] text-slate-400">Fast offline experience on your Home Screen</p>
             </div>
-
-            {/* AI Assistant Floating Access */}
-            <Link to="/dashboards?tab=ai" className="p-1.5 hover:bg-emerald-700/60 rounded-full text-amber-300">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-            </Link>
           </div>
-        </header>
-
-        {/* --- HIGH-FIDELITY ANIMATED POP-DOWN NOTIFICATION TOAST --- */}
-        {activeToast && (
-          <div className="absolute top-14 left-4 right-4 z-50 bg-slate-900 border border-emerald-500/50 rounded-2xl shadow-2xl p-3.5 flex items-start gap-3 animate-in slide-in-from-top-4 fade-in duration-350 ease-out border-l-4 border-l-emerald-500">
-            <div className="bg-emerald-900/50 p-2 rounded-xl text-emerald-400">
-              <Bell className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-black text-slate-100 truncate">{activeToast.title}</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">{activeToast.message}</p>
-            </div>
+          <div className="flex gap-2 shrink-0">
             <button
-              onClick={dismissToast}
-              className="text-slate-500 hover:text-slate-300 p-0.5 rounded-lg transition-colors"
+              onClick={() => setShowInstallBanner(false)}
+              className="text-[9px] font-bold text-slate-400 hover:text-white px-2 py-1"
             >
-              <X className="w-3.5 h-3.5" />
+              Later
+            </button>
+            <button
+              onClick={handleInstallClick}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[9px] px-3 py-1.5 rounded-lg shadow-sm"
+            >
+              Install Now
             </button>
           </div>
-        )}
-
-        {/* --- NATIVE SCROLLABLE PHONE SCREEN BODY --- */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-24 bg-slate-50 text-slate-800">
-          {children}
         </div>
+      )}
 
-        {/* --- NATIVE BOTTOM NAVIGATION TAB BAR --- */}
-        <nav className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2.5 px-4 flex justify-between items-center z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-[20px] sm:rounded-b-[0px]">
-          <Link to="/" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <HomeIcon className="w-4 h-4 shrink-0" />
-            <span className="text-[9px]">Home</span>
-          </Link>
-          <Link to="/directory" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/directory' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <Grid className="w-4 h-4 shrink-0" />
-            <span className="text-[9px]">Directory</span>
-          </Link>
-          <Link to="/lodges" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/lodges' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <Building className="w-4 h-4 shrink-0" />
-            <span className="text-[9px]">Lodges</span>
-          </Link>
-          <Link to="/marketplace" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/marketplace' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <ShoppingBag className="w-4 h-4 shrink-0" />
-            <span className="text-[9px]">Market</span>
-          </Link>
-          <Link to="/jobs" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/jobs' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <Briefcase className="w-4 h-4 shrink-0" />
-            <span className="text-[9px]">Jobs</span>
-          </Link>
-          <Link to="/dashboards" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/dashboards' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <User className="w-4 h-4 shrink-0" />
-            <span className="text-[9px]">{user ? user.role.split(' ')[0] : 'Profile'}</span>
-          </Link>
-        </nav>
+      {/* --- NATIVE BOTTOM NAVIGATION TAB BAR --- */}
+      <nav className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2.5 px-4 flex justify-between items-center z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-[20px]">
+        <Link to="/" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
+          <HomeIcon className="w-4 h-4 shrink-0" />
+          <span className="text-[9px]">Home</span>
+        </Link>
+        <Link to="/directory" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/directory' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
+          <Grid className="w-4 h-4 shrink-0" />
+          <span className="text-[9px]">Directory</span>
+        </Link>
+        <Link to="/lodges" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/lodges' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
+          <Building className="w-4 h-4 shrink-0" />
+          <span className="text-[9px]">Lodges</span>
+        </Link>
+        <Link to="/marketplace" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/marketplace' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
+          <ShoppingBag className="w-4 h-4 shrink-0" />
+          <span className="text-[9px]">Market</span>
+        </Link>
+        <Link to="/jobs" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/jobs' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
+          <Briefcase className="w-4 h-4 shrink-0" />
+          <span className="text-[9px]">Jobs</span>
+        </Link>
+        <Link to="/dashboards" className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-all ${location.pathname === '/dashboards' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}>
+          <User className="w-4 h-4 shrink-0" />
+          <span className="text-[9px]">{user ? user.role.split(' ')[0] : 'Profile'}</span>
+        </Link>
+      </nav>
 
-        {/* Simulated iOS Home Indicator Bar (Only visible inside bezel on desktop/tablet viewports) */}
-        <div className="hidden sm:block absolute bottom-1.5 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-slate-400/40 rounded-full z-50"></div>
-      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Grid, Search, MapPin, Phone, MessageCircle, Star, ShieldCheck,
-  Clock, Globe, Mail, PlusCircle, ThumbsUp, X, CheckSquare
+  Clock, Globe, Mail, PlusCircle, ThumbsUp, X, CheckSquare, MessageSquare
 } from 'lucide-react';
 import { useApp } from '../App.tsx';
 
@@ -23,6 +23,16 @@ interface Business {
   isVerified: boolean;
 }
 
+interface Review {
+  id: number;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  user?: {
+    name: string;
+  };
+}
+
 export default function BusinessDirectory() {
   const { user, token, addNotification } = useApp();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -39,20 +49,21 @@ export default function BusinessDirectory() {
     name: '',
     description: '',
     category: 'Local Services',
-    subCategory: '',
-    phone: '',
+    subCategory: 'Tutors & Photographers',
+    phone: '0786110762',
     whatsapp: '263786110762',
-    email: '',
-    website: '',
+    email: 'info@zimservices.co.zw',
+    website: 'https://zimhub.co.zw',
     hours: 'Mon-Fri: 8:00 AM - 5:00 PM',
     location: 'Harare'
   });
 
-  // Selected Business Review states
-  const [selectedBiz, setSelectedBiz] = useState<Business | null>(null);
-  const [bizReviews, setBizReviews] = useState<any[]>([]);
+  // Inline card-level reviews tracking state
+  const [activeReviewsId, setActiveReviewsId] = useState<number | null>(null);
+  const [activeReviewsList, setActiveReviewsList] = useState<Review[]>([]);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const fetchBusinesses = async () => {
     try {
@@ -105,11 +116,11 @@ export default function BusinessDirectory() {
           name: '',
           description: '',
           category: 'Local Services',
-          subCategory: '',
-          phone: '',
+          subCategory: 'Tutors & Photographers',
+          phone: '0786110762',
           whatsapp: '263786110762',
-          email: '',
-          website: '',
+          email: 'info@zimservices.co.zw',
+          website: 'https://zimhub.co.zw',
           hours: 'Mon-Fri: 8:00 AM - 5:00 PM',
           location: 'Harare'
         });
@@ -120,24 +131,33 @@ export default function BusinessDirectory() {
     }
   };
 
-  const selectBusinessForReviews = async (biz: Business) => {
-    setSelectedBiz(biz);
+  const toggleCardReviews = async (bizId: number) => {
+    if (activeReviewsId === bizId) {
+      setActiveReviewsId(null);
+      setActiveReviewsList([]);
+      return;
+    }
+
     try {
-      const res = await fetch(`/api/reviews/Business/${biz.id}`);
+      setActiveReviewsId(bizId);
+      setReviewComment('');
+      setReviewRating(5);
+      const res = await fetch(`/api/reviews/Business/${bizId}`);
       if (res.ok) {
         const data = await res.json();
-        setBizReviews(data);
+        setActiveReviewsList(data);
       }
     } catch (e) {
-      setBizReviews([]);
+      setActiveReviewsList([]);
     }
   };
 
-  const handleSubmitReview = async (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent, bizId: number) => {
     e.preventDefault();
-    if (!selectedBiz || !reviewComment) return;
+    if (!reviewComment.trim()) return;
 
     try {
+      setSubmittingReview(true);
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: {
@@ -145,7 +165,7 @@ export default function BusinessDirectory() {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          targetId: selectedBiz.id,
+          targetId: bizId,
           targetType: 'Business',
           rating: reviewRating,
           comment: reviewComment
@@ -154,13 +174,18 @@ export default function BusinessDirectory() {
 
       if (res.ok) {
         const newRev = await res.json();
-        setBizReviews([newRev, ...bizReviews]);
+        // Refresh reviews list
+        setActiveReviewsList([newRev, ...activeReviewsList]);
         setReviewComment('');
-        fetchBusinesses();
-        addNotification('Review Added', `Thank you for rating ${selectedBiz.name}!`, 'Feedback');
+        fetchBusinesses(); // Refresh average stars
+        addNotification('Review Posted', 'Thank you for your rating and feedback on this service!', 'Feedback');
+      } else {
+        alert('Could not submit feedback review.');
       }
     } catch (e) {
-      alert('Review submission failed.');
+      alert('Error saving review.');
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -171,9 +196,20 @@ export default function BusinessDirectory() {
     <div className="space-y-6">
 
       {/* --- PAGE HEADER --- */}
-      <div className="flex flex-col gap-1 border-b pb-3">
-        <h1 className="text-xl font-black text-slate-900 leading-tight">Business Directory</h1>
-        <p className="text-slate-400 text-[10px]">Find plumbers, restaurants, medical clinics, and transport shuttles</p>
+      <div className="flex justify-between items-center gap-2 border-b pb-3">
+        <div>
+          <h1 className="text-xl font-black text-slate-900 leading-tight">Business Directory</h1>
+          <p className="text-slate-400 text-[10px]">Find plumbers, restaurants, medical clinics, and transport shuttles</p>
+        </div>
+
+        {user ? (
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm shrink-0"
+          >
+            <PlusCircle className="w-3.5 h-3.5" /> List Service
+          </button>
+        ) : null}
       </div>
 
       {/* --- FILTERS & SEARCH ROW --- */}
@@ -237,24 +273,24 @@ export default function BusinessDirectory() {
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-600 font-extrabold text-[10px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
                     <Star className="w-3 h-3 fill-amber-500" />
-                    {biz.rating || 'N/A'}
+                    {biz.rating || '5.0'}
                   </div>
                 </div>
 
-                <p className="text-[10px] text-slate-600 leading-relaxed line-clamp-2">{biz.description}</p>
+                <p className="text-[10px] text-slate-600 leading-relaxed">{biz.description}</p>
 
                 <div className="flex gap-3 text-[9px] text-slate-400 font-semibold pt-1 border-t border-slate-50">
                   <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {biz.location}</span>
-                  {biz.hours && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {biz.hours.split(':')[0]}...</span>}
+                  {biz.hours && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {biz.hours}</span>}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-1 pt-1">
+              <div className="flex items-center justify-between gap-1 pt-1.5 border-t border-slate-100">
                 <button
-                  onClick={() => selectBusinessForReviews(biz)}
-                  className="text-[9px] text-slate-500 hover:text-emerald-600 font-bold"
+                  onClick={() => toggleCardReviews(biz.id)}
+                  className="text-[9px] text-slate-500 hover:text-emerald-600 font-bold flex items-center gap-1"
                 >
-                  💬 Reviews ({bizReviews.length && selectedBiz?.id === biz.id ? bizReviews.length : 'View'})
+                  <MessageSquare className="w-3.5 h-3.5 text-slate-400" /> Reviews ({activeReviewsId === biz.id ? activeReviewsList.length : 'Toggle View'})
                 </button>
 
                 <div className="flex gap-1">
@@ -277,6 +313,65 @@ export default function BusinessDirectory() {
                   )}
                 </div>
               </div>
+
+              {/* INLINE EXPANDED CARD REVIEWS PANEL AND INPUT FORM */}
+              {activeReviewsId === biz.id && (
+                <div className="bg-slate-50 rounded-xl p-3 border space-y-3 animate-in slide-in-from-top-2">
+                  <span className="block text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">Customer Reviews</span>
+
+                  {activeReviewsList.length === 0 ? (
+                    <p className="text-[9px] text-slate-400 italic">No reviews yet. Be the first to leave a feedback comment!</p>
+                  ) : (
+                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                      {activeReviewsList.map(rev => (
+                        <div key={rev.id} className="bg-white p-2 rounded-lg border text-[9px] space-y-0.5">
+                          <div className="flex justify-between items-center text-slate-500 font-extrabold">
+                            <span>{rev.user?.name || 'Anonymous User'}</span>
+                            <span className="text-amber-500 font-black">★ {rev.rating}</span>
+                          </div>
+                          <p className="text-slate-700 leading-normal">"{rev.comment}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Inline Leave a Review form */}
+                  {user ? (
+                    <form onSubmit={(e) => handleSubmitReview(e, biz.id)} className="space-y-2 pt-2 border-t">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wide">Leave feedback</label>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                              key={star} type="button" onClick={() => setReviewRating(star)}
+                              className="text-xs"
+                            >
+                              <Star className={`w-3.5 h-3.5 ${reviewRating >= star ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text" required placeholder="Write a comment..." value={reviewComment}
+                          onChange={e => setReviewComment(e.target.value)}
+                          className="w-full bg-white border rounded-lg p-1.5 text-[10px] focus:outline-none"
+                        />
+                        <button
+                          type="submit" disabled={submittingReview}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[9px] px-2.5 rounded-lg shrink-0"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <p className="text-[8px] text-center text-slate-400 font-semibold pt-1 border-t">Sign in to rate this service</p>
+                  )}
+                </div>
+              )}
+
             </div>
           ))}
         </div>
@@ -317,19 +412,76 @@ export default function BusinessDirectory() {
                   <label className="block text-[9px] font-bold text-slate-500 mb-1">Category</label>
                   <select
                     value={newBiz.category} onChange={e => setNewBiz({...newBiz, category: e.target.value})}
-                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs font-semibold focus:outline-none"
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs font-semibold focus:outline-none cursor-pointer"
                   >
                     {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[9px] font-bold text-slate-500 mb-1">City</label>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Subcategory</label>
+                  <input
+                    type="text" placeholder="e.g. Plumbing & Repair" value={newBiz.subCategory}
+                    onChange={e => setNewBiz({...newBiz, subCategory: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">City Location</label>
                   <select
                     value={newBiz.location} onChange={e => setNewBiz({...newBiz, location: e.target.value})}
-                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs font-semibold focus:outline-none"
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs font-semibold focus:outline-none cursor-pointer"
                   >
                     {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Business Hours</label>
+                  <input
+                    type="text" placeholder="8:00 AM - 5:00 PM" value={newBiz.hours}
+                    onChange={e => setNewBiz({...newBiz, hours: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">WhatsApp Number *</label>
+                  <input
+                    type="text" required placeholder="263786110762" value={newBiz.whatsapp}
+                    onChange={e => setNewBiz({...newBiz, whatsapp: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Phone Number</label>
+                  <input
+                    type="text" placeholder="+263771100200" value={newBiz.phone}
+                    onChange={e => setNewBiz({...newBiz, phone: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Email Address</label>
+                  <input
+                    type="email" placeholder="contact@services.co.zw" value={newBiz.email}
+                    onChange={e => setNewBiz({...newBiz, email: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 mb-1">Website URL</label>
+                  <input
+                    type="text" placeholder="www.yourservices.co.zw" value={newBiz.website}
+                    onChange={e => setNewBiz({...newBiz, website: e.target.value})}
+                    className="w-full bg-slate-50 border rounded-lg p-2 text-xs focus:outline-none"
+                  />
                 </div>
               </div>
 
