@@ -4,9 +4,21 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
+const { Resend } = require('resend');
 
 const prisma = new PrismaClient();
 const app = express();
+
+// Initialize Resend utilizing secure environment variables only
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : {
+    emails: {
+        send: async (options) => {
+            console.log(`[Resend Mock Bypass] RESEND_API_KEY is not configured in env. Mocking mail dispatch to: ${options.to}`);
+            return { id: 'mock_email_success_id' };
+        }
+    }
+};
 const port = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'zimhub_ultimate_secret_key_123';
 
@@ -419,6 +431,69 @@ app.post('/api/auth/register', authRateLimiter, async (req, res) => {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
+        // Dispatch Zimbabwean-themed welcome and confirmation email using the Resend SDK instance
+        try {
+            await resend.emails.send({
+                from: 'ZimHub <onboarding@resend.dev>',
+                to: email,
+                subject: 'Mhoroi! Sani-bonani! Welcome to ZimHub',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <!-- Zimbabwe Flag Header Stripes -->
+                        <div style="height: 12px; display: table; width: 100%;">
+                            <div style="display: table-cell; background-color: #319251; height: 12px;"></div>
+                            <div style="display: table-cell; background-color: #FCD116; height: 12px;"></div>
+                            <div style="display: table-cell; background-color: #DE2110; height: 12px;"></div>
+                            <div style="display: table-cell; background-color: #000000; height: 12px;"></div>
+                            <div style="display: table-cell; background-color: #DE2110; height: 12px;"></div>
+                            <div style="display: table-cell; background-color: #FCD116; height: 12px;"></div>
+                            <div style="display: table-cell; background-color: #319251; height: 12px;"></div>
+                        </div>
+
+                        <div style="background-color: #065f46; color: #ffffff; padding: 24px; text-align: center;">
+                            <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">ZimHub Super App</h1>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #a7f3d0; font-weight: bold;">Everything Zimbabwe. One Platform.</p>
+                        </div>
+
+                        <div style="padding: 24px; color: #1e293b; line-height: 1.6; font-size: 14px;">
+                            <p>Mhoroi, Sani-bonani <strong>${name}</strong>,</p>
+                            <p>Thank you for registering on ZimHub! Your account has been initialized and secured successfully. Below are your verified registration coordinates:</p>
+
+                            <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px;">
+                                <tr style="background-color: #f8fafc;">
+                                    <td style="padding: 8px 12px; font-weight: bold; border: 1px solid #e2e8f0; width: 30%;">Username:</td>
+                                    <td style="padding: 8px 12px; border: 1px solid #e2e8f0;">@${username}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 12px; font-weight: bold; border: 1px solid #e2e8f0;">Email:</td>
+                                    <td style="padding: 8px 12px; border: 1px solid #e2e8f0;">${email}</td>
+                                </tr>
+                                <tr style="background-color: #f8fafc;">
+                                    <td style="padding: 8px 12px; font-weight: bold; border: 1px solid #e2e8f0;">Account Role:</td>
+                                    <td style="padding: 8px 12px; border: 1px solid #e2e8f0; color: #059669; font-weight: bold;">${role || 'Customer'}</td>
+                                </tr>
+                            </table>
+
+                            <p>You can now log in from any of your mobile or desktop devices and start exploring lodges, posting job vacancies, listing products, and rating local services.</p>
+
+                            <div style="text-align: center; margin: 24px 0;">
+                                <a href="https://zimhub.co.zw" style="background-color: #059669; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">Verify & Open ZimHub</a>
+                            </div>
+
+                            <p style="font-size: 12px; color: #64748b; margin-top: 24px;">If you did not perform this registration action, please contact our support hotline instantly at +263 786 110 762.</p>
+                        </div>
+
+                        <div style="background-color: #f1f5f9; padding: 16px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0;">
+                            © 2025 ZimHub Zimbabwe. All rights reserved.
+                        </div>
+                    </div>
+                `
+            });
+            console.log(`[Resend] Successfully dispatched registration welcome email to: ${email}`);
+        } catch (mailErr) {
+            console.warn(`[Resend] Could not dispatch welcome email: ${mailErr.message}`);
+        }
 
         res.status(201).json({
             token,
