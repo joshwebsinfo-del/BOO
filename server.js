@@ -279,7 +279,7 @@ async function initDb() {
                 INSERT INTO settings ("key", "value") VALUES
                 ('lodge_name', 'Mountain View Lodge'),
                 ('lodge_location', '13 KM PEG(9MILES) MUTARE, ZIMUNYA RD'),
-                ('lodge_phone', '0786110672'),
+                ('lodge_phone', '0786110762'),
                 ('lodge_email', 'bookings@mountainviewlodge.com')
             `);
 
@@ -300,22 +300,22 @@ async function initDb() {
 
             await client.query(`
                 INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES
-                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '0786110672', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
-                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '0786110672', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
-                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '0786110672', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '0786110762', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
+                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '0786110762', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '0786110762', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
             `);
 
             // Seed mock food bookings
             await client.query(`
                 INSERT INTO food_bookings ("bookingId", "guestName", "guestPhone", "guestEmail", "items", "totalPrice", "deliveryDate", "deliveryTime", "status", "createdAt") VALUES
-                ('MVL-FOOD-9023', 'Emily Stone', '0786110672', 'emily@gmail.com', '[{"name":"Signature Burger & Mocktail Combo","price":5,"qty":2}]', 10.00, '${d1.toISOString().split('T')[0]}', '14:30', 'Pending', '${new Date().toISOString()}')
+                ('MVL-FOOD-9023', 'Emily Stone', '0786110762', 'emily@gmail.com', '[{"name":"Signature Burger & Mocktail Combo","price":5,"qty":2}]', 10.00, '${d1.toISOString().split('T')[0]}', '14:30', 'Pending', '${new Date().toISOString()}')
             `);
 
             // Seed some mock feedback messages
             await client.query(`
                 INSERT INTO messages ("name", "email", "phone", "subject", "message", "date", "status") VALUES
-                ('Emily Stone', 'emily@gmail.com', '0786110672', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
-                ('Marcus Aurelius', 'marcus@philosophy.com', '0786110672', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
+                ('Emily Stone', 'emily@gmail.com', '0786110762', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
+                ('Marcus Aurelius', 'marcus@philosophy.com', '0786110762', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
             `);
 
             await client.query('COMMIT');
@@ -425,7 +425,7 @@ async function initDb() {
                 INSERT INTO settings (key, value) VALUES
                 ('lodge_name', 'Mountain View Lodge'),
                 ('lodge_location', '13 KM PEG(9MILES) MUTARE, ZIMUNYA RD'),
-                ('lodge_phone', '0786110672'),
+                ('lodge_phone', '0786110762'),
                 ('lodge_email', 'bookings@mountainviewlodge.com')
             `);
 
@@ -446,22 +446,22 @@ async function initDb() {
 
             sqliteDb.exec(`
                 INSERT INTO bookings (bookingId, guestName, guestEmail, guestPhone, roomType, checkIn, checkOut, guests, totalPrice, status, specialRequests, createdAt) VALUES
-                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '0786110672', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
-                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '0786110672', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
-                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '0786110672', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
+                ('MVL-2026-0041', 'Alice Cooper', 'alice@gmail.com', '0786110762', 'overnight_premium', '${d1.toISOString().split('T')[0]}', '${d2.toISOString().split('T')[0]}', 2, 75.00, 'Confirmed', 'Requesting extra towels and priority Gazebo reservation.', '${new Date().toISOString()}'),
+                ('MVL-2026-0028', 'John Doe', 'john@yahoo.com', '0786110762', 'ensuite_std', '${d3.toISOString().split('T')[0]}', '${d4.toISOString().split('T')[0]}', 1, 10.00, 'Confirmed', 'Arriving by car. Safe parking required.', '${new Date(today.getTime() - 10*24*60*60*1000).toISOString()}'),
+                ('MVL-2026-0099', 'Sara Connor', 'sara@outlook.com', '0786110762', 'overnight_std', '${new Date(today.getTime() + 8*24*60*60*1000).toISOString().split('T')[0]}', '${new Date(today.getTime() + 10*24*60*60*1000).toISOString().split('T')[0]}', 2, 40.00, 'Pending', 'Order Signature Burger Combo on check-in.', '${new Date().toISOString()}')
             `);
 
             // Seed mock food bookings
             sqliteDb.exec(`
                 INSERT INTO food_bookings (bookingId, guestName, guestPhone, guestEmail, items, totalPrice, deliveryDate, deliveryTime, status, createdAt) VALUES
-                ('MVL-FOOD-9023', 'Emily Stone', '0786110672', 'emily@gmail.com', '[{"name":"Signature Burger & Mocktail Combo","price":5,"qty":2}]', 10.00, '${d1.toISOString().split('T')[0]}', '14:30', 'Pending', '${new Date().toISOString()}')
+                ('MVL-FOOD-9023', 'Emily Stone', '0786110762', 'emily@gmail.com', '[{"name":"Signature Burger & Mocktail Combo","price":5,"qty":2}]', 10.00, '${d1.toISOString().split('T')[0]}', '14:30', 'Pending', '${new Date().toISOString()}')
             `);
 
             // Seed mock messages
             sqliteDb.exec(`
                 INSERT INTO messages (name, email, phone, subject, message, date, status) VALUES
-                ('Emily Stone', 'emily@gmail.com', '0786110672', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
-                ('Marcus Aurelius', 'marcus@philosophy.com', '0786110672', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
+                ('Emily Stone', 'emily@gmail.com', '0786110762', 'Signature Burger Combo Order', 'Hello, is the Signature Burger and Mocktail combo ($5) available to order directly to the gazebo? We want to book a table this Saturday!', '${new Date().toISOString()}', 'Unread'),
+                ('Marcus Aurelius', 'marcus@philosophy.com', '0786110762', 'Gazebo Booking Inquiry', 'Do we need to pay extra to sit in the Gazebo, or is it free for overnight guests? Thanks!', '${new Date().toISOString()}', 'Unread')
             `);
 
             console.log('✅ SQLite schema and seed data initialized successfully.');
@@ -480,7 +480,7 @@ async function initDb() {
         mockDb.settings.push(
             { id: 1, key: 'lodge_name', value: 'Mountain View Lodge' },
             { id: 2, key: 'lodge_location', value: '13 KM PEG(9MILES) MUTARE, ZIMUNYA RD' },
-            { id: 3, key: 'lodge_phone', value: '0786110672' }
+            { id: 3, key: 'lodge_phone', value: '0786110762' }
         );
         mockDb.menu_items.push(
             { id: 1, name: 'Signature Burger & Mocktail Combo', description: 'Gourmet burger & personalized mocktail combo.', price: 5, image: 'assets/food_combo.jpg' },

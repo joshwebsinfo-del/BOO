@@ -28,6 +28,7 @@ class LodgeApp {
         this.bookings = [];
         this.foodBookings = [];
         this.messages = [];
+        this.notifications = [];
     }
 
     async init() {
@@ -36,6 +37,11 @@ class LodgeApp {
         this.initDatePickerLimits();
 
         window.addEventListener('scroll', () => this.handleHeaderScroll());
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            document.getElementById('notifications-dropdown')?.classList.add('hidden');
+        });
 
         const storedSession = localStorage.getItem('lodge_admin_session');
         if (storedSession) {
@@ -57,6 +63,165 @@ class LodgeApp {
         document.getElementById('mb-room-type')?.addEventListener('change', () => this.calcManualBookingPrice());
         document.getElementById('mb-checkin')?.addEventListener('change', () => this.calcManualBookingPrice());
         document.getElementById('mb-checkout')?.addEventListener('change', () => this.calcManualBookingPrice());
+
+        this.initScrollReveal();
+        this.initNotifications();
+        this.initTestimonials();
+    }
+
+    initScrollReveal() {
+        const revealTargets = document.querySelectorAll('.split-row, .section-header, .feature-item, .benefit-card, .highlight-card');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    // Stop observing once revealed
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealTargets.forEach(target => {
+            target.classList.add('reveal-element');
+            observer.observe(target);
+        });
+    }
+
+    // NOTIFICATIONS SYSTEM
+    initNotifications() {
+        // Load existing notifications from localStorage, or seed defaults
+        const cached = localStorage.getItem('lodge_notifications');
+        if (cached) {
+            try {
+                this.notifications = JSON.parse(cached);
+            } catch(e) {
+                this.notifications = [];
+            }
+        }
+
+        if (this.notifications.length === 0) {
+            this.notifications = [
+                {
+                    id: 1,
+                    title: "Welcome to Mountain View Lodge!",
+                    text: "We are excited to host you. Explore our premium 2-hour ensuite refresheners and overnight mountain-view suites.",
+                    time: "Just now",
+                    unread: true,
+                    type: "info"
+                },
+                {
+                    id: 2,
+                    title: "Weekend Promo: Free Mocktail",
+                    text: "Order any Signature Flame-Grilled Burger and get an artisanal mocktail upgrade completely free!",
+                    time: "1 hour ago",
+                    unread: true,
+                    type: "promo"
+                },
+                {
+                    id: 3,
+                    title: "Location Coordinates Updated",
+                    text: "We are located at 13 KM PEG (9 MILES) MUTARE, ZIMUNYA RD. Tap the WhatsApp button for direct location guidance.",
+                    time: "2 hours ago",
+                    unread: false,
+                    type: "info"
+                }
+            ];
+            this.saveNotifications();
+        }
+
+        this.renderNotifications();
+    }
+
+    saveNotifications() {
+        localStorage.setItem('lodge_notifications', JSON.stringify(this.notifications));
+    }
+
+    addNotification(title, text, type = "info") {
+        const newNotif = {
+            id: Date.now(),
+            title: title,
+            text: text,
+            time: "Just now",
+            unread: true,
+            type: type
+        };
+        this.notifications.unshift(newNotif);
+        this.saveNotifications();
+        this.renderNotifications();
+        this.showToast(`Notification: ${title}`, "info");
+    }
+
+    renderNotifications() {
+        const list = document.getElementById('notifications-list');
+        const badge = document.getElementById('bell-unread-count');
+        if (!list) return;
+
+        const unreadCount = this.notifications.filter(n => n.unread).length;
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        if (this.notifications.length === 0) {
+            list.innerHTML = `
+                <div style="padding:2rem; text-align:center; color:var(--text-muted);">
+                    <div style="font-size:1.5rem; margin-bottom:0.5rem;">📭</div>
+                    No alerts or notifications logged
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = this.notifications.map(n => {
+            let emoji = '🔔';
+            if (n.type === 'promo') emoji = '🎁';
+            if (n.type === 'booking') emoji = '📆';
+            if (n.type === 'success') emoji = '✅';
+
+            return `
+                <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="app.clickNotification(${n.id})">
+                    <span class="notification-item-icon">${emoji}</span>
+                    <div class="notification-item-content">
+                        <div class="notification-item-title">${escapeHtml(n.title)}</div>
+                        <div class="notification-item-desc">${escapeHtml(n.text)}</div>
+                        <span class="notification-item-time">${escapeHtml(n.time)}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    toggleNotificationsDropdown(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('notifications-dropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+        }
+    }
+
+    markAllNotificationsRead(event) {
+        if (event) event.stopPropagation();
+        this.notifications.forEach(n => n.unread = false);
+        this.saveNotifications();
+        this.renderNotifications();
+        this.showToast("All notifications marked as read.", "success");
+    }
+
+    clickNotification(id) {
+        const n = this.notifications.find(item => item.id === id);
+        if (n) {
+            n.unread = false;
+            this.saveNotifications();
+            this.renderNotifications();
+        }
     }
 
     initDatePickerLimits() {
@@ -500,6 +665,7 @@ class LodgeApp {
         this.showLoader(true);
         try {
             const saved = await db.bookings.add(bookingData);
+            this.addNotification("New Stay Booked", `Successfully requested stay at ${r.name} with reference code ${bookingRef}.`, "booking");
             await this.syncStateWithDB();
             this.closeBookingModal();
 
@@ -530,7 +696,7 @@ class LodgeApp {
             document.getElementById('conf-price').innerText = `$${totalPrice.toFixed(2)}`;
 
             const waBtn = document.getElementById('btn-whatsapp-confirm');
-            waBtn.onclick = () => this.launchWhatsAppRedirect('0786110672', waText);
+            waBtn.onclick = () => this.launchWhatsAppRedirect('0786110762', waText);
 
             if (modal) modal.classList.remove('hidden');
 
@@ -538,7 +704,7 @@ class LodgeApp {
             this.initDatePickerLimits();
 
             // Auto redirect chat trigger
-            this.launchWhatsAppRedirect('0786110672', waText);
+            this.launchWhatsAppRedirect('0786110762', waText);
 
         } catch (e) {
             this.showToast("Saved offline locally.", "warning");
@@ -596,6 +762,7 @@ class LodgeApp {
         this.showLoader(true);
         try {
             const saved = await db.food_bookings.add(data);
+            this.addNotification("Food Order Placed", `Placed a food order of $${total.toFixed(2)} USD under reference code ${foodRef}.`, "success");
             await this.syncStateWithDB();
             this.closeFoodBookingModal();
 
@@ -623,14 +790,14 @@ class LodgeApp {
             document.getElementById('conf-price').innerText = `$${total.toFixed(2)}`;
 
             const waBtn = document.getElementById('btn-whatsapp-confirm');
-            waBtn.onclick = () => this.launchWhatsAppRedirect('0786110672', waText);
+            waBtn.onclick = () => this.launchWhatsAppRedirect('0786110762', waText);
 
             if (modal) modal.classList.remove('hidden');
 
             document.getElementById('food-booking-form').reset();
             this.initDatePickerLimits();
 
-            this.launchWhatsAppRedirect('0786110672', waText);
+            this.launchWhatsAppRedirect('0786110762', waText);
 
         } catch (e) {
             this.showToast("Saved order locally.", "warning");
@@ -687,7 +854,7 @@ class LodgeApp {
             document.getElementById('contact-form').reset();
             await this.syncStateWithDB();
 
-            this.launchWhatsAppRedirect('0786110672', waText);
+            this.launchWhatsAppRedirect('0786110762', waText);
         } catch (e) {
             this.showToast("Saved locally.", "warning");
         } finally {
@@ -819,6 +986,13 @@ class LodgeApp {
             this.renderMessagesTable();
         } else if (tabName === 'settings') {
             // Settings page placeholder
+        } else if (tabName === 'reports') {
+            // Init default date input if empty
+            const rDate = document.getElementById('report-target-date');
+            if (rDate && !rDate.value) {
+                rDate.value = new Date().toISOString().split('T')[0];
+            }
+            this.generateDailyReport();
         }
     }
 
@@ -863,6 +1037,11 @@ class LodgeApp {
             actionButtons += `
                 <button class="btn-action-delete" onclick="app.deleteBookingRecord(${b.id})">Delete</button>
             `;
+            if (b.status === 'Confirmed') {
+                actionButtons += `
+                    <button class="btn-action-confirm" style="background:#25D366; color:#fff;" onclick="app.openReceiptForStay('${escapeHtml(b.bookingId)}')">🧾 Receipt</button>
+                `;
+            }
 
             const rObj = this.rooms.find(room => room.type === b.roomType) || { name: b.roomType };
 
@@ -959,6 +1138,11 @@ class LodgeApp {
                 `;
             }
             actionButtons += `<button class="btn-action-delete" onclick="app.deleteFoodBookingRecord(${f.id})">Delete</button>`;
+            if (f.status === 'Confirmed') {
+                actionButtons += `
+                    <button class="btn-action-confirm" style="background:#25D366; color:#fff;" onclick="app.openReceiptForFood('${escapeHtml(f.bookingId)}')">🧾 Receipt</button>
+                `;
+            }
 
             let parsedItems = [];
             try {
@@ -1391,6 +1575,364 @@ class LodgeApp {
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
         }, 5000);
+    }
+
+    // INTERACTIVE MOCKTAIL HANDLERS
+    changeMocktailSwaySpeed(val) {
+        const glass = document.getElementById('mocktail-glass');
+        if (!glass) return;
+        // Map 1-10 slider to 6s-0.6s animation duration
+        const duration = (11 - val) * 0.55;
+        glass.style.animationDuration = `${duration}s`;
+    }
+
+    swayWildly() {
+        const glass = document.getElementById('mocktail-glass');
+        if (!glass) return;
+
+        // Add a class that overrides sway temporarily
+        glass.style.transition = 'transform 0.1s ease';
+        glass.style.transform = 'rotate(25deg) scale(1.05)';
+
+        setTimeout(() => {
+            glass.style.transform = 'rotate(-25deg) scale(1.05)';
+            setTimeout(() => {
+                glass.style.transform = '';
+                glass.style.transition = '';
+                this.showToast("Mocktail shaken! Look at those bubbles rise!", "success");
+            }, 150);
+        }, 150);
+    }
+
+    refillMocktail(flavor) {
+        const liquid = document.getElementById('mocktail-liquid');
+        const loader = document.getElementById('mocktail-loader');
+        if (!liquid) return;
+
+        // Visual "Mixing" loading sequence
+        if (loader) loader.classList.add('visible');
+        liquid.style.height = '0px'; // Empty it
+
+        let gradient = '';
+        let title = '';
+        if (flavor === 'orange') {
+            gradient = 'linear-gradient(to top, #ff2a00 0%, #ff9a00 50%, #ffd200 100%)';
+            title = 'Tropical Orange Mocktail';
+        } else if (flavor === 'blueberry') {
+            gradient = 'linear-gradient(to top, #0011ff 0%, #00aaff 60%, #00e5ff 100%)';
+            title = 'Blue Ocean Paradise';
+        } else if (flavor === 'cherry') {
+            gradient = 'linear-gradient(to top, #6b001d 0%, #ff0055 60%, #ff66aa 100%)';
+            title = 'Wild Cherry Fizz';
+        }
+
+        setTimeout(() => {
+            liquid.style.background = gradient;
+            // Refill to full height
+            liquid.style.height = '115px';
+            setTimeout(() => {
+                if (loader) loader.classList.remove('visible');
+                this.showToast(`Your premium ${title} is ready! 🍹 Cheers!`, "success");
+            }, 1500);
+        }, 800);
+    }
+
+    // REPORT GENERATOR & RECEIPTS
+    generateDailyReport() {
+        const dateInput = document.getElementById('report-target-date');
+        if (!dateInput) return;
+
+        const targetDate = dateInput.value;
+        if (!targetDate) {
+            this.showToast("Please choose a valid target date.", "error");
+            return;
+        }
+
+        document.getElementById('report-display-date').innerText = targetDate;
+
+        // Filter Stays: matching check-in
+        const dayStays = this.bookings.filter(b => b.checkIn === targetDate);
+        const dayFood = this.foodBookings.filter(f => f.deliveryDate === targetDate);
+
+        // Compute revenue (for confirmed items only)
+        const stayRev = dayStays.filter(b => b.status === 'Confirmed').reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
+        const foodRev = dayFood.filter(f => f.status === 'Confirmed').reduce((sum, f) => sum + parseFloat(f.totalPrice), 0);
+        const totalRevenue = stayRev + foodRev;
+
+        // Populate Stats Card
+        document.getElementById('report-stat-stays').innerText = dayStays.length;
+        document.getElementById('report-stat-combos').innerText = dayFood.length;
+        document.getElementById('report-stat-revenue').innerText = `$${totalRevenue.toFixed(2)}`;
+
+        // Render Stays Table
+        const staysTbody = document.getElementById('report-stays-table-body');
+        if (staysTbody) {
+            if (dayStays.length === 0) {
+                staysTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1rem; color:var(--text-muted)">No stay bookings scheduled for this day.</td></tr>`;
+            } else {
+                staysTbody.innerHTML = dayStays.map(b => {
+                    const rObj = this.rooms.find(r => r.type === b.roomType) || { name: b.roomType };
+                    return `
+                        <tr style="border-bottom:1px solid var(--accent-dark);">
+                            <td style="padding:0.5rem; font-family:monospace; color:var(--accent);">${escapeHtml(b.bookingId)}</td>
+                            <td style="padding:0.5rem;">${escapeHtml(b.guestName)}</td>
+                            <td style="padding:0.5rem;">${escapeHtml(rObj.name)}</td>
+                            <td style="padding:0.5rem; font-weight:700;">$${parseFloat(b.totalPrice).toFixed(2)}</td>
+                            <td style="padding:0.5rem;"><span class="status-badge ${b.status.toLowerCase()}">${escapeHtml(b.status)}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Food Table
+        const foodTbody = document.getElementById('report-food-table-body');
+        if (foodTbody) {
+            if (dayFood.length === 0) {
+                foodTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1rem; color:var(--text-muted)">No food orders placed for this day.</td></tr>`;
+            } else {
+                foodTbody.innerHTML = dayFood.map(f => {
+                    let parsed = [];
+                    try { parsed = typeof f.items === 'string' ? JSON.parse(f.items) : f.items; } catch(e) { parsed = []; }
+                    const desc = parsed.map(i => `${i.qty}x ${i.name}`).join(', ');
+                    return `
+                        <tr style="border-bottom:1px solid var(--accent-dark);">
+                            <td style="padding:0.5rem; font-family:monospace; color:var(--accent);">${escapeHtml(f.bookingId)}</td>
+                            <td style="padding:0.5rem;">${escapeHtml(f.guestName)}</td>
+                            <td style="padding:0.5rem; font-size:0.75rem;">${escapeHtml(desc)}</td>
+                            <td style="padding:0.5rem; font-weight:700;">$${parseFloat(f.totalPrice).toFixed(2)}</td>
+                            <td style="padding:0.5rem;"><span class="status-badge ${f.status.toLowerCase()}">${escapeHtml(f.status)}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Show Results
+        document.getElementById('report-results-panel').classList.remove('hidden');
+    }
+
+    openReceiptForStay(bookingId) {
+        const b = this.bookings.find(item => item.bookingId === bookingId);
+        if (!b) return;
+
+        const rObj = this.rooms.find(r => r.type === b.roomType) || { name: b.roomType };
+
+        document.getElementById('receipt-issue-date').innerText = new Date(b.createdAt || Date.now()).toLocaleDateString();
+        document.getElementById('receipt-ref').innerText = b.bookingId;
+        document.getElementById('receipt-cust-name').innerText = b.guestName;
+        document.getElementById('receipt-cust-phone').innerText = b.guestPhone;
+
+        document.getElementById('receipt-date-range-row').style.display = 'flex';
+        document.getElementById('receipt-stay-range').innerText = `${b.checkIn} to ${b.checkOut}`;
+
+        document.getElementById('receipt-item-description-row').style.display = 'flex';
+        document.getElementById('receipt-service-desc').innerText = `Stay Reservation: ${rObj.name}`;
+        document.getElementById('receipt-service-total').innerText = `$${parseFloat(b.totalPrice).toFixed(2)}`;
+
+        document.getElementById('receipt-food-items-summary').innerHTML = '';
+        document.getElementById('receipt-grand-total').innerText = `$${parseFloat(b.totalPrice).toFixed(2)}`;
+
+        // Show Receipt modal
+        document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    openReceiptForFood(bookingId) {
+        const f = this.foodBookings.find(item => item.bookingId === bookingId);
+        if (!f) return;
+
+        document.getElementById('receipt-issue-date').innerText = new Date(f.createdAt || Date.now()).toLocaleDateString();
+        document.getElementById('receipt-ref').innerText = f.bookingId;
+        document.getElementById('receipt-cust-name').innerText = f.guestName;
+        document.getElementById('receipt-cust-phone').innerText = f.guestPhone;
+
+        document.getElementById('receipt-date-range-row').style.display = 'none'; // No stay range
+        document.getElementById('receipt-item-description-row').style.display = 'none';
+
+        let items = [];
+        try {
+            items = typeof f.items === 'string' ? JSON.parse(f.items) : f.items;
+        } catch(err) {
+            items = [];
+        }
+
+        const itemsHtml = items.map(i => `
+            <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+                <span>• ${escapeHtml(i.qty)}x ${escapeHtml(i.name)}</span>
+                <strong>$${(i.qty * parseFloat(i.price)).toFixed(2)}</strong>
+            </div>
+        `).join('');
+
+        document.getElementById('receipt-food-items-summary').innerHTML = itemsHtml;
+        document.getElementById('receipt-grand-total').innerText = `$${parseFloat(f.totalPrice).toFixed(2)}`;
+
+        // Show Receipt modal
+        document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    // GUEST TESTIMONIALS & REVIEWS SYSTEM
+    initTestimonials() {
+        const cached = localStorage.getItem('lodge_testimonials');
+        if (cached) {
+            try {
+                this.testimonials = JSON.parse(cached);
+            } catch(e) {
+                this.testimonials = [];
+            }
+        } else {
+            this.testimonials = [
+                {
+                    id: 1,
+                    name: "Emily Stone",
+                    stars: 5,
+                    text: "Absolutely gorgeous mountain suites! We booked the Overnight Premium Option and spent the entire afternoon relaxing at the Gazebo. The Signature Burger Combo ($5) was unbelievably tasty!"
+                },
+                {
+                    id: 2,
+                    name: "Sara Connor",
+                    stars: 5,
+                    text: "Super clean rooms, safe gated parking, and wonderful hot showers! The WhatsApp booking system made it so seamless. Highly recommend this affordable premium lodge!"
+                }
+            ];
+            localStorage.setItem('lodge_testimonials', JSON.stringify(this.testimonials));
+        }
+
+        this.renderTestimonials();
+    }
+
+    renderTestimonials() {
+        const container = document.getElementById('reviews-feed-container');
+        if (!container) return;
+
+        container.innerHTML = this.testimonials.map(t => {
+            const starString = "⭐".repeat(t.stars);
+            return `
+                <div class="benefit-card reveal-element revealed" style="background:var(--primary-dark); border:1px solid var(--accent-dark); padding:1.25rem; border-radius:10px; text-align:left; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <strong style="color:var(--accent);">${escapeHtml(t.name)}</strong>
+                        <span style="font-size:0.8rem; color:var(--accent-light);">${starString}</span>
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-light); opacity:0.9; margin:0; font-style:italic;">"${escapeHtml(t.text)}"</p>
+                </div>
+            `;
+        }).join('');
+    }
+
+    handleTestimonialSubmit(event) {
+        event.preventDefault();
+
+        const nameInput = document.getElementById('review-guest-name');
+        const starsInput = document.getElementById('review-stars');
+        const textInput = document.getElementById('review-text');
+
+        if (!nameInput || !starsInput || !textInput) return;
+
+        const newReview = {
+            id: Date.now(),
+            name: nameInput.value.trim(),
+            stars: parseInt(starsInput.value),
+            text: textInput.value.trim()
+        };
+
+        this.testimonials.unshift(newReview);
+        localStorage.setItem('lodge_testimonials', JSON.stringify(this.testimonials));
+
+        this.renderTestimonials();
+
+        // Reset form
+        document.getElementById('add-testimonial-form').reset();
+
+        this.showToast("Thank you for submitting your beautiful review!", "success");
+        this.addNotification("New Review Received", `${newReview.name} submitted a ${newReview.stars}-star testimonial.`, "info");
+    }
+
+    // FLOATING CHATBOT CONTROLLERS
+    toggleChatbot() {
+        const win = document.getElementById('chatbot-window');
+        if (win) {
+            win.classList.toggle('hidden');
+            if (!win.classList.contains('hidden')) {
+                document.getElementById('chatbot-input-field')?.focus();
+            }
+        }
+    }
+
+    sendChatQuery(text) {
+        this.addChatBubble(text, 'user');
+
+        setTimeout(() => {
+            const reply = this.getBotReply(text);
+            this.addChatBubble(reply, 'bot');
+        }, 600);
+    }
+
+    handleChatSubmit(event) {
+        event.preventDefault();
+        const input = document.getElementById('chatbot-input-field');
+        if (!input) return;
+
+        const text = input.value.trim();
+        if (!text) return;
+
+        this.addChatBubble(text, 'user');
+        input.value = '';
+
+        setTimeout(() => {
+            const reply = this.getBotReply(text);
+            this.addChatBubble(reply, 'bot');
+        }, 600);
+    }
+
+    addChatBubble(text, sender) {
+        const box = document.getElementById('chatbot-messages');
+        if (!box) return;
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${sender}`;
+        bubble.innerHTML = text; // allow HTML tags internally for bold links
+        box.appendChild(bubble);
+
+        // Auto scroll
+        box.scrollTop = box.scrollHeight;
+    }
+
+    getBotReply(query) {
+        const text = query.toLowerCase();
+
+        if (text.includes('location') || text.includes('where') || text.includes('address') || text.includes('rd') || text.includes('peg')) {
+            return `Mountain View Lodge is located at <strong>13 KM PEG(9MILES) MUTARE, ZIMUNYA RD</strong>. It's easily accessible and nestled next to beautiful mountain vistas! 🏔️`;
+        }
+
+        if (text.includes('phone') || text.includes('whatsapp') || text.includes('contact') || text.includes('call') || text.includes('number')) {
+            return `Our official contact and WhatsApp number is <strong>0786110762</strong>. Feel free to call us or tap any 'WhatsApp' button on our page to chat with us immediately! 📞`;
+        }
+
+        if (text.includes('price') || text.includes('tarif') || text.includes('rate') || text.includes('cost') || text.includes('stay') || text.includes('suite') || text.includes('room')) {
+            return `We offer highly competitive and affordable rates:<br>
+            • <strong>2-Hour Ensuite Standard:</strong> $10.00<br>
+            • <strong>2-Hour Ensuite Premium:</strong> $15.00<br>
+            • <strong>Overnight Stay Standard:</strong> $20.00 / night<br>
+            • <strong>Overnight Stay Premium:</strong> $25.00 / night<br><br>
+            All stays include hot refreshing showers, fresh luxury linen, secure parking, and free Wi-Fi! 🏨`;
+        }
+
+        if (text.includes('burger') || text.includes('combo') || text.includes('food') || text.includes('drink') || text.includes('menu') || text.includes('mocktail')) {
+            return `Our legendary <strong>Signature Burger & Mocktail Combo</strong> is only <strong>$5.00 USD</strong>! You can also order Gourmet Burgers solo for $4.00, or custom refreshing Mocktails solo for $3.00. Delicious home style flavors! 🍔🍹`;
+        }
+
+        if (text.includes('gazebo') || text.includes('chill') || text.includes('garden')) {
+            return `Our outdoor wooden <strong>Chill-Out Gazebo</strong> is perfect for relaxing with friends or working on your laptop in the fresh mountain breeze. Booking a slot is complimentary/included for overnight guests! 🌳`;
+        }
+
+        if (text.includes('hello') || text.includes('hi') || text.includes('hey')) {
+            return `Hello! How can I assist you today? Ask me about accommodations, prices, combos, or location details! 😊`;
+        }
+
+        if (text.includes('thank') || text.includes('thanks')) {
+            return `You are very welcome! We hope to see you soon at Mountain View Lodge. Have a beautiful day! 🌅`;
+        }
+
+        return `I'm not sure about that, but feel free to contact us directly at <strong>0786110762</strong> or check our Accommodations and rates tab above! I'm always here to help.`;
     }
 
     showLoader(show) {
