@@ -1,0 +1,69 @@
+
+> server@1.0.0 start
+> node server.js
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+📦 Connected with local SQLite database (lodge.db)
+🔨 Initializing Mountain View Lodge database schema on [sqlite]
+✅ SQLite schema and seed data initialized successfully.
+ Mountain View Lodge API server running on port 3000 [sqlite]
+SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING * Params: [
+  'MVL-2026-2183',
+  'John Doe',
+  'johndoe@example.com',
+  '0771234567',
+  'ensuite_std',
+  '2026-07-16',
+  '2026-07-17',
+  1,
+  10,
+  'Pending',
+  'Vegan breakfast if possible, late check in.',
+  '2026-07-15T05:22:51.929Z'
+]
+attempt to write a readonly database
+SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING * Params: [
+  'MVL-2026-3588',
+  'John Doe',
+  'johndoe@example.com',
+  '0771234567',
+  'ensuite_std',
+  '2026-07-16',
+  '2026-07-17',
+  1,
+  10,
+  'Pending',
+  'Vegan breakfast if possible, late check in.',
+  '2026-07-15T05:25:22.421Z'
+]
+attempt to write a readonly database
+SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING * Params: [
+  'MVL-2026-1872',
+  'John Doe',
+  'johndoe@example.com',
+  '0771234567',
+  'ensuite_std',
+  '2026-07-16',
+  '2026-07-17',
+  1,
+  10,
+  'Pending',
+  'Vegan breakfast if possible, late check in.',
+  '2026-07-15T05:27:05.567Z'
+]
+attempt to write a readonly database
+SQLite error: attempt to write a readonly database SQL: INSERT INTO bookings ("bookingId", "guestName", "guestEmail", "guestPhone", "roomType", "checkIn", "checkOut", "guests", "totalPrice", "status", "specialRequests", "createdAt") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING * Params: [
+  'MVL-2026-1880',
+  'John Doe',
+  'johndoe@example.com',
+  '0771234567',
+  'ensuite_std',
+  '2026-07-16',
+  '2026-07-17',
+  1,
+  10,
+  'Pending',
+  'Vegan breakfast if possible, late check in.',
+  '2026-07-15T05:34:52.386Z'
+]
+attempt to write a readonly database

@@ -1,12 +1,11 @@
-const CACHE_NAME = 'egles-smis-v-final-v3';
+const CACHE_NAME = 'kurichong-eco-lodge-v1';
 const urlsToCache = [
     '/',
     '/index.html',
-    '/style.css?v=5',
-    '/app_v1.js?v=final-sync-v2',
-    '/db.js?v=final-sync-v2',
-    '/manifest.json',
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+    '/style.css?v=12',
+    '/app_v1.js?v=12',
+    '/db.js?v=12',
+    '/manifest.json'
 ];
 
 self.addEventListener('install', event => {

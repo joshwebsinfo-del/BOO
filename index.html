@@ -1,161 +1,1189 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Egles SMIS | Premium School Management</title>
+    <title>Mountain View Lodge | Affordable Luxury Getaway</title>
 
-    <!-- PWA -->
+    <!-- PWA Metadata -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#6366f1">
+    <meta name="theme-color" content="#0d0d0d">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Egles SMIS">
-    <meta name="description" content="Egles Secondary School Management & Information System">
+    <meta name="apple-mobile-web-app-title" content="Mountain View Lodge">
+    <meta name="description" content="A peaceful and affordable getaway offering comfortable accommodations, safe parking, mocktails, and cozy gazebo setups.">
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="style.css?v=5">
+    <!-- Stylesheets & Fonts -->
+    <link rel="stylesheet" href="style.css?v=14">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
+<body class="dark-theme">
+    <!-- Global Progress & Notifications -->
+    <div id="global-loader" class="hidden"><div class="progress-bar"></div></div>
+    <div id="toast-container" class="toast-container"></div>
 
-<body>
-    <div id="global-loader"><div class="progress-bar"></div></div>
-    <div class="bg-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <!-- Sticky Navigation Header -->
+    <header class="main-header scrolled" id="main-header">
+        <div class="header-container">
+            <a href="#" class="logo-wrapper" onclick="app.showSection('home')">
+                <span class="logo-icon">🌅</span>
+                <div class="logo-text">
+                    <span class="logo-title" style="color: var(--accent);">MOUNTAIN VIEW</span>
+                    <span class="logo-subtitle" style="color: var(--text-light); letter-spacing: 2px;">LODGE & GETAWAY</span>
+                </div>
+            </a>
 
-    <!-- Mobile Overlay -->
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="app.closeSidebar()"></div>
+            <!-- Desktop Nav Links -->
+            <nav class="desktop-nav" style="display:flex; align-items:center;">
+                <a href="#" class="nav-link active" data-section="home" onclick="app.showSection('home')">Home</a>
+                <a href="#" class="nav-link" data-section="rooms" onclick="app.showSection('rooms')">Accommodations</a>
+                <a href="#" class="nav-link" data-section="dining" onclick="app.showSection('dining')">Menu & Combos</a>
+                <a href="#" class="nav-link" data-section="gazebo" onclick="app.showSection('gazebo')">Chill Gazebo</a>
+                <a href="#" class="nav-link" data-section="contact" onclick="app.showSection('contact')">Contact</a>
+                <a href="#" class="nav-link admin-link-nav" data-section="admin" onclick="app.showSection('admin')">Admin Portal</a>
 
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">Egles <span>SMIS</span></div>
-            <button class="sidebar-close" onclick="app.closeSidebar()">✕</button>
-        </div>
-
-        <nav class="sidebar-nav" id="sidebar-nav">
-            <!-- Dynamically populated by app.js -->
-        </nav>
-
-        <div class="sidebar-footer">
-            <button id="theme-toggle" onclick="app.toggleTheme()"
-                style="background:var(--glass-bg); border:1px solid var(--glass-border); padding:0.5rem; border-radius:10px; cursor:pointer; color:var(--text); width:40px; height:40px;">🌓</button>
-            <div id="offline-indicator" class="status-pill hidden" style="background:var(--danger); color:white;">
-                Offline</div>
-        </div>
-    </aside>
-
-    <!-- Main Wrapper -->
-    <div class="main-wrapper">
-        <header class="top-bar">
-            <!-- Mobile Hamburger -->
-            <button class="hamburger" id="hamburger-btn" onclick="app.openSidebar()" aria-label="Open menu">
-                <span></span><span></span><span></span>
-            </button>
-
-            <div class="search-box">
-                <input type="text" id="global-search" placeholder="Search students, staff, assets..."
-                    oninput="app.handleSearch(this.value)">
-                <div id="search-results" class="search-results-overlay hidden"></div>
-            </div>
-
-            <div class="user-profile">
-                <div class="notification-wrapper">
-                    <button class="notification-trigger" onclick="app.toggleNotifications()"
-                        style="background: none; border: none; font-size: 1.2rem; cursor: pointer; position: relative;">
-                        🔔<span id="notif-badge" class="notif-badge hidden"
-                            style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--bg-main);">0</span>
+                <!-- Notification Bell Component -->
+                <div class="notification-bell-container" style="position:relative; margin-right: 1.25rem; margin-left: 0.5rem; display: flex; align-items: center;">
+                    <button class="bell-btn" onclick="app.toggleNotificationsDropdown(event)" style="background:none; border:none; color:var(--accent); font-size:1.4rem; cursor:pointer; position:relative; padding:5px; transition: transform 0.2s ease; display:flex; align-items:center; justify-content:center;">
+                        🔔
+                        <span class="bell-badge" id="bell-unread-count" style="position:absolute; top:-4px; right:-4px; background:#ff0055; color:#fff; border-radius:50%; width:16px; height:16px; font-size:0.65rem; display:none; align-items:center; justify-content:center; font-weight:700;">0</span>
                     </button>
-                    <div id="notification-panel" class="notification-panel hidden">
-                        <div class="notif-header">
-                            <h3 style="margin: 0; font-size: 1rem;">Notifications</h3>
-                            <button onclick="app.markAllAsRead()"
-                                style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.8rem; font-weight: 600;">Clear
-                                All</button>
+                    <!-- Notification Dropdown Drawer -->
+                    <div class="notifications-dropdown hidden" id="notifications-dropdown" style="position:absolute; top:45px; right:-50px; width:330px; background-color:#110a03; border:1px solid var(--accent); border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,0.85); z-index:999; overflow:hidden;">
+                        <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--accent-dark); display:flex; justify-content:space-between; align-items:center; background:rgba(212,175,55,0.05);">
+                            <span style="font-weight:700; color:var(--accent); font-family:var(--font-heading); font-size:0.85rem;">🔔 Lodge Notifications</span>
+                            <button onclick="app.markAllNotificationsRead(event)" style="background:none; border:none; color:var(--accent-light); font-size:0.7rem; cursor:pointer; text-decoration:underline;">Mark all read</button>
                         </div>
-                        <div id="notif-list" class="notif-list">
-                            <p class="empty-notif"
-                                style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">
-                                No new notifications</p>
+                        <div class="notifications-list" id="notifications-list" style="max-height:280px; overflow-y:auto; font-size:0.8rem; text-align:left;">
+                            <!-- Dynamic Notifications inside here -->
+                        </div>
+                        <div style="padding:0.5rem; text-align:center; border-top:1px solid var(--accent-dark); background:rgba(0,0,0,0.25);">
+                            <span style="font-size:0.7rem; color:var(--text-muted);">Real-time booking and promo logs</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Theme switcher hidden on mobile -->
-                <div class="theme-switcher desktop-only">
-                    <div class="theme-chip" style="background: #040712; border: 1px solid #58a6ff;" title="Cyber Glass" onclick="app.setTheme('default')">
-                    </div>
-                    <div class="theme-chip" style="background: #f8fafc;" title="Light" onclick="app.setTheme('light')">
-                    </div>
-                    <div class="theme-chip" style="background: #020617;" title="Midnight"
-                        onclick="app.setTheme('midnight')"></div>
-                    <div class="theme-chip" style="background: #064e3b;" title="Aurora"
-                        onclick="app.setTheme('aurora')"></div>
-                </div>
+                <button class="btn-book-nav" onclick="app.openBookingModal()">Book Stay</button>
+            </nav>
 
-                <div id="user-info" style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div class="desktop-only" style="text-align: right;">
-                        <span id="user-display-name" style="font-size: 0.9rem; font-weight: 600; display: block;">System
-                            Administrator</span>
-                        <a href="#" onclick="app.logout()"
-                            style="font-size: 0.7rem; color: var(--primary); text-decoration: none; font-weight: 600;">Sign
-                            Out</a>
+            <!-- Mobile Menu Toggle Button -->
+            <button class="mobile-menu-btn" onclick="app.toggleMobileMenu()" aria-label="Toggle Menu">
+                <span class="bar" style="background-color: var(--accent);"></span>
+                <span class="bar" style="background-color: var(--accent);"></span>
+                <span class="bar" style="background-color: var(--accent);"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Slide-out Menu -->
+    <div class="mobile-sidebar" id="mobile-sidebar">
+        <div class="sidebar-header">
+            <div class="logo-wrapper">
+                <span class="logo-icon">🌅</span>
+                <span class="logo-title" style="color: var(--accent)">MOUNTAIN VIEW</span>
+            </div>
+            <button class="sidebar-close-btn" onclick="app.toggleMobileMenu()">✕</button>
+        </div>
+        <nav class="mobile-nav-links">
+            <a href="#" class="mobile-link active" onclick="app.showSection('home'); app.toggleMobileMenu()">Home</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('rooms'); app.toggleMobileMenu()">Accommodations</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('dining'); app.toggleMobileMenu()">Menu & Combos</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('gazebo'); app.toggleMobileMenu()">Chill Gazebo</a>
+            <a href="#" class="mobile-link" onclick="app.showSection('contact'); app.toggleMobileMenu()">Contact Us</a>
+            <a href="#" class="mobile-link admin-link-nav" onclick="app.showSection('admin'); app.toggleMobileMenu()">Admin Dashboard</a>
+            <button class="btn-book-mobile" onclick="app.toggleMobileMenu(); app.openBookingModal()">Reserve Now</button>
+        </nav>
+    </div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="app.toggleMobileMenu()"></div>
+
+    <!-- MAIN VIEWS CONTAINER -->
+    <main class="main-content">
+
+        <!-- SECTION: HOME / HERO -->
+        <section id="section-home" class="view-section active">
+            <!-- Hero Banner -->
+            <div class="hero-wrapper">
+                <div class="hero-overlay"></div>
+                <!-- Dynamic Floating Gold Dust Particles -->
+                <div class="gold-particles-container">
+                    <div class="gold-particle" style="left:10%; width:8px; height:8px; animation-delay:0s; animation-duration:12s;"></div>
+                    <div class="gold-particle" style="left:25%; width:5px; height:5px; animation-delay:2s; animation-duration:18s;"></div>
+                    <div class="gold-particle" style="left:40%; width:12px; height:12px; animation-delay:4s; animation-duration:15s;"></div>
+                    <div class="gold-particle" style="left:55%; width:6px; height:6px; animation-delay:1s; animation-duration:20s;"></div>
+                    <div class="gold-particle" style="left:70%; width:9px; height:9px; animation-delay:6s; animation-duration:14s;"></div>
+                    <div class="gold-particle" style="left:85%; width:4px; height:4px; animation-delay:3s; animation-duration:22s;"></div>
+                    <div class="gold-particle" style="left:92%; width:10px; height:10px; animation-delay:5s; animation-duration:16s;"></div>
+                </div>
+                <div class="hero-container">
+                    <span class="hero-badge animate-fade-in">✨ A PEACEFUL & AFFORDABLE GETAWAY</span>
+                    <h1 class="hero-title animate-slide-up" style="font-family: var(--font-heading);">MOUNTAIN VIEW LODGE</h1>
+                    <p class="hero-subtitle animate-slide-up-delay">Comfortable accommodations, safe & secure parking, refreshing hot showers, premium mocktails, and cozy outdoor gazebos designed for absolute relaxation.</p>
+                    <div class="hero-actions animate-slide-up-delay-2">
+                        <button class="btn-primary-lg" onclick="app.openBookingModal()">Book Your Stay</button>
+                        <button class="btn-outline-lg" onclick="app.showSection('rooms')">Accommodations & Rates</button>
                     </div>
-                    <div id="user-avatar"
-                        style="width: 38px; height: 38px; border-radius: 10px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; cursor:pointer;"
-                        onclick="app.logout()" title="Sign Out">
-                        A</div>
                 </div>
             </div>
-        </header>
 
-        <main class="content-area" id="app-container">
-            <div class="page-loading-overlay">
-                <div class="spinner"></div>
-                <h2>EGLES SMIS</h2>
-                <p>Establishing Secure Session...</p>
+            <!-- Booking Quick Bar -->
+            <div class="booking-quick-bar">
+                <form id="hero-quick-book-form" onsubmit="app.handleQuickBook(event)">
+                    <div class="quick-input-group">
+                        <label for="qb-checkin">Check-In</label>
+                        <input type="date" id="qb-checkin" required>
+                    </div>
+                    <div class="quick-input-group">
+                        <label for="qb-checkout">Check-Out</label>
+                        <input type="date" id="qb-checkout" required>
+                    </div>
+                    <div class="quick-input-group">
+                        <label for="qb-room-type">Stay Option</label>
+                        <select id="qb-room-type">
+                            <option value="ensuite_std">2-Hour Ensuite (Standard) - $10</option>
+                            <option value="ensuite_premium">2-Hour Ensuite (Premium) - $15</option>
+                            <option value="overnight_std">Overnight Stay (Standard) - $20/night</option>
+                            <option value="overnight_premium" selected>Overnight Stay (Premium) - $25/night</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-quick-search" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Check Availability</button>
+                </form>
             </div>
-        </main>
+
+            <!-- Amenities Highlights -->
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="sub-heading">Why Choose Us</span>
+                    <h2 class="main-heading" style="color: var(--text-light);">Lodge Comforts & Security</h2>
+                    <div class="heading-divider"></div>
+                </div>
+
+                <div class="highlights-grid">
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🚿</div>
+                        <h3 style="color: var(--accent);">Hot & Refreshing Showers</h3>
+                        <p>Wash away your travel weariness with unlimited hot water in all private ensuite bathrooms.</p>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🛏️</div>
+                        <h3 style="color: var(--accent);">Fresh & Clean Linen</h3>
+                        <p>Rest comfortably on crisp, premium quality sheets and super soft blankets prepared fresh daily.</p>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-icon">📶</div>
+                        <h3 style="color: var(--accent);">High Speed WiFi</h3>
+                        <p>Stay connected with friends, family, or work seamlessly with high-speed internet covering the entire property.</p>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🅿️</div>
+                        <h3 style="color: var(--accent);">Safe & Secure Parking</h3>
+                        <p>Enjoy peace of mind with 24/7 security and safe, fenced parking slots for all of our guests.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GUEST REVIEW WALL (NESTED INSIDE HOME VIEW) -->
+            <div id="section-reviews" style="padding: 4rem 0 1rem 0; border-top: 1px solid var(--accent-dark); margin-top: 3rem;">
+                <div class="section-container">
+                    <div class="section-header">
+                        <span class="sub-heading">Guest Testimonials</span>
+                        <h2 class="main-heading" style="color: var(--text-light);">Lodge Guest Review Wall</h2>
+                        <p class="heading-description">See what our lovely guests say about their stays, the refreshing mocktails, and the serene garden gazebo slots!</p>
+                        <div class="heading-divider"></div>
+                    </div>
+
+                    <div class="split-row" style="gap:2.5rem; align-items:flex-start;">
+                        <!-- Leave a Review Form -->
+                        <div class="text-column" style="background:var(--primary-dark); border:1px solid var(--accent-dark); padding:2rem; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                            <h3 style="color: var(--accent); margin-top:0;">✍️ Leave Your Testimonial</h3>
+                            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Help other travelers discover Mountain View Lodge! Submit your rating below.</p>
+
+                            <form id="add-testimonial-form" onsubmit="app.handleTestimonialSubmit(event)" style="display:flex; flex-direction:column; gap:1rem;">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="color:var(--accent);">Your Name</label>
+                                    <input type="text" id="review-guest-name" required placeholder="Sarah Connor" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="color:var(--accent);">Star Rating</label>
+                                    <select id="review-stars" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--accent);">
+                                        <option value="5">⭐⭐⭐⭐⭐ (5 / 5)</option>
+                                        <option value="4">⭐⭐⭐⭐ (4 / 5)</option>
+                                        <option value="3">⭐⭐⭐ (3 / 5)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label style="color:var(--accent);">Your Message</label>
+                                    <textarea id="review-text" required rows="3" placeholder="Absolute comfort! The mocktails are so refreshing..." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Submit Review</button>
+                            </form>
+                        </div>
+
+                        <!-- Testimonial Feed Cards -->
+                        <div class="visual-column" style="display:flex; flex-direction:column; gap:1.25rem;" id="reviews-feed-container">
+                            <!-- Dynamic Reviews list renders here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ACCOMMODATIONS -->
+        <section id="section-rooms" class="view-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="sub-heading">Our Stay Options</span>
+                    <h2 class="main-heading" style="color: var(--text-light)">Comfortable Accommodations & Tariffs</h2>
+                    <p class="heading-description">Affordable, private, and cozy ensuite rooms designed for both quick touch-and-go refreshes and relaxing overnight escapes.</p>
+                    <div class="heading-divider"></div>
+                </div>
+
+                <div class="rooms-grid" id="rooms-container">
+                    <!-- Dynamic rooms will be rendered here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DINING & MENU -->
+        <section id="section-dining" class="view-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="sub-heading">Mocktails & Burgers</span>
+                    <h2 class="main-heading" style="color: var(--text-light)">Our Signature Combos, Food & Drink Menu</h2>
+                    <p class="heading-description">Indulge in our succulent gourmet flame-grilled burgers and freshly personalized artisanal mocktails prepared to your taste.</p>
+                    <div class="heading-divider"></div>
+                </div>
+
+                <!-- Live dynamic menu display -->
+                <div class="dynamic-menu-block">
+                    <div class="dynamic-menu-header">
+                        <h3 style="color: var(--accent);">Delicious Selections</h3>
+                        <button class="btn-book-nav" onclick="app.openFoodBookingModal()">Book Food & Combos</button>
+                    </div>
+                    <div class="menu-items-grid" id="menu-items-container">
+                        <!-- Dynamic menu items loaded from database will appear here -->
+                    </div>
+                </div>
+
+                <div class="split-row" style="margin-top: 4rem;">
+                    <div class="text-column">
+                        <h3 style="color: var(--accent);">Our Signature Combo — $5.00</h3>
+                        <p style="font-style: italic; font-size: 1.1rem; color: var(--accent-light);">"Try it and you will thank us... Perfect Combo!"</p>
+                        <p>Enjoy our juicy, freshly grilled burger served alongside a refreshing, custom-blended fruity mocktail of your choice. A premium culinary delight at an incredibly affordable price.</p>
+
+                        <div class="dining-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">🍹</span>
+                                <div>
+                                    <h4 style="color: var(--accent-light);">Refreshing Mocktails — $3.00</h4>
+                                    <p>Our custom mocktails are fruity, refreshing, and personalized to your unique taste buds. Made with fresh ingredients daily.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">📆</span>
+                                <div>
+                                    <h4 style="color: var(--accent-light);">Our Weekly Promo — Free!</h4>
+                                    <p>Choose your day and visit us to explore exclusive, rotating weekly surprise promos, mocktail discounts, or free appetizer pairings.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-column">
+                        <div class="mocktail-interactive-card">
+                            <h3 style="color: var(--accent); font-size:1.4rem; margin-top:0;">🍹 Interactive Mocktail Maker</h3>
+                            <p style="font-size:0.85rem; color: var(--text-muted);">Sway, load, refill and customize your custom Mocktail in real-time!</p>
+
+                            <div class="mocktail-glass-container" onclick="app.swayWildly()">
+                                <!-- Glowing load overlays -->
+                                <div class="loading-indicator-overlay" id="mocktail-loader">MIXING MOCKTAIL...</div>
+
+                                <div class="mocktail-glass-swaying" id="mocktail-glass">
+                                    <!-- Garnishes -->
+                                    <div class="mocktail-straw straw-glow"></div>
+                                    <div class="mocktail-lemon"></div>
+                                    <div class="mocktail-cherry"></div>
+
+                                    <!-- Glass cup bowl -->
+                                    <div class="glass-stem-bowl">
+                                        <!-- Shifting dynamic fluid -->
+                                        <div class="mocktail-liquid" id="mocktail-liquid" style="height: 100px;">
+                                            <div class="liquid-wave"></div>
+                                            <!-- Interactive rising bubbles -->
+                                            <div class="mocktail-bubble" style="left: 15%; animation-delay: 0s; animation-duration: 2.2s;"></div>
+                                            <div class="mocktail-bubble" style="left: 35%; animation-delay: 0.4s; animation-duration: 1.8s;"></div>
+                                            <div class="mocktail-bubble" style="left: 55%; animation-delay: 0.8s; animation-duration: 2.5s;"></div>
+                                            <div class="mocktail-bubble" style="left: 75%; animation-delay: 1.2s; animation-duration: 1.9s;"></div>
+                                            <div class="mocktail-bubble" style="left: 90%; animation-delay: 1.5s; animation-duration: 2.1s;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stem and base -->
+                                    <div class="glass-stem"></div>
+                                    <div class="glass-base"></div>
+                                </div>
+                            </div>
+
+                            <div class="mocktail-controls" style="display:flex; flex-direction:column; gap:0.75rem; background: rgba(0,0,0,0.3); padding:1rem; border-radius:8px; border:1px solid var(--accent-dark);">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:0.8rem; color:var(--text-light)">Sway Turbulence:</span>
+                                    <input type="range" id="sway-speed-range" min="1" max="10" value="5" oninput="app.changeMocktailSwaySpeed(this.value)" style="width:100px; accent-color:var(--accent);">
+                                </div>
+                                <div style="display:flex; gap:0.5rem; justify-content:center;">
+                                    <button class="btn-primary" onclick="app.refillMocktail('orange')" style="font-size:0.75rem; padding:0.4rem 0.8rem; background:#ff9a00; color:#fff; border:none; flex:1;">Tropical Orange</button>
+                                    <button class="btn-primary" onclick="app.refillMocktail('blueberry')" style="font-size:0.75rem; padding:0.4rem 0.8rem; background:#00e5ff; color:#111; border:none; flex:1;">Blue Ocean</button>
+                                    <button class="btn-primary" onclick="app.refillMocktail('cherry')" style="font-size:0.75rem; padding:0.4rem 0.8rem; background:#ff0055; color:#fff; border:none; flex:1;">Wild Cherry</button>
+                                </div>
+                                <div style="font-size:0.75rem; color: var(--accent-light);">💡 Tap the glass to shake/sway wildly!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: CHILL GAZEBO -->
+        <section id="section-gazebo" class="view-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="sub-heading">Outdoor Relaxation</span>
+                    <h2 class="main-heading" style="color: var(--text-light);">Our Cozy Chill-Out Gazebo</h2>
+                    <div class="heading-divider"></div>
+                </div>
+
+                <div class="split-row reverse">
+                    <div class="text-column">
+                        <h3 style="color: var(--accent);">The Perfect Spot to Unwind</h3>
+                        <p>Looking for the perfect spot to relax with friends and family? Our beautiful outdoor wooden gazebo is designed for deep chilling, laughing, and memory making.</p>
+
+                        <p>Nestled in a peaceful corner of our gardens with a sweeping vista of the surrounding mountains, you can order mocktails, signature combos, or coffee straight to your table while enjoying the cool mountain breeze.</p>
+
+                        <div class="wellness-amenities">
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🪵 Beautiful Handcrafted Wood Gazebo</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🍹 Dedicated Drink Serving Staff</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🎵 Smooth Chill-Out Acoustic Playlists</div>
+                            <div class="wellness-badge" style="background-color: var(--primary-dark); border-color: var(--accent); color: var(--accent-light);">🌌 Fairy Light Night Setting for Star Gazing</div>
+                        </div>
+                    </div>
+                    <div class="visual-column">
+                        <div class="visual-placeholder spa-bg">
+                            <div class="dining-caption" style="border: 1px solid var(--accent); color: var(--accent-light)">Our Garden Chill-Out Gazebo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: CONTACT -->
+        <section id="section-contact" class="view-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="sub-heading">Reach Out to Us</span>
+                    <h2 class="main-heading" style="color: var(--text-light)">Plan Your Mountain Getaway</h2>
+                    <div class="heading-divider"></div>
+                </div>
+
+                <div class="contact-row">
+                    <!-- Contact Form -->
+                    <div class="contact-form-wrapper" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                        <h3 style="color: var(--accent);">Send an Inquiry</h3>
+                        <form id="contact-form" onsubmit="app.handleContactSubmit(event)">
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label for="contact-name" style="color: var(--accent);">Full Name</label>
+                                    <input type="text" id="contact-name" required placeholder="John Doe" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-email" style="color: var(--accent);">Email Address</label>
+                                    <input type="email" id="contact-email" required placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label for="contact-phone" style="color: var(--accent);">Phone / WhatsApp</label>
+                                    <input type="tel" id="contact-phone" required placeholder="0786110762" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-subject" style="color: var(--accent);">Subject</label>
+                                    <input type="text" id="contact-subject" required placeholder="Inquiry about Gazebo Booking" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-message" style="color: var(--accent);">Message</label>
+                                <textarea id="contact-message" rows="5" required placeholder="Hi Mountain View Lodge, I would like to..." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Send Message & Chat</button>
+                        </form>
+                    </div>
+
+                    <!-- Contact details -->
+                    <div class="contact-details-panel" style="border: 1px solid var(--accent); background-color: var(--primary-dark);">
+                        <h3 style="color: var(--accent);">Lodge Contacts</h3>
+
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <div>
+                                <h4 style="color: var(--accent);">Location</h4>
+                                <p style="color: var(--text-light);">13 KM PEG(9MILES) MUTARE, ZIMUNYA RD</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <div>
+                                <h4 style="color: var(--accent);">Phone / WhatsApp</h4>
+                                <p style="color: var(--text-light);"><a href="https://wa.me/263786110762" target="_blank" style="color: var(--accent-light); font-weight:700;">0786110762 (Tap to WhatsApp)</a></p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <span class="contact-icon">✉️</span>
+                            <div>
+                                <h4 style="color: var(--accent);">Email Address</h4>
+                                <p style="color: var(--text-light);"><a href="mailto:bookings@mountainviewlodge.com" style="color: var(--text-light)">bookings@mountainviewlodge.com</a></p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <span class="contact-icon">🛡️</span>
+                            <div>
+                                <h4 style="color: var(--accent);">Security Guard</h4>
+                                <p style="color: var(--text-light);">Fenced Area, 24/7 Security Patrol</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ADMIN PORTAL -->
+        <section id="section-admin" class="view-section">
+            <div class="section-container">
+
+                <!-- Admin LOGIN Form -->
+                <div id="admin-login-card" class="admin-login-card" style="background-color: var(--primary-dark); border-color: var(--accent);">
+                    <div class="login-header">
+                        <span style="font-size: 2.5rem;">🔐</span>
+                        <h3 style="color: var(--accent);">Admin Operations Console</h3>
+                        <p style="color: var(--text-muted)">Please enter administrative credentials to proceed.</p>
+                    </div>
+                    <form id="admin-login-form" onsubmit="app.handleAdminLogin(event)">
+                        <div class="form-group">
+                            <label for="login-username" style="color: var(--accent)">Username</label>
+                            <input type="text" id="login-username" required placeholder="admin" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password" style="color: var(--accent)">Password</label>
+                            <input type="password" id="login-password" required placeholder="••••••••" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Authenticate Session</button>
+                    </form>
+                    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1.5rem;">Demo: admin / admin123</p>
+                </div>
+
+                <!-- Admin DASHBOARD Console (Hidden by default) -->
+                <div id="admin-dashboard-console" class="admin-dashboard-console hidden">
+
+                    <!-- Dashboard Header -->
+                    <div class="admin-dashboard-header">
+                        <div>
+                            <span class="admin-badge" style="background-color: var(--accent); color: var(--primary-dark);">⚡ CONTROL CONSOLE</span>
+                            <h2 style="margin: 0.2rem 0 0 0; color: var(--text-light)">Lodge Operational Panel</h2>
+                        </div>
+                        <div class="admin-user-info">
+                            <span style="color: var(--text-light);">Active: <strong id="admin-display-name" style="color: var(--accent);">Mountain View Admin</strong></span>
+                            <button class="btn-signout" onclick="app.handleAdminLogout()">Sign Out</button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Panel Cards -->
+                    <div class="admin-stats-grid">
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">Total Revenue ($)</span>
+                            <span class="stat-val" id="stat-revenue" style="color: var(--text-light)">$0.00</span>
+                            <span class="stat-indicator">💰 Earnings from stays & food</span>
+                        </div>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">Active Bookings</span>
+                            <span class="stat-val" id="stat-bookings" style="color: var(--text-light)">0</span>
+                            <span class="stat-indicator" id="stat-pending-indicator">0 Pending Approval</span>
+                        </div>
+                        <div class="stat-card" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <span class="stat-label" style="color: var(--accent);">Active Food Orders</span>
+                            <span class="stat-val" id="stat-food-count" style="color: var(--text-light)">0</span>
+                            <span class="stat-indicator">🍔 Multi-item orders logged</span>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Tabs -->
+                    <div class="admin-tabs-nav">
+                        <button class="tab-btn active" data-tab="bookings" onclick="app.switchAdminTab('bookings')" style="color: var(--text-light);">Room Bookings</button>
+                        <button class="tab-btn" data-tab="food_bookings" onclick="app.switchAdminTab('food_bookings')" style="color: var(--text-light);">Food Bookings</button>
+                        <button class="tab-btn" data-tab="menu_manager" onclick="app.switchAdminTab('menu_manager')" style="color: var(--text-light);">Manage Menu</button>
+                        <button class="tab-btn" data-tab="room_manager" onclick="app.switchAdminTab('room_manager')" style="color: var(--text-light);">Manage Rooms</button>
+                        <button class="tab-btn" data-tab="walkin" onclick="app.switchAdminTab('walkin')" style="color: var(--text-light);">Manual Walk-In</button>
+                        <button class="tab-btn" data-tab="messages" onclick="app.switchAdminTab('messages')" style="color: var(--text-light);">Feedback (<span id="unread-msg-count">0</span>)</button>
+                        <button class="tab-btn" data-tab="settings" onclick="app.switchAdminTab('settings')" style="color: var(--text-light);">Tariffs & Prices</button>
+                        <button class="tab-btn" data-tab="reports" onclick="app.switchAdminTab('reports')" style="color: var(--text-light);">Daily Reports</button>
+                    </div>
+
+                    <!-- TAB CONTENT: BOOKINGS -->
+                    <div id="admin-tab-bookings" class="admin-tab-content active">
+                        <div class="tab-header-row">
+                            <h3 style="color: var(--accent);">Active Booking Catalog</h3>
+                            <div class="filter-group">
+                                <label for="booking-filter" style="color: var(--text-light);">Filter:</label>
+                                <select id="booking-filter" onchange="app.filterBookings(this.value)" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light);">
+                                    <option value="all">All Bookings</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <table class="admin-table">
+                                <thead style="background-color: var(--primary-dark);">
+                                    <tr>
+                                        <th style="color: var(--accent);">ID</th>
+                                        <th style="color: var(--accent);">Guest Details</th>
+                                        <th style="color: var(--accent);">Option Type</th>
+                                        <th style="color: var(--accent);">Stay Date / Range</th>
+                                        <th style="color: var(--accent);">Total Price</th>
+                                        <th style="color: var(--accent);">Status</th>
+                                        <th style="color: var(--accent);">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bookings-table-body" style="color: var(--text-light)">
+                                    <!-- Dynamic rows from app_v1.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: FOOD BOOKINGS LOG -->
+                    <div id="admin-tab-food_bookings" class="admin-tab-content">
+                        <div class="tab-header-row">
+                            <h3 style="color: var(--accent);">Active Food Orders Catalog</h3>
+                            <div class="filter-group">
+                                <label for="food-filter" style="color: var(--text-light);">Filter:</label>
+                                <select id="food-filter" onchange="app.filterFoodBookings(this.value)" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light);">
+                                    <option value="all">All Orders</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <table class="admin-table">
+                                <thead style="background-color: var(--primary-dark);">
+                                    <tr>
+                                        <th style="color: var(--accent);">Order ID</th>
+                                        <th style="color: var(--accent);">Guest Details</th>
+                                        <th style="color: var(--accent);">Booked Items</th>
+                                        <th style="color: var(--accent);">Date & Time</th>
+                                        <th style="color: var(--accent);">Total Price</th>
+                                        <th style="color: var(--accent);">Status</th>
+                                        <th style="color: var(--accent);">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="food-bookings-table-body" style="color: var(--text-light)">
+                                    <!-- Dynamic rows loaded from db -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: MANAGE MENU -->
+                    <div id="admin-tab-menu_manager" class="admin-tab-content">
+                        <div class="tab-split-layout">
+                            <!-- Add Menu Form -->
+                            <div class="form-panel-side" style="background-color: var(--primary-dark); border: 1px solid var(--accent-dark); padding: 1.5rem; border-radius: 8px;">
+                                <h3 style="color: var(--accent); margin-top: 0;">Add Menu / Food Item</h3>
+                                <form id="admin-add-menu-form" onsubmit="app.handleAddMenuItem(event)">
+                                    <div class="form-group">
+                                        <label for="menu-name" style="color: var(--accent)">Item Name</label>
+                                        <input type="text" id="menu-name" required placeholder="e.g., Crispy Chicken Wings" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="menu-description" style="color: var(--accent)">Description</label>
+                                        <textarea id="menu-description" required rows="3" placeholder="e.g., Spicy wings served with honey glaze dip" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="menu-price" style="color: var(--accent)">Price ($)</label>
+                                        <input type="number" step="0.01" id="menu-price" required placeholder="e.g., 4.50" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="menu-image" style="color: var(--accent)">Item Image (Upload from device)</label>
+                                        <input type="file" id="menu-image" accept="image/*" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                        <p style="font-size:0.7rem; color:var(--text-muted); margin:0.2rem 0 0 0;">Upload any room/food photo from your mobile or PC.</p>
+                                    </div>
+                                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Menu Item</button>
+                                </form>
+                            </div>
+
+                            <!-- List Menu Items -->
+                            <div class="list-panel-side">
+                                <h3 style="color: var(--accent);">Current Food & Beverage Menu</h3>
+                                <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="color: var(--accent)">Image</th>
+                                                <th style="color: var(--accent)">Name / Description</th>
+                                                <th style="color: var(--accent)">Price</th>
+                                                <th style="color: var(--accent)">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-menu-list-body">
+                                            <!-- Dynamic items loaded from database -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: MANAGE ROOMS -->
+                    <div id="admin-tab-room_manager" class="admin-tab-content">
+                        <div class="tab-split-layout">
+                            <!-- Add Room Form -->
+                            <div class="form-panel-side" style="background-color: var(--primary-dark); border: 1px solid var(--accent-dark); padding: 1.5rem; border-radius: 8px;">
+                                <h3 style="color: var(--accent); margin-top: 0;">Add Room / Stay Option</h3>
+                                <form id="admin-add-room-form" onsubmit="app.handleAddRoom(event)">
+                                    <div class="form-group">
+                                        <label for="room-type-id" style="color: var(--accent)">Room ID / Type (Unique URL Slug)</label>
+                                        <input type="text" id="room-type-id" required placeholder="e.g., suite_royal" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-name" style="color: var(--accent)">Room Name</label>
+                                        <input type="text" id="room-name" required placeholder="e.g., Royal Panoramic Suite" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-price" style="color: var(--accent)">Rate ($ per Night or stay block)</label>
+                                        <input type="number" step="0.01" id="room-price" required placeholder="e.g., 35.00" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-capacity" style="color: var(--accent)">Guest Capacity</label>
+                                        <input type="number" id="room-capacity" required value="2" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-description" style="color: var(--accent)">Description</label>
+                                        <textarea id="room-description" required rows="2" placeholder="Describe room ambiance..." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-amenities" style="color: var(--accent)">Amenities (comma separated)</label>
+                                        <input type="text" id="room-amenities" placeholder="e.g., Smart TV, Hot Tub, Mini Bar" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="room-image-upload" style="color: var(--accent)">Room Image (Upload from device)</label>
+                                        <input type="file" id="room-image-upload" accept="image/*" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                    </div>
+                                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Room Option</button>
+                                </form>
+                            </div>
+
+                            <!-- List Rooms -->
+                            <div class="list-panel-side">
+                                <h3 style="color: var(--accent);">Current Lodge Rooms & Suites</h3>
+                                <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="color: var(--accent)">Image</th>
+                                                <th style="color: var(--accent)">Name / Description</th>
+                                                <th style="color: var(--accent)">Price</th>
+                                                <th style="color: var(--accent)">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-room-list-body">
+                                            <!-- Dynamic rooms loaded from database -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: WALKIN BOOKING INJECTOR -->
+                    <div id="admin-tab-walkin" class="admin-tab-content">
+                        <h3 style="color: var(--accent);">Inject Walk-In Stay</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Register phone or direct walk-in overnight/hourly stays in the control base.</p>
+
+                        <form id="admin-manual-booking-form" onsubmit="app.handleManualBooking(event)" class="admin-dashboard-form" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
+                            <div class="form-row-three">
+                                <div class="form-group">
+                                    <label for="mb-guest-name" style="color: var(--accent);">Guest Name</label>
+                                    <input type="text" id="mb-guest-name" required placeholder="Sara Connor" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="mb-guest-email" style="color: var(--accent)">Email</label>
+                                    <input type="email" id="mb-guest-email" required placeholder="sara@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="mb-guest-phone" style="color: var(--accent)">Phone</label>
+                                    <input type="tel" id="mb-guest-phone" required placeholder="0786110762" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                            </div>
+                            <div class="form-row-three">
+                                <div class="form-group">
+                                    <label for="mb-checkin" style="color: var(--accent)">Check-In Date</label>
+                                    <input type="date" id="mb-checkin" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="mb-checkout" style="color: var(--accent)">Check-Out Date</label>
+                                    <input type="date" id="mb-checkout" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="mb-guests" style="color: var(--accent)">Guests</label>
+                                    <input type="number" id="mb-guests" min="1" max="4" required value="2" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                            </div>
+                            <div class="form-row-two">
+                                <div class="form-group">
+                                    <label for="mb-room-type" style="color: var(--accent)">Option Type</label>
+                                    <select id="mb-room-type" required onchange="app.calcManualBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                        <!-- Dynamic load of active stay option keys -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mb-status" style="color: var(--accent)">Reservation Status</label>
+                                    <select id="mb-status" required style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                        <option value="Confirmed" selected>Confirmed (Paid)</option>
+                                        <option value="Pending">Pending</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="mb-requests" style="color: var(--accent)">Special Notes</label>
+                                <textarea id="mb-requests" rows="3" placeholder="Arriving by motorcycle. Need secure parking." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                            </div>
+
+                            <div class="pricing-summary-row" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                                <span class="pricing-label" style="color: var(--accent)">Calculated Duration: <strong id="mb-nights-count" style="color: var(--text-light)">0 nights</strong></span>
+                                <span class="pricing-value" id="mb-total-price" style="color: var(--accent)">$0.00</span>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Register Stay</button>
+                        </form>
+                    </div>
+
+                    <!-- TAB CONTENT: MESSAGES INBOX -->
+                    <div id="admin-tab-messages" class="admin-tab-content">
+                        <h3 style="color: var(--accent);">Customer Inquiries Inbox</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Review feedback, burger combo reservations, or gazebo booking inquiries.</p>
+
+                        <div class="table-responsive" style="background-color: var(--primary-dark); border-color: var(--accent-dark);">
+                            <table class="admin-table">
+                                <thead style="background-color: var(--primary-dark);">
+                                    <tr>
+                                        <th style="color: var(--accent);">Date</th>
+                                        <th style="color: var(--accent);">Sender Contact</th>
+                                        <th style="color: var(--accent);">Subject</th>
+                                        <th style="color: var(--accent);">Message</th>
+                                        <th style="color: var(--accent);">Status</th>
+                                        <th style="color: var(--accent);">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="messages-table-body" style="color: var(--text-light)">
+                                    <!-- Dynamic rows from app_v1.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT: SETTINGS & TARIFFS -->
+                    <div id="admin-tab-settings" class="admin-tab-content">
+                        <h3 style="color: var(--accent);">Admin Operations Credentials</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Configure administrative dashboard security access passwords.</p>
+
+                        <form id="admin-settings-form" onsubmit="app.handleSettingsSave(event)" class="admin-dashboard-form" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
+                            <div class="form-group">
+                                <label for="set-admin-pass" style="color: var(--accent)">Change Admin Password</label>
+                                <input type="password" id="set-admin-pass" placeholder="Enter new password" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                            </div>
+                            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Apply Credentials Adjustments</button>
+                        </form>
+                    </div>
+
+                    <!-- TAB CONTENT: DAILY REPORTS -->
+                    <div id="admin-tab-reports" class="admin-tab-content">
+                        <h3 style="color: var(--accent);">Daily Operations & Sales Report</h3>
+                        <p class="tab-description" style="color: var(--text-muted)">Generate and download a comprehensive operational audit summary for any business day.</p>
+
+                        <div class="admin-dashboard-form" style="background-color: var(--primary-dark); border-color: var(--accent-dark); margin-bottom:2rem;">
+                            <div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
+                                <div class="form-group" style="margin-bottom:0; flex:1; min-width:200px;">
+                                    <label for="report-target-date" style="color:var(--accent);">Select Statement Date</label>
+                                    <input type="date" id="report-target-date" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                                </div>
+                                <button type="button" onclick="app.generateDailyReport()" class="btn-primary" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark); height:40px; padding:0 1.5rem; margin-bottom:0;">Compile Statements</button>
+                            </div>
+                        </div>
+
+                        <!-- Report Results Panel -->
+                        <div class="hidden" id="report-results-panel" style="background:var(--primary-dark); border:1px solid var(--accent); border-radius:8px; padding:1.5rem; color:var(--text-light); text-align:left;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px dashed var(--accent-dark); padding-bottom:1rem; margin-bottom:1.5rem;">
+                                <div>
+                                    <h4 style="color:var(--accent); margin:0 0 0.25rem 0; font-size:1.2rem; font-family:var(--font-heading);">MOUNTAIN VIEW LODGE</h4>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">13 KM PEG (9 MILES) MUTARE, ZIMUNYA RD</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <span style="font-weight:700; color:var(--accent-light); font-size:0.9rem;" id="report-display-date">2026-07-20</span>
+                                    <div style="font-size:0.7rem; color:var(--text-muted);">STATEMENT SUMMARY</div>
+                                </div>
+                            </div>
+
+                            <div class="admin-stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                                <div class="stat-card" style="padding:1rem; text-align:center;">
+                                    <div class="stat-num" id="report-stat-stays" style="font-size:1.5rem;">0</div>
+                                    <div class="stat-label">Stay Bookings</div>
+                                </div>
+                                <div class="stat-card" style="padding:1rem; text-align:center;">
+                                    <div class="stat-num" id="report-stat-combos" style="font-size:1.5rem;">0</div>
+                                    <div class="stat-label">Food Orders</div>
+                                </div>
+                                <div class="stat-card" style="padding:1rem; text-align:center;">
+                                    <div class="stat-num" id="report-stat-revenue" style="font-size:1.5rem; color:var(--accent-light);">$0.00</div>
+                                    <div class="stat-label">Daily Revenue</div>
+                                </div>
+                            </div>
+
+                            <h5 style="color:var(--accent); margin-bottom:0.75rem; border-bottom:1px solid var(--accent-dark); padding-bottom:0.25rem;">🏨 Daily Stay Bookings</h5>
+                            <div class="table-responsive" style="margin-bottom:1.5rem;">
+                                <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid var(--accent-dark); text-align:left; color:var(--accent);">
+                                            <th style="padding:0.5rem;">Ref</th>
+                                            <th style="padding:0.5rem;">Customer</th>
+                                            <th style="padding:0.5rem;">Type</th>
+                                            <th style="padding:0.5rem;">Total</th>
+                                            <th style="padding:0.5rem;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-stays-table-body">
+                                        <!-- Dynamic report stays -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h5 style="color:var(--accent); margin-bottom:0.75rem; border-bottom:1px solid var(--accent-dark); padding-bottom:0.25rem;">🍔 Daily Food & Combos Orders</h5>
+                            <div class="table-responsive" style="margin-bottom:1.5rem;">
+                                <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid var(--accent-dark); text-align:left; color:var(--accent);">
+                                            <th style="padding:0.5rem;">Ref</th>
+                                            <th style="padding:0.5rem;">Customer</th>
+                                            <th style="padding:0.5rem;">Items Ordered</th>
+                                            <th style="padding:0.5rem;">Total</th>
+                                            <th style="padding:0.5rem;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-food-table-body">
+                                        <!-- Dynamic report food -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem;">
+                                <button type="button" onclick="window.print()" class="btn-primary" style="background:var(--accent); color:var(--primary-dark); font-size:0.8rem; padding:0.5rem 1rem; border:none; cursor:pointer;">🖨️ Print Statement</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING BOOKING MODAL (DOCK PANEL OVERLAY) -->
+    <div class="modal-backdrop hidden" id="booking-modal">
+        <div class="booking-modal-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent);">
+            <div class="modal-header" style="border-bottom-color: var(--accent-dark);">
+                <h3 style="color: var(--accent); font-family: var(--font-heading);">Book Your Stay</h3>
+                <button class="modal-close-btn" onclick="app.closeBookingModal()">✕</button>
+            </div>
+
+            <form id="booking-reservation-form" onsubmit="app.handleBookingSubmit(event)">
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="book-checkin" style="color: var(--accent)">Check-In Date</label>
+                        <input type="date" id="book-checkin" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                    <div class="form-group">
+                        <label for="book-checkout" style="color: var(--accent)">Check-Out Date</label>
+                        <input type="date" id="book-checkout" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                </div>
+
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="book-room-type" style="color: var(--accent)">Stay Option</label>
+                        <select id="book-room-type" required onchange="app.calcBookingPrice()" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                            <!-- Dynamic selector list load -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-guests" style="color: var(--accent)">Guests Number</label>
+                        <select id="book-guests" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                            <option value="1" selected>1 Guest</option>
+                            <option value="2">2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="book-name" style="color: var(--accent)">Guest Full Name</label>
+                    <input type="text" id="book-name" required placeholder="John Doe" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                </div>
+
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="book-email" style="color: var(--accent)">Email Address</label>
+                        <input type="email" id="book-email" required placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                    <div class="form-group">
+                        <label for="book-phone" style="color: var(--accent)">Phone / WhatsApp Number</label>
+                        <input type="tel" id="book-phone" required placeholder="0786110762" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="book-requests" style="color: var(--accent)">Special Requests (e.g. Signature Combo orders, Gazebo slots)</label>
+                    <textarea id="book-requests" rows="3" placeholder="Order a Burger Signature Combo on arrival, please." style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)"></textarea>
+                </div>
+
+                <!-- Live Price Calculation Panel -->
+                <div class="modal-pricing-box" style="background-color: var(--primary-dark); border-color: var(--accent);">
+                    <div class="pricing-label-row">
+                        <span id="booking-nights-count" style="color: var(--accent-light);">0 Night Stay</span>
+                        <span id="booking-room-rate" style="color: var(--accent-light);">Rate: $0.00</span>
+                    </div>
+                    <div class="pricing-total-row">
+                        <span style="color: var(--text-light)">Total Stay Cost:</span>
+                        <span id="booking-total-price" style="color: var(--accent)">$0.00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Confirm Reservation & Chat on WhatsApp</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Install PWA Banner -->
-    <div id="pwa-install-banner" class="pwa-banner hidden">
+    <!-- FOOD AND COMBO BOOKING ENGINE MODAL -->
+    <div class="modal-backdrop hidden" id="food-booking-modal">
+        <div class="booking-modal-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent); max-width: 600px;">
+            <div class="modal-header" style="border-bottom-color: var(--accent-dark);">
+                <h3 style="color: var(--accent); font-family: var(--font-heading);">Book Food & Combos</h3>
+                <button class="modal-close-btn" onclick="app.closeFoodBookingModal()">✕</button>
+            </div>
+
+            <form id="food-booking-form" onsubmit="app.handleFoodBookingSubmit(event)">
+                <p style="font-size:0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Choose your delicious signature combos and drinks from below. Adjust quantities and complete booking to send order via WhatsApp!</p>
+
+                <!-- Dynamic Items Quantities selectors -->
+                <div id="food-booking-items-list" style="display:flex; flex-direction:column; gap:1rem; margin-bottom: 1.5rem;">
+                    <!-- Dynamically populated by JS -->
+                </div>
+
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="food-delivery-date" style="color: var(--accent)">Delivery / Picnic Date</label>
+                        <input type="date" id="food-delivery-date" required style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                    <div class="form-group">
+                        <label for="food-delivery-time" style="color: var(--accent)">Delivery / Serving Time</label>
+                        <input type="time" id="food-delivery-time" required style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="food-guest-name" style="color: var(--accent)">Guest Full Name</label>
+                    <input type="text" id="food-guest-name" required placeholder="John Doe" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                </div>
+
+                <div class="form-row-two">
+                    <div class="form-group">
+                        <label for="food-guest-phone" style="color: var(--accent)">Phone / WhatsApp Number</label>
+                        <input type="tel" id="food-guest-phone" required placeholder="0786110762" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                    <div class="form-group">
+                        <label for="food-guest-email" style="color: var(--accent)">Email (Optional)</label>
+                        <input type="email" id="food-guest-email" placeholder="john@example.com" style="background-color: var(--primary-dark); border-color: var(--accent-dark); color: var(--text-light)">
+                    </div>
+                </div>
+
+                <!-- Live Price Calculation Panel -->
+                <div class="modal-pricing-box" style="background-color: var(--primary-dark); border-color: var(--accent); margin-top: 1rem;">
+                    <div class="pricing-total-row">
+                        <span style="color: var(--text-light)">Total Food & Beverage Cost:</span>
+                        <span id="food-booking-total-price" style="color: var(--accent)">$0.00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Confirm Food Order & Chat on WhatsApp</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Success Dialog -->
+    <div class="modal-backdrop hidden" id="confirmation-modal">
+        <div class="success-dialog-card" style="background-color: var(--primary-dark); border: 2px solid var(--accent)">
+            <span class="success-icon" style="color: var(--accent)">🌅</span>
+            <h3 style="color: var(--accent);" id="confirmation-title">Stay Reservation Successful!</h3>
+            <p style="color: var(--text-muted)">Your booking reservation at Mountain View Lodge has been successfully logged. We are launching your WhatsApp chat to lock in the reservation directly with our host!</p>
+
+            <div class="confirmation-summary-box" style="background-color: var(--primary-dark); border-color: var(--accent-dark)">
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span>Booking Reference:</span><strong id="conf-id" style="color: var(--accent)">MVL-XXXX</strong></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Guest Name:</span><span id="conf-name" style="color: var(--text-light)">John Doe</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Option Details:</span><span id="conf-room" style="color: var(--text-light)">Overnight Stay (Premium)</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Target Dates:</span><span id="conf-dates" style="color: var(--text-light)">2026-07-20 to 2026-07-22</span></div>
+                <div class="summary-line" style="border-bottom-color: var(--accent-dark)"><span style="color: var(--text-muted)">Total Price:</span><span id="conf-price" style="color: var(--accent)">$75.00</span></div>
+            </div>
+
+            <button class="btn-primary" id="btn-whatsapp-confirm" style="width: 100%; margin-bottom: 0.5rem; background: #25D366; color:#fff; border:none;">Open Chat on WhatsApp</button>
+            <button class="btn-primary" onclick="app.closeConfirmationModal()" style="width: 100%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--primary-dark)">Close & Return</button>
+        </div>
+    </div>
+
+    <!-- PWA Installation Toast Banner -->
+    <div id="pwa-install-banner" class="pwa-banner hidden" style="border-color: var(--accent);">
         <div style="display:flex; align-items:center; gap:1rem;">
-            <span style="font-size:1.5rem;">📱</span>
+            <span style="font-size:1.8rem;">📱</span>
             <div>
-                <div style="font-weight:700; font-size:0.9rem;">Install Egles SMIS</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">Add to your home screen for quick access</div>
+                <div style="font-weight:700; font-size:0.9rem; color: var(--accent)">Install Mountain View Lodge App</div>
+                <div style="font-size:0.75rem; color:var(--text-light)">Access offline, book, and control operations instantly</div>
             </div>
         </div>
         <div style="display:flex; gap:0.5rem;">
-            <button id="pwa-install-btn" class="btn-primary"
-                style="padding:0.5rem 1rem; font-size:0.8rem;">Install</button>
-            <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')"
-                style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+            <button id="pwa-install-btn" class="btn-primary" style="padding:0.4rem 0.8rem; font-size:0.8rem; background-color: var(--accent); color: var(--primary-dark)">Install</button>
+            <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1rem; padding: 0.2rem">✕</button>
         </div>
     </div>
 
-    <script src="db.js?v=final-sync-v2"></script>
-    <script src="app_v1.js?v=final-sync-v2"></script>
+    <!-- RECEIPT GENERATOR MODAL -->
+    <div class="modal-backdrop hidden" id="receipt-modal">
+        <div class="booking-modal-card" style="background-color: #ffffff; color: #111111; max-width: 500px; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); font-family: monospace; border: 3px solid #111111; margin: auto;">
+            <div style="text-align: center; border-bottom: 2px dashed #111111; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h2 style="color: #111111; margin: 0; font-size: 1.5rem; letter-spacing: 1px;">MOUNTAIN VIEW LODGE</h2>
+                <div style="font-size: 0.8rem; margin: 0.25rem 0;">13 KM PEG(9MILES) MUTARE , ZIMUNYA RD</div>
+                <div style="font-size: 0.8rem; margin: 0.25rem 0;">TEL/WHATSAPP: 0786110762</div>
+                <h3 style="background: #111111; color: #ffffff; display: inline-block; padding: 0.25rem 1rem; margin-top: 0.75rem; font-size: 1rem; text-transform: uppercase;">Official Receipt</h3>
+            </div>
+
+            <div style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #111;"><span>Date of Issue:</span><strong id="receipt-issue-date">2026-07-14</strong></div>
+                <div style="display: flex; justify-content: space-between; color: #111;"><span>Receipt Reference:</span><strong id="receipt-ref">MVL-WALK-1234</strong></div>
+                <div style="display: flex; justify-content: space-between; color: #111;"><span>Customer Name:</span><strong id="receipt-cust-name">John Doe</strong></div>
+                <div style="display: flex; justify-content: space-between; color: #111;"><span>Contact details:</span><strong id="receipt-cust-phone">0771234567</strong></div>
+                <div style="display: flex; justify-content: space-between; color: #111;" id="receipt-date-range-row"><span>Stay range:</span><strong id="receipt-stay-range">2026-07-14 to 2026-07-15</strong></div>
+            </div>
+
+            <div style="border-top: 2px dashed #111111; border-bottom: 2px dashed #111111; padding: 0.75rem 0; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #111111; padding-bottom: 0.25rem; margin-bottom: 0.5rem; color: #111;">
+                    <span>Service Description</span>
+                    <span>Total Amount</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #111;" id="receipt-item-description-row">
+                    <span id="receipt-service-desc">Overnight Stay (Premium)</span>
+                    <strong id="receipt-service-total">$25.00</strong>
+                </div>
+                <div id="receipt-food-items-summary" style="line-height: 1.5; color: #111;">
+                    <!-- Multiple food items will render here if applicable -->
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 1.5rem; color: #111;">
+                <span>GRAND TOTAL PAID:</span>
+                <span id="receipt-grand-total" style="background:#111111; color:#ffffff; padding:0.2rem 0.5rem;">$25.00</span>
+            </div>
+
+            <div style="text-align: center; font-size: 0.8rem; color: #555555; margin-bottom: 1.5rem;">
+                *** Thank You For Visiting Mountain View Lodge ***<br>
+                Safe travels and see you again soon!
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;" class="no-print">
+                <button type="button" onclick="window.print()" style="flex: 1; padding: 0.75rem; background: #111111; color: #ffffff; border: none; font-weight: bold; cursor: pointer; border-radius: 4px;">Print Receipt</button>
+                <button type="button" onclick="document.getElementById('receipt-modal').classList.add('hidden')" style="flex: 1; padding: 0.75rem; background: #888888; color: #ffffff; border: none; font-weight: bold; cursor: pointer; border-radius: 4px;">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="main-footer" style="background-color: var(--primary-dark); border-top-color: var(--accent);">
+        <div class="footer-container">
+            <div class="footer-info">
+                <h3 style="color: var(--accent);">Mountain View Lodge</h3>
+                <p style="color: var(--text-light); opacity: 0.85;">A peaceful and affordable getaway offering comfortable accommodations, safe & secure parking, mocktails, burgers, and cozy outdoor gazebo relaxation slots.</p>
+                <p style="color: var(--accent); font-weight:700;">📍 Location: 13 KM PEG(9MILES) MUTARE, ZIMUNYA RD</p>
+                <div class="footer-links">
+                    <a href="#" onclick="app.showSection('home')" style="color: var(--text-light)">Home</a> •
+                    <a href="#" onclick="app.showSection('rooms')" style="color: var(--text-light)">Accommodations</a> •
+                    <a href="#" onclick="app.showSection('dining')" style="color: var(--text-light)">Burgers & Drinks</a> •
+                    <a href="#" onclick="app.showSection('gazebo')" style="color: var(--text-light)">Gazebo</a> •
+                    <a href="#" onclick="app.showSection('contact')" style="color: var(--text-light)">Contact Us</a> •
+                    <a href="#" onclick="app.showSection('admin')" style="color: var(--text-light)">Admin Portal</a>
+                </div>
+            </div>
+            <div class="footer-credits">
+                <p style="color: var(--text-muted); opacity: 0.5;">© 2026 Mountain View Lodge. All Rights Reserved. Comfort, refreshment, and peace under one roof.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CHATBOT INTERFACE -->
+    <button class="chatbot-trigger-btn" onclick="app.toggleChatbot()">
+        <span>💬</span> Chat Assistant
+    </button>
+    <div class="chatbot-window hidden" id="chatbot-window">
+        <div class="chatbot-header">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.2rem;">🤖</span>
+                <div>
+                    <strong style="color:var(--accent); font-size:0.85rem;">MVL Assistant</strong>
+                    <div style="font-size:0.65rem; color:#25D366; font-weight:700;">● Online Support</div>
+                </div>
+            </div>
+            <button onclick="app.toggleChatbot()" style="background:none; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;">✕</button>
+        </div>
+        <div class="chatbot-messages-box" id="chatbot-messages">
+            <div class="chat-bubble bot">
+                Hello there! Welcome to <strong>Mountain View Lodge</strong>. I can help you with accommodations, pricing, our signature combos, or direct coordinates. Ask me anything!
+            </div>
+        </div>
+        <div class="chatbot-quick-replies">
+            <button class="quick-reply-btn" onclick="app.sendChatQuery('Where is the lodge located?')">📍 Location</button>
+            <button class="quick-reply-btn" onclick="app.sendChatQuery('What are your room tariffs and prices?')">💵 Suit Prices</button>
+            <button class="quick-reply-btn" onclick="app.sendChatQuery('What is your contact or WhatsApp number?')">📞 Phone/WhatsApp</button>
+            <button class="quick-reply-btn" onclick="app.sendChatQuery('Tell me about the signature burger and mocktail combo')">🍔 Signature Combo</button>
+        </div>
+        <form onsubmit="app.handleChatSubmit(event)" class="chatbot-input-area">
+            <input type="text" id="chatbot-input-field" class="chatbot-input" placeholder="Type a message..." autocomplete="off">
+            <button type="submit" class="chatbot-send-btn">➔</button>
+        </form>
+    </div>
+
+    <!-- Script binds -->
+    <script src="db.js?v=14"></script>
+    <script src="app_v1.js?v=14"></script>
     <script>
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW failed:', err));
+                    .then(reg => console.log('Lodge SW registered'))
+                    .catch(err => console.log('Lodge SW failed:', err));
             });
         }
 
-        // PWA Install Prompt
+        // PWA Installation prompt logic
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -177,5 +1205,4 @@
         });
     </script>
 </body>
-
 </html>

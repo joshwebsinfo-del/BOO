@@ -1,0 +1,5 @@
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+📦 Connected with local SQLite database (lodge.db)
+🔨 Initializing Mountain View Lodge database schema on [sqlite]
+✅ SQLite schema and seed data initialized successfully.
+ Mountain View Lodge API server running on port 3000 [sqlite]
