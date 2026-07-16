@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BrainForge OS | Ultra-Premium Educational Dashboard</title>
+    <!-- TailWind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#22C55E',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        darkBg: '#0F172A',
+                        lightBg: '#F8FAFC',
+                    },
+                    borderRadius: {
+                        'card': '24px',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Premium Stylesheet -->
+    <link rel="stylesheet" href="brainforge_style.css">
+</head>
+<body class="bg-[#0F172A] text-white font-['Outfit'] transition-colors duration-500 overflow-x-hidden min-h-screen">
+
+    <!-- Background Animated Blobs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px] animate-blob-slow"></div>
+        <div class="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-cyan-500/10 rounded-full blur-[120px] animate-blob-slow-delayed"></div>
+        <div class="absolute top-[40%] left-[30%] w-[40%] h-[40%] bg-emerald-500/5 rounded-full blur-[100px] animate-blob-medium"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 flex flex-col items-center justify-start min-h-screen p-4 md:p-8">
+
+        <!-- Header Controls & Presentation Banner -->
+        <div class="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🧠</div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">BrainForge OS</h1>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-widest">Next-Gen Offline-First Educational Architecture</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 flex-wrap">
+                <!-- Theme Switcher -->
+                <button id="theme-mode-btn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all font-semibold text-sm">
+                    <span>🌓</span> Theme: <span id="theme-status" class="text-indigo-400 font-bold">Dark Mode</span>
+                </button>
+                <!-- Presentation View Toggle: Bezel Frame vs Full Screen -->
+                <button id="view-mode-btn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-indigo-500/30 text-indigo-300 transition-all font-semibold text-sm">
+                    <span id="view-mode-icon">📱</span> View: <span id="view-mode-status" class="font-bold text-white">Phone Bezel</span>
+                </button>
+                <!-- Close / Return button -->
+                <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 transition-all font-semibold text-sm">
+                    <span>🏠</span> Exit to SMIS
+                </a>
+            </div>
+        </div>
+
+        <!-- Adaptive Layout Frame wrapper -->
+        <div id="device-wrapper" class="phone-bezel transition-all duration-500 w-full flex justify-center">
+
+            <!-- Simulated Mobile Device Container -->
+            <div id="app-viewport" class="viewport-inner relative flex flex-col overflow-hidden bg-[#0F172A] shadow-2xl transition-all duration-500">
+
+                <!-- Simulated Phone Status Bar (Only in Bezel mode) -->
+                <div id="simulated-status-bar" class="flex justify-between items-center px-6 py-2 text-xs font-semibold select-none z-50 text-slate-400">
+                    <div>9:41</div>
+                    <!-- Simulated Dynamic Island / Notch -->
+                    <div class="w-24 h-5 bg-black rounded-full mx-auto hidden md:block"></div>
+                    <div class="flex items-center gap-1.5">
+                        <span id="battery-status">🔋 98%</span>
+                        <span id="signal-status">📶 LTE</span>
+                        <span id="offline-status-pill" class="flex items-center gap-1 text-emerald-400 font-bold">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Offline Mode
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Scrollable Mobile Window Area -->
+                <div id="app-scroll-container" class="flex-1 overflow-y-auto pb-24 relative px-4 md:px-6">
+
+                    <!-- Top App Bar (Slightly shrinks while scrolling handled by JS) -->
+                    <header id="top-app-bar" class="sticky top-0 pt-4 pb-3 z-40 bg-[#0F172A]/80 backdrop-blur-xl border-b border-transparent transition-all duration-300 flex justify-between items-center">
+                        <div>
+                            <h2 id="personalized-greeting" class="text-xl md:text-2xl font-black text-white">Good Morning, Joshua 👋</h2>
+                            <p id="personalized-subtitle" class="text-xs md:text-sm text-slate-400 font-medium mt-0.5">Ready to learn something amazing today?</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <!-- Quick action icon group -->
+                            <button id="search-trigger-btn" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-lg transition-all border border-white/5 relative" title="Search">
+                                🔍
+                            </button>
+                            <button id="notif-trigger-btn" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-lg transition-all border border-white/5 relative" title="Notifications">
+                                🔔
+                                <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-[#0F172A] flex items-center justify-center text-[8px] font-bold">3</span>
+                            </button>
+                            <button id="settings-trigger-btn" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-lg transition-all border border-white/5" title="Settings">
+                                ⚙️
+                            </button>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 p-[2px] cursor-pointer hover:scale-105 transition-all">
+                                <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-sm font-black text-indigo-300">JM</div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Custom Search Panel overlays inside the container -->
+                    <div id="global-search-panel" class="hidden my-4 p-4 rounded-3xl bg-slate-900/90 border border-indigo-500/30 backdrop-blur-xl transition-all duration-300">
+                        <div class="flex items-center gap-2 bg-slate-800/80 rounded-2xl px-4 py-2.5 border border-white/10">
+                            <span class="text-lg">🔍</span>
+                            <input type="text" id="global-search-input" placeholder="Search notes, projects, flashcards, subjects..." class="bg-transparent border-none outline-none flex-1 text-sm text-white placeholder-slate-500">
+                            <button id="clear-search-btn" class="text-xs text-slate-400 hover:text-white">✕</button>
+                        </div>
+                        <div id="search-results-list" class="mt-3 space-y-2 max-h-[250px] overflow-y-auto">
+                            <!-- Instant Results populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Layout Customizer Tool Drawer (Floating toggle triggers it) -->
+                    <div id="layout-customizer-drawer" class="hidden my-4 p-4 rounded-3xl bg-indigo-950/40 border border-cyan-500/30 backdrop-blur-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+                                🛠️ Dashboard Widget Architect
+                            </h3>
+                            <button id="close-customizer-btn" class="text-slate-400 hover:text-white text-xs bg-white/5 px-2 py-1 rounded">Done</button>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">Tailor your BrainForge interface. Reorder grids, toggle element visibilities, or customize accent colors on the fly!</p>
+
+                        <div class="space-y-3">
+                            <!-- Drag & Visibility Controls for each Widget group -->
+                            <div class="flex flex-col gap-2" id="customizer-widget-list">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WIDGET BOARD CONTAINER -->
+                    <div id="widget-board" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500">
+
+                        <!-- HERO STUDY GOAL CARD -->
+                        <div id="widget-hero" class="widget-container md:col-span-2 transition-all duration-300" data-widget-id="hero">
+                            <div class="widget-card bg-gradient-to-br from-indigo-900/60 via-indigo-950/40 to-[#0F172A] rounded-card p-6 relative border border-indigo-500/20 overflow-hidden shadow-indigo-500/5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+
+                                <!-- Decorative subtle SVG outline/illustration -->
+                                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none w-64 h-64">
+                                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full stroke-indigo-400 stroke-2">
+                                        <circle cx="50" cy="50" r="40" stroke-dasharray="5 5"></circle>
+                                        <path d="M50 20 V80 M20 50 H80 M30 30 L70 70 M30 70 L70 30"></path>
+                                    </svg>
+                                </div>
+
+                                <div class="relative z-10 flex-1 w-full">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="px-3.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold uppercase tracking-wider">Today's Study Goal</span>
+                                        <!-- Widget Controls -->
+                                        <div class="widget-controls flex gap-1">
+                                            <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1" title="Pin Widget">📌</button>
+                                            <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1" title="Change Color">🎨</button>
+                                            <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1" title="Hide">✕</button>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="text-3xl font-extrabold text-white leading-tight">Master Database Architecture</h3>
+                                    <p class="text-slate-300 text-sm mt-1 mb-4">Focus on indexing strategies and relational algebra concepts.</p>
+
+                                    <div class="flex items-center gap-6 mb-5">
+                                        <div>
+                                            <span class="text-xs text-slate-400 font-bold uppercase block tracking-wider">Target Goal</span>
+                                            <span class="text-lg font-black text-indigo-300">8.0 Hours</span>
+                                        </div>
+                                        <div class="w-px h-8 bg-slate-700"></div>
+                                        <div>
+                                            <span class="text-xs text-slate-400 font-bold uppercase block tracking-wider">Completed</span>
+                                            <span class="text-lg font-black text-emerald-400">5.5 Hours</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2.5">
+                                        <button class="btn-primary-bf flex-1 md:flex-none flex items-center justify-center gap-1 px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all" onclick="brainforge.triggerAction('study-start')">
+                                            🔥 Continue Studying
+                                        </button>
+                                        <button class="flex-1 md:flex-none px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 font-bold text-sm text-slate-200 transition-all border border-slate-700" onclick="brainforge.triggerAction('quick-rev')">
+                                            ⚡ Quick Revision
+                                        </button>
+                                        <button class="px-3.5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 font-bold text-sm text-slate-200 transition-all border border-slate-700" onclick="brainforge.switchTab('planner')">
+                                            📅 Planner
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Progress Ring -->
+                                <div class="relative w-40 h-40 flex-shrink-0 flex items-center justify-center">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                                        <!-- Track circle -->
+                                        <circle class="text-slate-800" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="60" cy="60" />
+                                        <!-- Gradient track circle -->
+                                        <circle id="goal-progress-circle" class="text-indigo-500 transition-all duration-1000" stroke-width="10" stroke-dasharray="314.16" stroke-dashoffset="100.5" stroke-linecap="round" stroke="url(#indigoGrad)" fill="transparent" r="50" cx="60" cy="60" />
+                                        <defs>
+                                            <linearGradient id="indigoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#4F46E5" />
+                                                <stop offset="100%" stop-color="#06B6D4" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="absolute flex flex-col items-center">
+                                        <span class="text-3xl font-black text-white">68%</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Active</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- PRODUCTIVITY SCORE GAUGE -->
+                        <div id="widget-productivity" class="widget-container transition-all duration-300" data-widget-id="productivity">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[380px]">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">🏆</span>
+                                        <h3 class="text-base font-bold text-white">Productivity Score</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col items-center my-4">
+                                    <!-- Concentric Rings / Multi Ring Simulation using beautiful inline SVG or overlapping elements -->
+                                    <div class="relative w-44 h-44 flex items-center justify-center">
+                                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                                            <!-- Ring 1: Focus -->
+                                            <circle class="text-slate-800" stroke-width="6" stroke="currentColor" fill="none" r="50" cx="60" cy="60" />
+                                            <circle id="ring-focus" class="text-indigo-500 transition-all duration-1000" stroke-width="6" stroke-dasharray="314.16" stroke-dashoffset="47.12" stroke-linecap="round" stroke="currentColor" fill="none" r="50" cx="60" cy="60" />
+
+                                            <!-- Ring 2: Consistency -->
+                                            <circle class="text-slate-800" stroke-width="6" stroke="currentColor" fill="none" r="40" cx="60" cy="60" />
+                                            <circle id="ring-consistency" class="text-cyan-400 transition-all duration-1000" stroke-width="6" stroke-dasharray="251.32" stroke-dashoffset="25.13" stroke-linecap="round" stroke="currentColor" fill="none" r="40" cx="60" cy="60" />
+
+                                            <!-- Ring 3: Time Mgmt -->
+                                            <circle class="text-slate-800" stroke-width="6" stroke="currentColor" fill="none" r="30" cx="60" cy="60" />
+                                            <circle id="ring-time" class="text-emerald-400 transition-all duration-1000" stroke-width="6" stroke-dasharray="188.49" stroke-dashoffset="37.7" stroke-linecap="round" stroke="currentColor" fill="none" r="30" cx="60" cy="60" />
+                                        </svg>
+                                        <div class="absolute flex flex-col items-center">
+                                            <span class="text-3xl font-black text-white">92%</span>
+                                            <span class="text-[9px] text-emerald-400 font-extrabold uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1">Excellent</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-center text-slate-300 mt-3 font-medium">You are highly consistent! 12% faster milestone completion today.</p>
+                                </div>
+
+                                <!-- Breakdown stats -->
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="flex items-center gap-2 bg-slate-800/40 p-2.5 rounded-2xl border border-white/5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                                        <div class="flex-1">
+                                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Focus</span>
+                                            <span class="font-bold text-white">85%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-slate-800/40 p-2.5 rounded-2xl border border-white/5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                        <div class="flex-1">
+                                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Consistency</span>
+                                            <span class="font-bold text-white">90%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-slate-800/40 p-2.5 rounded-2xl border border-white/5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                        <div class="flex-1">
+                                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Time Mgmt</span>
+                                            <span class="font-bold text-white">80%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-slate-800/40 p-2.5 rounded-2xl border border-white/5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                                        <div class="flex-1">
+                                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Completion</span>
+                                            <span class="font-bold text-white">94%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LEARNING HEATMAP -->
+                        <div id="widget-heatmap" class="widget-container transition-all duration-300" data-widget-id="heatmap">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[380px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">📅</span>
+                                        <h3 class="text-base font-bold text-white">Learning Heatmap</h3>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <!-- Toggle buttons -->
+                                        <div class="flex bg-slate-800/80 rounded-lg p-0.5 border border-white/5 text-xs font-semibold">
+                                            <button id="heatmap-toggle-weekly" class="px-2 py-1 rounded bg-indigo-500/20 text-indigo-300 font-bold transition-all">Weekly</button>
+                                            <button id="heatmap-toggle-monthly" class="px-2 py-1 rounded text-slate-400 hover:text-white transition-all">Monthly</button>
+                                            <button id="heatmap-toggle-yearly" class="px-2 py-1 rounded text-slate-400 hover:text-white transition-all">Yearly</button>
+                                        </div>
+                                        <div class="widget-controls flex gap-1">
+                                            <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                            <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                            <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-slate-400 mb-2">Each tile is a session. Hover/tap to inspect duration and subjects studied.</p>
+
+                                <!-- Heatmap Grid Container -->
+                                <div class="flex-1 flex flex-col justify-center my-3 overflow-x-auto py-2">
+                                    <div id="heatmap-grid" class="grid gap-1 select-none mx-auto">
+                                        <!-- Generated Dynamically by JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Detail inspector card upon tap -->
+                                <div id="heatmap-inspector" class="text-xs bg-slate-950/60 border border-white/5 p-3 rounded-2xl flex items-center justify-between min-h-[50px] transition-all">
+                                    <span class="text-slate-400 font-medium">Select any tile to inspect...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TODAY'S SWIPEABLE TASKS -->
+                        <div id="widget-tasks" class="widget-container md:col-span-2 transition-all duration-300" data-widget-id="tasks">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">📋</span>
+                                        <h3 class="text-base font-bold text-white">Today's Study Checklist</h3>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button onclick="brainforge.triggerAction('new-task')" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/20">
+                                            <span>＋</span> Add Task
+                                        </button>
+                                        <div class="widget-controls flex gap-1">
+                                            <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                            <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                            <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-slate-400 mb-4">Swipe Left or tap icons to complete, edit, or delete items. Drag to reorder.</p>
+
+                                <div id="tasks-list" class="space-y-3">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- REVISION DUE TODAY -->
+                        <div id="widget-revision" class="widget-container transition-all duration-300" data-widget-id="revision">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[380px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">⚡</span>
+                                        <h3 class="text-base font-bold text-white">Spaced Repetition Due</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div id="revision-container" class="space-y-3 flex-1 overflow-y-auto pr-1">
+                                    <!-- Populated by JS -->
+                                </div>
+
+                                <div class="pt-3 border-t border-white/5 mt-3 flex justify-between items-center text-xs">
+                                    <span class="text-slate-400">Total sessions due today: <strong class="text-white font-bold text-sm">3</strong></span>
+                                    <button onclick="brainforge.triggerAction('start-all-rev')" class="px-3.5 py-1.5 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-all shadow-md shadow-cyan-600/20">
+                                        Start All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UPCOMING EXAMS TIMELINE -->
+                        <div id="widget-exams" class="widget-container transition-all duration-300" data-widget-id="exams">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[380px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">📅</span>
+                                        <h3 class="text-base font-bold text-white">Exam Milestones</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div id="exams-timeline" class="space-y-4 flex-1 overflow-y-auto pr-1">
+                                    <!-- Timeline rows generated by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SMART SMART ANALYTICS & CHARTS -->
+                        <div id="widget-analytics" class="widget-container md:col-span-2 transition-all duration-300" data-widget-id="analytics">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg">
+                                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">📈</span>
+                                        <h3 class="text-base font-bold text-white">Smart Academic Analytics</h3>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <select id="analytics-metric-select" class="bg-slate-800 text-xs font-bold border border-white/10 px-3 py-1.5 rounded-xl outline-none text-indigo-300">
+                                            <option value="weekly">This Week</option>
+                                            <option value="monthly">This Month</option>
+                                            <option value="subject">By Subject</option>
+                                        </select>
+                                        <div class="widget-controls flex gap-1">
+                                            <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                            <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                            <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                    <div class="bg-slate-800/40 p-3 rounded-2xl border border-white/5">
+                                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Weekly Hours</span>
+                                        <span class="text-xl font-extrabold text-white">34.5 hrs</span>
+                                        <span class="text-[9px] text-emerald-400 block font-bold mt-0.5">▲ 14% vs last week</span>
+                                    </div>
+                                    <div class="bg-slate-800/40 p-3 rounded-2xl border border-white/5">
+                                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Current GPA</span>
+                                        <span class="text-xl font-extrabold text-indigo-400">4.82 / 5.0</span>
+                                        <span class="text-[9px] text-slate-400 block font-bold mt-0.5">Top 5% in Form 4</span>
+                                    </div>
+                                    <div class="bg-slate-800/40 p-3 rounded-2xl border border-white/5">
+                                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Predicted GPA</span>
+                                        <span class="text-xl font-extrabold text-cyan-400">4.91 / 5.0</span>
+                                        <span class="text-[9px] text-indigo-300 block font-bold mt-0.5">AI projection active</span>
+                                    </div>
+                                    <div class="bg-slate-800/40 p-3 rounded-2xl border border-white/5">
+                                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Assignments Finished</span>
+                                        <span class="text-xl font-extrabold text-emerald-400">18 / 19</span>
+                                        <span class="text-[9px] text-emerald-400 block font-bold mt-0.5">94% Completion Rate</span>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic charts tabs -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-slate-950/40 p-4 rounded-2xl border border-white/5 min-h-[220px] flex flex-col justify-between">
+                                        <span class="text-xs font-bold text-slate-300 uppercase tracking-widest block mb-2">📚 Monthly Study Hours (Line / Area Chart)</span>
+                                        <div class="relative flex-1 w-full max-h-[160px]">
+                                            <canvas id="bf-line-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="bg-slate-950/40 p-4 rounded-2xl border border-white/5 min-h-[220px] flex flex-col justify-between">
+                                        <span class="text-xs font-bold text-slate-300 uppercase tracking-widest block mb-2">🎯 Focus Distribution (Pie / Bar Chart)</span>
+                                        <div class="relative flex-1 w-full max-h-[160px]">
+                                            <canvas id="bf-bar-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COGNITIVE & RETENTION HEATMAP (BRAIN MAP) -->
+                        <div id="widget-brain" class="widget-container transition-all duration-300" data-widget-id="brain">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[410px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">🧠</span>
+                                        <h3 class="text-base font-bold text-white">Cognitive Retention</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col items-center my-2">
+                                    <!-- Interactive Brain Lobes Vector Overlay -->
+                                    <div class="relative w-40 h-32 my-1 flex items-center justify-center">
+                                        <!-- Animated Brain Lobes Glowing -->
+                                        <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow-lg">
+                                            <!-- Frontal Lobe -->
+                                            <path d="M 15 50 Q 15 25 50 25 Q 50 50 15 50" fill="currentColor" class="text-indigo-600/30 hover:text-indigo-400/50 cursor-pointer transition-all lobe-path" data-lobe="Frontal Lobe (Decision & Focus)"></path>
+                                            <!-- Parietal Lobe -->
+                                            <path d="M 50 25 Q 85 25 85 50 Q 50 50 50 25" fill="currentColor" class="text-cyan-500/30 hover:text-cyan-400/50 cursor-pointer transition-all lobe-path" data-lobe="Parietal Lobe (Math & Calculation)"></path>
+                                            <!-- Occipital Lobe -->
+                                            <path d="M 85 50 Q 85 75 65 75 Q 50 50 85 50" fill="currentColor" class="text-teal-500/30 hover:text-teal-400/50 cursor-pointer transition-all lobe-path" data-lobe="Occipital Lobe (Visual & Spatial)"></path>
+                                            <!-- Temporal Lobe -->
+                                            <path d="M 15 50 Q 50 50 65 75 Q 30 75 15 50" fill="currentColor" class="text-emerald-500/30 hover:text-emerald-400/50 cursor-pointer transition-all lobe-path" data-lobe="Temporal Lobe (Memory & Retention)"></path>
+                                            <!-- Outline -->
+                                            <path d="M 15 50 Q 15 20 50 20 Q 85 20 85 50 Q 85 80 50 80 Q 15 80 15 50 Z" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none"></path>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <span class="text-[10px] bg-slate-900/80 px-2 py-0.5 rounded-full border border-white/10 font-bold text-cyan-300">Retention: 87%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="brain-insight-info" class="text-xs bg-slate-950/50 border border-white/5 p-3 rounded-2xl mb-2">
+                                    <span class="text-indigo-300 font-extrabold block">🧠 Temporal Lobe Active</span>
+                                    <span class="text-slate-400 mt-0.5 block">High stability in SQL Syntax & relational database models.</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 text-[10px] uppercase font-bold tracking-wider">
+                                    <div class="bg-indigo-900/20 p-2 rounded-xl border border-indigo-500/10">
+                                        <span class="text-indigo-300">💪 Strongest</span>
+                                        <div class="text-white font-extrabold mt-0.5 text-xs normal-case">Relational Database</div>
+                                    </div>
+                                    <div class="bg-rose-950/20 p-2 rounded-xl border border-rose-500/10">
+                                        <span class="text-rose-300">⚠️ Forgotten</span>
+                                        <div class="text-white font-extrabold mt-0.5 text-xs normal-case">NoSQL Indexes (6 days)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DYNAMIC FOCUS LEVEL GAUGE -->
+                        <div id="widget-focus" class="widget-container transition-all duration-300" data-widget-id="focus">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[410px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">⏱️</span>
+                                        <h3 class="text-base font-bold text-white">Focus Meter</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <!-- Focus Gauge Arc representation -->
+                                <div class="flex-1 flex flex-col justify-center items-center my-2">
+                                    <div class="relative w-40 h-24 flex items-end justify-center overflow-hidden">
+                                        <!-- Gauge arc path -->
+                                        <svg viewBox="0 0 100 50" class="w-full h-full transform scale-110">
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" stroke="#1e293b" stroke-width="8" stroke-linecap="round" fill="none"></path>
+                                            <path id="focus-gauge-arc" d="M 10 50 A 40 40 0 0 1 90 50" stroke="#22c55e" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="25" fill="none" class="transition-all duration-1000"></path>
+                                        </svg>
+                                        <div class="absolute bottom-1 flex flex-col items-center">
+                                            <span class="text-3xl font-black text-white">Excellent</span>
+                                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Distraction Level: 12%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2.5 mt-2">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-400 flex items-center gap-1">📱 Phone usage restriction</span>
+                                        <span class="font-bold text-emerald-400">Perfect (95%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-emerald-400 h-full w-[95%]"></div>
+                                    </div>
+
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-400 flex items-center gap-1">🛡️ Focus session frequency</span>
+                                        <span class="font-bold text-indigo-400">High (82%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-400 h-full w-[82%]"></div>
+                                    </div>
+
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-400 flex items-center gap-1">❌ Screen interruptions</span>
+                                        <span class="font-bold text-emerald-400">Minimal (4%)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-emerald-400 h-full w-[96%]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LEARNING STREAK WITH LARGE FLAME -->
+                        <div id="widget-streak" class="widget-container transition-all duration-300" data-widget-id="streak">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[380px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">🔥</span>
+                                        <h3 class="text-base font-bold text-white">Learning Streak</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col items-center justify-center flex-1 my-3 relative">
+                                    <!-- Flame SVG with micro glowing pulse animation -->
+                                    <div class="relative w-28 h-28 animate-flame-glow filter drop-shadow-[0_10px_20px_rgba(245,158,11,0.3)]">
+                                        <svg viewBox="0 0 100 100" class="w-full h-full">
+                                            <path d="M50 10 Q35 35 45 60 Q35 70 50 90 Q65 70 55 60 Q65 35 50 10 Z" fill="url(#flameGrad)" />
+                                            <path d="M50 30 Q40 50 47 70 Q40 75 50 85 Q60 75 53 70 Q60 50 50 30 Z" fill="url(#flameInnerGrad)" />
+                                            <defs>
+                                                <linearGradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#FF4500" />
+                                                    <stop offset="50%" stop-color="#FF8C00" />
+                                                    <stop offset="100%" stop-color="#FFD700" />
+                                                </linearGradient>
+                                                <linearGradient id="flameInnerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#FFFF00" />
+                                                    <stop offset="100%" stop-color="#FF8C00" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        <!-- Animated floating embers -->
+                                        <div class="absolute -top-1 left-12 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-float-ember opacity-80"></div>
+                                        <div class="absolute -top-3 left-6 w-1.5 h-1.5 bg-orange-500 rounded-full animate-float-ember-delayed opacity-60"></div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <span class="text-4xl font-black text-white tracking-tight" id="streak-count-display">14 Days</span>
+                                        <span class="text-xs text-amber-400 block font-bold uppercase tracking-widest mt-0.5">Highest Streak: 28 Days</span>
+                                    </div>
+                                </div>
+
+                                <blockquote class="text-[11px] text-center italic text-slate-400 bg-slate-950/40 p-2.5 border-l-2 border-amber-500 rounded-r-xl">
+                                    "Discipline is the bridge between goals and accomplishment." — Jim Rohn
+                                </blockquote>
+                            </div>
+                        </div>
+
+                        <!-- COURSE PROGRESS LIST -->
+                        <div id="widget-courses" class="widget-container transition-all duration-300" data-widget-id="courses">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[380px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">🎓</span>
+                                        <h3 class="text-base font-bold text-white">Course Progress</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4 flex-1 overflow-y-auto pr-1">
+                                    <!-- Course Item 1 -->
+                                    <div>
+                                        <div class="flex justify-between items-center text-xs mb-1.5">
+                                            <span class="font-bold text-white">Relational Algebra & SQL</span>
+                                            <span class="font-extrabold text-indigo-400">76%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                            <div class="bg-indigo-500 h-full w-[76%]"></div>
+                                        </div>
+                                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1">
+                                            <span>Finished: 19 topics</span>
+                                            <span>Remaining: 6 topics</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Course Item 2 -->
+                                    <div>
+                                        <div class="flex justify-between items-center text-xs mb-1.5">
+                                            <span class="font-bold text-white">Computer Architecture</span>
+                                            <span class="font-extrabold text-cyan-400">45%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                            <div class="bg-cyan-400 h-full w-[45%]"></div>
+                                        </div>
+                                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1">
+                                            <span>Finished: 9 topics</span>
+                                            <span>Remaining: 11 topics</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Course Item 3 -->
+                                    <div>
+                                        <div class="flex justify-between items-center text-xs mb-1.5">
+                                            <span class="font-bold text-white">Automata & Formals</span>
+                                            <span class="font-extrabold text-emerald-400">92%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                            <div class="bg-emerald-400 h-full w-[92%]"></div>
+                                        </div>
+                                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1">
+                                            <span>Finished: 23 topics</span>
+                                            <span>Remaining: 2 topics</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI SMART INSIGHT RECOMMENDATIONS -->
+                        <div id="widget-ai-insights" class="widget-container md:col-span-2 transition-all duration-300" data-widget-id="ai-insights">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">🤖</span>
+                                        <h3 class="text-base font-bold text-white">AI Learning Recommendation Engine</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="ai-insights-grid">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UNLOCKED BADGES & ACHIEVEMENTS -->
+                        <div id="widget-achievements" class="widget-container transition-all duration-300" data-widget-id="achievements">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg flex flex-col justify-between h-full min-h-[350px]">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">🎖️</span>
+                                        <h3 class="text-base font-bold text-white">Badges & Accomplishments</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div id="achievements-badges-grid" class="grid grid-cols-3 gap-3 my-auto">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DAILY MOTIVATIONAL BANNER -->
+                        <div id="widget-motivation" class="widget-container transition-all duration-300" data-widget-id="motivation">
+                            <div class="widget-card bg-gradient-to-br from-emerald-950/30 to-[#0F172A] rounded-card p-5 border border-emerald-500/20 shadow-lg flex flex-col justify-between h-full min-h-[350px] relative overflow-hidden">
+                                <div class="flex items-center justify-between mb-3 relative z-10">
+                                    <span class="text-xs uppercase tracking-widest text-emerald-400 font-extrabold">Quote of the Day</span>
+                                    <div class="flex items-center gap-1">
+                                        <button id="refresh-motivation-btn" class="text-xs p-1 hover:scale-110 transition-all" title="Next Quote">🔄</button>
+                                        <div class="widget-controls flex gap-1">
+                                            <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                            <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                            <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 flex flex-col justify-center relative z-10">
+                                    <p id="motivation-quote" class="text-lg font-bold text-slate-100 leading-relaxed italic mb-2">
+                                        "The only way to learn a new programming language is by writing programs in it."
+                                    </p>
+                                    <span id="motivation-author" class="text-xs text-emerald-400 font-black">— Dennis Ritchie</span>
+                                </div>
+
+                                <div class="absolute -right-6 -bottom-6 opacity-10 pointer-events-none w-32 h-32">
+                                    📝
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RECENT HISTORY TIMELINE -->
+                        <div id="widget-recent" class="widget-container md:col-span-2 transition-all duration-300" data-widget-id="recent">
+                            <div class="widget-card bg-slate-900/60 rounded-card p-5 border border-white/5 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">⏳</span>
+                                        <h3 class="text-base font-bold text-white">Recent Activity History</h3>
+                                    </div>
+                                    <div class="widget-controls flex gap-1">
+                                        <button class="pin-btn opacity-60 hover:opacity-100 text-xs p-1">📌</button>
+                                        <button class="color-btn opacity-60 hover:opacity-100 text-xs p-1">🎨</button>
+                                        <button class="hide-btn opacity-60 hover:opacity-100 text-xs p-1">✕</button>
+                                    </div>
+                                </div>
+
+                                <div id="recent-activity-timeline" class="space-y-4">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- FLOATING ACTIONS RADIAL MENU / SHORTCUTS PANEL (Triggered by "+" in bottom nav) -->
+                <div id="floating-shortcuts-panel" class="hidden absolute inset-0 bg-[#0F172A]/90 backdrop-blur-md z-50 flex items-center justify-center p-6 transition-all duration-300">
+                    <div class="bg-slate-900 rounded-card border border-indigo-500/30 p-6 w-full max-w-sm flex flex-col justify-between shadow-2xl relative">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-base font-bold text-indigo-300 uppercase tracking-widest flex items-center gap-1.5">
+                                    ⚡ Quick OS Actions
+                                </h3>
+                                <button id="close-shortcuts-btn" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-sm">✕</button>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4 leading-relaxed">Instantly synthesize, upload, or index academic materials offline.</p>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="brainforge.triggerQuickAction('new-note')" class="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800 hover:bg-slate-700/80 transition-all border border-white/5 text-center">
+                                    <span class="text-2xl">📝</span>
+                                    <span class="text-xs font-bold text-white">New Note</span>
+                                </button>
+                                <button onclick="brainforge.triggerQuickAction('scan-doc')" class="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800 hover:bg-slate-700/80 transition-all border border-white/5 text-center">
+                                    <span class="text-2xl">📸</span>
+                                    <span class="text-xs font-bold text-white">Scan Doc</span>
+                                </button>
+                                <button onclick="brainforge.triggerQuickAction('rec-lecture')" class="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800 hover:bg-slate-700/80 transition-all border border-white/5 text-center">
+                                    <span class="text-2xl">🎙️</span>
+                                    <span class="text-xs font-bold text-white">Record Lecture</span>
+                                </button>
+                                <button onclick="brainforge.triggerQuickAction('create-fc')" class="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800 hover:bg-slate-700/80 transition-all border border-white/5 text-center">
+                                    <span class="text-2xl">📇</span>
+                                    <span class="text-xs font-bold text-white">New Flashcard</span>
+                                </button>
+                                <button onclick="brainforge.triggerQuickAction('start-timer')" class="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800 hover:bg-slate-700/80 transition-all border border-white/5 text-center">
+                                    <span class="text-2xl">⏱️</span>
+                                    <span class="text-xs font-bold text-white">Start Timer</span>
+                                </button>
+                                <button onclick="brainforge.triggerQuickAction('import-pdf')" class="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-800 hover:bg-slate-700/80 transition-all border border-white/5 text-center">
+                                    <span class="text-2xl">📂</span>
+                                    <span class="text-xs font-bold text-white">Import PDF</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex flex-col gap-2">
+                            <button id="shortcuts-customize-grid-btn" class="w-full py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 border border-indigo-500/30 text-indigo-200 font-bold text-xs">
+                                ⚙️ Custom Layout Widgets
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MULTI-TAB BOTTOM NAVIGATION BAR -->
+                <nav id="bottom-navigation-bar" class="absolute bottom-0 inset-x-0 bg-[#0F172A]/90 backdrop-blur-xl border-t border-white/10 py-2.5 px-4 flex justify-between items-center z-40 select-none">
+                    <button class="nav-tab-btn flex flex-col items-center gap-1 text-[#4F46E5] active-tab" data-tab="dashboard">
+                        <span class="text-xl">🧠</span>
+                        <span class="text-[10px] font-bold">Dashboard</span>
+                    </button>
+                    <button class="nav-tab-btn flex flex-col items-center gap-1 text-slate-400 hover:text-white" data-tab="learn">
+                        <span class="text-xl">📚</span>
+                        <span class="text-[10px] font-bold">Learn</span>
+                    </button>
+
+                    <!-- Floating Center Creation Button -->
+                    <button id="floating-center-add-btn" class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 via-cyan-500 to-emerald-500 hover:scale-105 transition-all active:scale-95 flex items-center justify-center shadow-lg shadow-indigo-500/20 border-2 border-[#0F172A] z-50 transform -translate-y-2">
+                        <span class="text-2xl font-black text-slate-900">＋</span>
+                    </button>
+
+                    <button class="nav-tab-btn flex flex-col items-center gap-1 text-slate-400 hover:text-white" data-tab="library">
+                        <span class="text-xl">📂</span>
+                        <span class="text-[10px] font-bold">Library</span>
+                    </button>
+                    <button class="nav-tab-btn flex flex-col items-center gap-1 text-slate-400 hover:text-white" data-tab="profile">
+                        <span class="text-xl">👤</span>
+                        <span class="text-[10px] font-bold">Profile</span>
+                    </button>
+                </nav>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Interactive Custom Popup Notifications (Toast Alerts) -->
+    <div id="toast-notification-center" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm pointer-events-none">
+        <!-- Spawned dynamically by JS -->
+    </div>
+
+    <!-- JavaScript Execution -->
+    <script src="brainforge.js"></script>
+</body>
+</html>
