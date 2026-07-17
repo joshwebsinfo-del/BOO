@@ -28,9 +28,13 @@
       "expo-router"
     ],
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
-        "projectId": "8ea4994b-10f7-ec7f-93cf-4f0e81bf642c"
+        "projectId": "76b993f8-2ce9-44de-aa9b-ad3f269c2c7e"
       }
-    }
+    },
+    "owner": "joshwebs"
   }
 }

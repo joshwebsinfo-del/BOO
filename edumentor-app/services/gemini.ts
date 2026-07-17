@@ -35,7 +35,7 @@ export async function askEduMentor(query: string, courseId?: string): Promise<Me
 
   return {
     answer: answerText,
-    sources: materials.map(m => m.document_id),
+    sources: materials.map(m => m.material_id),
     suggestedTopics: related
   };
 }

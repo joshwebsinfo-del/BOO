@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Clipboard } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, TextInput, Button, Card, ActivityIndicator } from 'react-native-paper';
+import * as Clipboard from 'expo-clipboard';
 import { askAI } from '../../services/aiService';
 
 type Message = {
@@ -72,8 +73,8 @@ export default function ChatScreen() {
     }
   };
 
-  const handleCopy = (text: string) => {
-    Clipboard.setString(text);
+  const handleCopy = async (text: string) => {
+    await Clipboard.setStringAsync(text);
     alert('Academic answer copied to clipboard!');
   };
 

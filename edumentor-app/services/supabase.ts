@@ -18,10 +18,12 @@ export interface DocumentChunk {
  * Finds relevant academic text chunks using Supabase pgvector cosine distance metrics (RPC).
  * Falls back gracefully to offline mock matches if credentials fail or are offline.
  * @param query Student query
+ * @param courseId Filter by course
  * @param queryEmbedding Optional vector embedding representation of the query
  */
 export async function searchSyllabusAndMaterials(
   query: string,
+  courseId?: string,
   queryEmbedding?: number[]
 ): Promise<DocumentChunk[]> {
   try {

@@ -1,10 +1,17 @@
-// Node.js runner to execute the Supabase SQL migration on the remote database
+// Node.js runner to execute the Supabase SQL migration on the remote database securely
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+// Safe connection defaults - loaded from environment variables to prevent credentials leak
+const dbHost = process.env.DB_HOST || "aws-0-eu-north-1.pooler.supabase.com";
+const dbPort = parseInt(process.env.DB_PORT || "6543", 10);
+const dbUser = process.env.DB_USER || "postgres.flmhdvwsdvbtnjeekoxo";
+const dbPassword = process.env.DB_PASSWORD || process.env.SUPABASE_DB_PASSWORD;
+const dbName = process.env.DB_NAME || "postgres";
+
 async function executeMigration() {
-  console.log('🚀 Starting Supabase Database Migration via IPv4 pooler...');
+  console.log('🚀 Starting Supabase Database Migration securely via IPv4 pooler...');
   const sqlPath = path.join(__dirname, 'supabase_migration.sql');
 
   if (!fs.existsSync(sqlPath)) {
@@ -14,13 +21,18 @@ async function executeMigration() {
 
   const migrationSql = fs.readFileSync(sqlPath, 'utf8');
 
-  // Pass connection parameters individually to enforce rejectUnauthorized: false
+  if (!dbPassword) {
+    console.error('❌ Error: DB_PASSWORD or SUPABASE_DB_PASSWORD environment variable is not defined.');
+    console.log('Please run as: DB_PASSWORD=your_password node run_migration.js');
+    process.exit(1);
+  }
+
   const client = new Client({
-    host: "aws-0-eu-north-1.pooler.supabase.com",
-    port: 6543,
-    user: "postgres.flmhdvwsdvbtnjeekoxo",
-    password: "joshuamujakari6945",
-    database: "postgres",
+    host: dbHost,
+    port: dbPort,
+    user: dbUser,
+    password: dbPassword,
+    database: dbName,
     ssl: {
       rejectUnauthorized: false
     }
