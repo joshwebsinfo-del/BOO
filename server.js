@@ -699,7 +699,7 @@ app.post('/api/ai/chat', customRateLimiter, async (req, res) => {
                     });
                 } catch (openRouterError) {
                     console.error(`[AI Backend OpenRouter Error]: ${openRouterError.message}`);
-                    throw new Error('All primary and backup AI providers are currently unavailable. Please try again later.');
+                    throw new Error(`All primary and backup AI providers are currently unavailable. Errors: Gemini=[${geminiError.message}], Groq=[${groqError.message}], OpenRouter=[${openRouterError.message}]`);
                 }
             }
         }
