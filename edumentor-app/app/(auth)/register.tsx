@@ -8,6 +8,7 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [studentNo, setStudentNo] = useState('');
   const [role, setRole] = useState('student');
 
   const handleRegister = () => {
@@ -32,13 +33,27 @@ export default function RegisterScreen() {
           theme={{ colors: { primary: '#4f46e5' }}}
         />
         <TextInput
-          label="Username"
+          label="Email Address"
           value={username}
           onChangeText={setUsername}
           mode="outlined"
           style={styles.input}
           theme={{ colors: { primary: '#4f46e5' }}}
         />
+
+        {role === 'student' && (
+          <TextInput
+            label="School Student Number"
+            value={studentNo}
+            onChangeText={setStudentNo}
+            placeholder="KP-2026-993F"
+            placeholderTextColor="#64748b"
+            mode="outlined"
+            style={styles.input}
+            theme={{ colors: { primary: '#4f46e5' }}}
+          />
+        )}
+
         <TextInput
           label="Password"
           value={password}

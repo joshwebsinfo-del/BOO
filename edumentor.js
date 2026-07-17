@@ -1,58 +1,47 @@
-/* EduMentor AI Android Mobile Simulator - Frontend Logic */
+/* EduMentor AI Android Mobile Simulator - Kwekwe Poly Controller Logic */
 class EduMentorSimulator {
     constructor() {
         this.currentTheme = 'dark';
         this.currentPersona = 'Student'; // Student, Lecturer, Admin
         this.currentUser = {
             name: 'Demo Student',
-            username: 'student',
+            username: 'student@kwekwe.ac.zw',
+            studentNo: 'KP-2026-993F',
             role: 'Student'
         };
         this.currentActiveTab = 'dashboard';
         this.streakCount = 5;
         this.isPoweredOn = true;
+        this.notificationsOpen = false;
 
         // Mock Web Audio API Synth Context
         this.audioCtx = null;
 
-        // Mock Knowledge Base Documents Mapping (Initial Syllabus + Notes)
-        this.knowledgeBase = [
-            { id: 1, title: 'Syllabus_CS301.pdf', type: 'syllabus', content: 'Database systems CS301. Course content: relational data model, schemas, normalization, anomalies, 1NF, 2NF, 3NF, BCNF, database design, relational algebra, SQL DDL DML queries.' },
-            { id: 2, title: 'Lecture_Notes_DB_Normalization.pdf', type: 'notes', content: 'Database Normalization minimizes data redundancy. Anomalies: insertion anomaly, update anomaly, deletion anomaly. First Normal Form (1NF) requires atomic attributes. Second Normal Form (2NF) resolves partial dependencies. Third Normal Form (3NF) resolves transitive functional dependencies. Boyce-Codd Normal Form (BCNF) requires every determinant to be a superkey.' },
-            { id: 3, title: 'Networking_TCP_vs_UDP.pdf', type: 'notes', content: 'TCP (Transmission Control Protocol) is connection-oriented, reliable, guarantees packet ordering, handles flow control, and uses a three-way handshake. UDP (User Datagram Protocol) is connectionless, faster, has low overhead, but is unreliable and does not guarantee packet delivery.' },
-            { id: 4, title: 'Exam_PastPaper_2024.pdf', type: 'papers', content: 'Database Systems Midterm. Q1: Explain transitive dependencies in 3NF with examples. Q2: Design schemas free of insertion anomalies. Q3: Difference between TCP three-way handshake and UDP connectionless transmission.' }
-        ];
-
-        // Active Courses Data Mapping
-        this.coursesData = [
+        // Dynamic Course Modules state (starts with 2 pre-seeded, Admin can dynamically append new ones!)
+        this.courseModules = [
             {
-                id: 'db-systems',
-                title: 'Database Systems (CS301)',
-                code: 'CS301',
-                progress: 75,
-                modules: [
-                    {
-                        title: 'Module 1: Relational Model',
-                        topics: ['Relational Database Schemas', 'Primary and Foreign Keys']
-                    },
-                    {
-                        title: 'Module 2: Database Normalization',
-                        topics: ['Insertion & Deletion Anomalies', 'First & Second Normal Form', 'Third Normal Form (3NF) & BCNF']
-                    }
-                ]
+                title: 'Module 1: Relational Model',
+                topics: ['Relational Database Schemas', 'Primary and Foreign Keys']
             },
             {
-                id: 'comp-networks',
-                title: 'Computer Networks (CS302)',
-                code: 'CS302',
-                progress: 45,
-                modules: [
-                    {
-                        title: 'Module 1: Transport Layer',
-                        topics: ['TCP connection-oriented protocol', 'UDP unreliable packet transmission']
-                    }
-                ]
+                title: 'Module 2: Database Normalization',
+                topics: ['Insertion & Deletion Anomalies', 'First & Second Normal Form', 'Third Normal Form (3NF) & BCNF']
             }
+        ];
+
+        // Global Documents Registry (all start as completely unreleased/hidden except the syllabus!)
+        this.documentsRegistry = [
+            { id: 1, title: 'Syllabus_CS301.pdf', type: 'syllabus', content: 'Database systems CS301. Course content: relational data model, schemas, normalization, anomalies, 1NF, 2NF, 3NF, BCNF.', released: true, animClass: '' },
+            { id: 2, title: 'Lecture_Notes_DB_Normalization.pdf', type: 'notes', content: 'Database Normalization minimizes data redundancy. First Normal Form (1NF) requires atomic attributes. Second Normal Form (2NF) resolves partial dependencies. Third Normal Form (3NF) resolves transitive functional dependencies.', released: false, animClass: '' },
+            { id: 3, title: 'Networking_TCP_vs_UDP.pdf', type: 'notes', content: 'TCP (Transmission Control Protocol) is connection-oriented, reliable, guarantees packet ordering, handles flow control, and uses a three-way handshake. UDP (User Datagram Protocol) is connectionless, faster, has low overhead.', released: false, animClass: '' },
+            { id: 4, title: 'Exam_PastPaper_2024.pdf', type: 'papers', content: 'Database Systems Midterm. Q1: Explain transitive dependencies in 3NF with examples. Q2: Design schemas free of insertion anomalies. Q3: Difference between TCP three-way handshake and UDP.', released: false, animClass: '' }
+        ];
+
+        // Active notification messages
+        this.notifications = [
+            { id: 1, text: '📅 Database Exam on July 21, 2026', read: false },
+            { id: 2, text: '🤖 New AI model DeepSeek R1 loaded as fallback', read: false },
+            { id: 3, text: '🎓 Admin released a new syllabus resource!', read: false }
         ];
 
         // Mock Recent Chat Query History
@@ -61,27 +50,27 @@ class EduMentorSimulator {
             { query: 'What is the difference between TCP and UDP?', date: 'Yesterday' }
         ];
 
-        // Mock Bookmarks & Downloads state tracking
-        this.bookmarks = [1, 2];
+        // Bookmarks & Downloads state tracking
+        this.bookmarks = [1];
         this.downloads = [1];
 
-        // Planner Tasks
+        // Planner Tasks (Task Checklist with Priority)
         this.plannerTasks = [
-            { id: 1, text: 'Read database normalization notes', completed: true },
-            { id: 2, text: 'Review past midterm exams', completed: false },
-            { id: 3, text: 'Consult EduMentor AI about TCP handshakes', completed: false }
+            { id: 1, text: 'Read database normalization notes', priority: 'high', completed: true },
+            { id: 2, text: 'Review past midterm exams', priority: 'medium', completed: false },
+            { id: 3, text: 'Consult EduMentor AI about TCP handshakes', priority: 'low', completed: false }
         ];
 
-        // Accounts list (Admin management)
+        // Accounts list (Admin portal management)
         this.users = [
-            { name: 'System Administrator', username: 'admin', role: 'Admin' },
-            { name: 'Demo Teacher', username: 'teacher', role: 'Lecturer' },
-            { name: 'Demo Student', username: 'student', role: 'Student' }
+            { name: 'Joshua Webs Administrator', username: 'joshwebsinfo@gmail.com', role: 'Admin', studentNo: 'N/A' },
+            { name: 'Prof. Alistair Chen', username: 'chen@kwekwe.ac.zw', role: 'Lecturer', studentNo: 'N/A' },
+            { name: 'Demo Student', username: 'student@kwekwe.ac.zw', role: 'Student', studentNo: 'KP-2026-993F' }
         ];
 
-        // Mock Departments list
+        // Departments list
         this.departments = [
-            { id: 1, name: 'Information Technology', head: 'Dr. Alistair Chen' },
+            { id: 1, name: 'Information Technology', head: 'Prof. Alistair Chen' },
             { id: 2, name: 'Computer Science', head: 'Prof. Sarah Jenkins' }
         ];
 
@@ -92,7 +81,7 @@ class EduMentorSimulator {
         this.setupClock();
         this.renderAllViews();
         this.setupChatAutoResize();
-        this.playHapticSound(600, 0.08); // Initial startup bip
+        this.playHapticSound(600, 0.08); // Initial startup beep
         setTimeout(() => {
             const splash = document.getElementById('screen-splash');
             const onboard = document.getElementById('screen-onboarding');
@@ -100,7 +89,7 @@ class EduMentorSimulator {
                 splash.classList.remove('active');
                 onboard.classList.add('active');
             }
-        }, 2200);
+        }, 1500);
     }
 
     setupClock() {
@@ -127,10 +116,9 @@ class EduMentorSimulator {
             const gain = this.audioCtx.createGain();
 
             osc.type = type;
-            osc.frequency.value = freq;
+            osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
 
-            gain.gain.setValueAtTime(0, this.audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.12, this.audioCtx.currentTime + 0.02);
+            gain.gain.setValueAtTime(0.04, this.audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
 
             osc.connect(gain);
@@ -139,575 +127,424 @@ class EduMentorSimulator {
             osc.start();
             osc.stop(this.audioCtx.currentTime + duration);
         } catch (e) {
-            console.warn('Audio synthesis context error:', e);
+            // Audio context not allowed or blocked
         }
     }
 
     playHapticSuccess() {
-        this.playHapticSound(523.25, 0.08); // C5 note
-        setTimeout(() => this.playHapticSound(659.25, 0.12), 80); // E5 note
+        this.playHapticSound(520, 0.08);
+        setTimeout(() => this.playHapticSound(650, 0.08), 80);
     }
 
-    // Outer UI Controllers
-    switchPersona(persona) {
-        this.playHapticSound(280, 0.05);
-        this.currentPersona = persona;
+    playHapticNotification() {
+        this.playHapticSound(440, 0.05);
+        setTimeout(() => this.playHapticSound(554, 0.05), 60);
+        setTimeout(() => this.playHapticSound(659, 0.1), 120);
+    }
 
-        // Update outer controls active states
-        document.querySelectorAll('.btn-persona').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.getElementById(`btn-persona-${persona.toLowerCase()}`);
-        if (activeBtn) activeBtn.classList.add('active');
-
-        // Automatically configure mock login active roles
-        if (persona === 'Student') {
-            this.currentUser = { name: 'Demo Student', username: 'student', role: 'Student' };
-        } else if (persona === 'Lecturer') {
-            this.currentUser = { name: 'Demo Teacher', username: 'teacher', role: 'Lecturer' };
-        } else if (persona === 'Admin') {
-            this.currentUser = { name: 'System Administrator', username: 'admin', role: 'Admin' };
-        }
-
-        // Apply dynamically inside simulator if logged in
-        const shell = document.getElementById('screen-shell');
-        if (shell && shell.classList.contains('active')) {
-            this.renderAllViews();
+    showToast(message) {
+        const toast = document.getElementById('toast-alert');
+        const text = document.getElementById('toast-message-text');
+        if (toast && text) {
+            text.innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
         }
     }
 
+    // Theme Switcher Controller
     toggleSimulatorTheme() {
-        this.playHapticSound(320, 0.05);
         const body = document.body;
+        this.playHapticSound(800, 0.05);
         if (body.classList.contains('dark-mode')) {
             body.classList.remove('dark-mode');
             body.classList.add('light-mode');
             this.currentTheme = 'light';
+            this.showToast('Theme switched to Light mode');
         } else {
             body.classList.remove('light-mode');
             body.classList.add('dark-mode');
             this.currentTheme = 'dark';
-        }
-    }
-
-    toggleSimulatorPower() {
-        const dev = document.querySelector('.android-device');
-        if (dev) {
-            if (dev.classList.contains('powered-off')) {
-                dev.classList.remove('powered-off');
-                this.isPoweredOn = true;
-                this.resetSimulator();
-            } else {
-                dev.classList.add('powered-off');
-                this.isPoweredOn = false;
-            }
+            this.showToast('Theme switched to Dark mode');
         }
     }
 
     resetSimulator() {
-        this.playHapticSound(400, 0.2, 'triangle');
-        const screens = document.querySelectorAll('.screen');
+        this.playHapticSound(300, 0.2, 'sawtooth');
+        this.showToast('Resetting simulator...');
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    }
+
+    // Tab view switcher
+    switchTab(tabId) {
+        if (this.currentActiveTab === tabId) return;
+        this.playHapticSound(480, 0.03);
+        this.currentActiveTab = tabId;
+
+        // Hide notification overlay if switching tabs
+        const notifPane = document.getElementById('notif-pane');
+        if (notifPane) {
+            notifPane.classList.add('hidden');
+            this.notificationsOpen = false;
+        }
+
+        const screens = document.querySelectorAll('.tab-view');
         screens.forEach(s => s.classList.remove('active'));
 
-        const splash = document.getElementById('screen-splash');
-        if (splash) splash.classList.add('active');
+        const activeView = document.getElementById(`view-${tabId}`);
+        if (activeView) activeView.classList.add('active');
 
-        setTimeout(() => {
-            splash.classList.remove('active');
-            document.getElementById('screen-onboarding').classList.add('active');
-        }, 1500);
-    }
+        const tabBtns = document.querySelectorAll('.nav-tab');
+        tabBtns.forEach(btn => btn.classList.remove('active'));
 
-    // Onboarding Actions
-    skipOnboarding() {
-        this.playHapticSound(280, 0.05);
-        this.goToAuth();
-    }
+        const activeTabBtn = document.getElementById(`tab-${tabId}`);
+        if (activeTabBtn) activeTabBtn.classList.add('active');
 
-    nextOnboarding() {
-        this.playHapticSound(320, 0.05);
-        const slides = document.querySelectorAll('.onboarding-slide');
-        let activeIdx = 0;
-        slides.forEach((slide, idx) => {
-            if (slide.classList.contains('active')) {
-                activeIdx = idx;
+        // Scroll to bottom of chat if switching to AI Tutor tab
+        if (tabId === 'chat') {
+            const box = document.getElementById('chat-messages-box');
+            if (box) {
+                setTimeout(() => box.scrollTop = box.scrollHeight, 100);
             }
-        });
-
-        slides[activeIdx].classList.remove('active');
-        const dots = document.querySelectorAll('.onboarding-dots .dot');
-        dots[activeIdx].classList.remove('active');
-
-        const nextIdx = activeIdx + 1;
-        if (nextIdx < slides.length) {
-            slides[nextIdx].classList.add('active');
-            dots[nextIdx].classList.add('active');
-        } else {
-            this.goToAuth();
         }
     }
 
-    goToAuth() {
+    // Persona controller
+    switchPersona(persona) {
+        this.playHapticSuccess();
+        this.currentPersona = persona;
+
+        document.querySelectorAll('.btn-persona').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById(`btn-persona-${persona.toLowerCase()}`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Set user simulation defaults based on persona
+        if (persona === 'Student') {
+            this.currentUser = {
+                name: 'Demo Student',
+                username: 'student@kwekwe.ac.zw',
+                studentNo: 'KP-2026-993F',
+                role: 'Student'
+            };
+        } else if (persona === 'Lecturer') {
+            this.currentUser = {
+                name: 'Prof. Alistair Chen',
+                username: 'chen@kwekwe.ac.zw',
+                studentNo: 'N/A',
+                role: 'Lecturer'
+            };
+        } else {
+            this.currentUser = {
+                name: 'Joshua Webs Administrator',
+                username: 'joshwebsinfo@gmail.com',
+                studentNo: 'N/A',
+                role: 'Admin'
+            };
+        }
+
+        this.showToast(`Swapped to simulated ${persona} workflow`);
+        this.renderAllViews();
+        this.switchTab('dashboard');
+    }
+
+    // Auth screen controller
+    switchAuthForm(formId) {
+        this.playHapticSound(500, 0.05);
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        document.getElementById(`${formId}-form`).classList.add('active');
+    }
+
+    bypassOnboarding() {
+        this.playHapticSuccess();
         document.getElementById('screen-onboarding').classList.remove('active');
         document.getElementById('screen-auth').classList.add('active');
-        this.showAuthSub('login');
     }
 
-    // Auth screen subpanels
-    showAuthSub(type) {
-        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-        const text = document.getElementById('auth-toggle-text');
-        const btn = document.getElementById('auth-toggle-btn');
-        const desc = document.getElementById('auth-header-desc');
+    nextOnboardingSlide() {
+        const slides = document.querySelectorAll('.onboard-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let activeIdx = 0;
 
-        if (type === 'login') {
-            document.getElementById('login-form').classList.add('active');
-            desc.innerText = 'Sign in to start learning';
-            text.innerText = "Don't have an account?";
-            btn.innerText = 'Sign Up';
-            btn.onclick = () => this.showAuthSub('register');
-        } else if (type === 'register') {
-            document.getElementById('register-form').classList.add('active');
-            desc.innerText = 'Join EduMentor';
-            text.innerText = 'Already have an account?';
-            btn.innerText = 'Sign In';
-            btn.onclick = () => this.showAuthSub('login');
-        } else if (type === 'forgot') {
-            document.getElementById('forgot-form').classList.add('active');
-            desc.innerText = 'Reset your password';
-            text.innerText = 'Remember password?';
-            btn.innerText = 'Sign In';
-            btn.onclick = () => this.showAuthSub('login');
-        }
-    }
+        slides.forEach((slide, idx) => {
+            if (slide.classList.contains('active')) activeIdx = idx;
+        });
 
-    toggleAuthMode() {
-        this.playHapticSound(320, 0.05);
-    }
+        const nextIdx = (activeIdx + 1) % slides.length;
+        this.playHapticSound(550, 0.05);
 
-    handleLogin(e) {
-        e.preventDefault();
-        this.playHapticSuccess();
-        const userVal = document.getElementById('login-username').value.trim().toLowerCase();
-
-        // Match mock user or fallback
-        let targetUser = this.users.find(u => u.username === userVal);
-        if (!targetUser) {
-            targetUser = { name: userVal || 'Demo Learner', username: userVal || 'student', role: this.currentPersona };
-            this.users.push(targetUser);
+        if (activeIdx === slides.length - 1) {
+            this.bypassOnboarding();
+            return;
         }
 
-        this.currentUser = targetUser;
-        this.currentPersona = targetUser.role;
-        this.enterAppShell();
+        slides[activeIdx].classList.remove('active');
+        dots[activeIdx].classList.remove('active');
+
+        slides[nextIdx].classList.add('active');
+        dots[nextIdx].classList.add('active');
     }
 
-    handleRegister(e) {
-        e.preventDefault();
-        this.playHapticSuccess();
-        const name = document.getElementById('register-name').value;
-        const user = document.getElementById('register-username').value;
-        const role = document.querySelector('input[name="reg-role"]:checked').value;
-        const mappedRole = role === 'lecturer' ? 'Lecturer' : 'Student';
+    handleLogin(event) {
+        event.preventDefault();
+        const userVal = document.getElementById('login-username').value;
+        const passVal = document.getElementById('login-password').value;
 
-        this.currentUser = { name, username: user, role: mappedRole };
-        this.currentPersona = mappedRole;
-        this.users.push(this.currentUser);
-        this.enterAppShell();
-    }
+        // Match admin login or general login
+        if (userVal === 'joshwebsinfo@gmail.com' && passVal === 'joshua#$#$') {
+            this.currentUser = {
+                name: 'Joshua Webs Administrator',
+                username: 'joshwebsinfo@gmail.com',
+                studentNo: 'N/A',
+                role: 'Admin'
+            };
+            this.currentPersona = 'Admin';
+            this.playHapticSuccess();
+            this.showToast('Admin logged in successfully!');
+        } else {
+            // General Student/Lecturer log in
+            this.currentUser = {
+                name: userVal.split('@')[0],
+                username: userVal,
+                studentNo: 'KP-2026-993F',
+                role: userVal.includes('teacher') || userVal.includes('chen') ? 'Lecturer' : 'Student'
+            };
+            this.currentPersona = this.currentUser.role;
+            this.playHapticSuccess();
+            this.showToast(`Logged in as ${this.currentUser.role}`);
+        }
 
-    handleForgot() {
-        this.playHapticSuccess();
-        alert('Password reset instructions sent. Entering dashboard with active profile...');
-        this.enterAppShell();
-    }
-
-    handleGoogleLogin() {
-        this.playHapticSuccess();
-        this.currentUser = { name: 'Google Student', username: 'google_user', role: 'Student' };
-        this.currentPersona = 'Student';
-        this.enterAppShell();
-    }
-
-    enterAppShell() {
         document.getElementById('screen-auth').classList.remove('active');
         document.getElementById('screen-shell').classList.add('active');
         this.renderAllViews();
         this.switchTab('dashboard');
     }
 
-    logoutSimulator() {
-        this.playHapticSound(300, 0.1);
-        document.getElementById('screen-shell').classList.remove('active');
-        document.getElementById('screen-auth').classList.add('active');
-        this.showAuthSub('login');
-    }
+    handleRegister(event) {
+        event.preventDefault();
+        const nameVal = document.getElementById('register-name').value;
+        const emailVal = document.getElementById('register-email').value;
+        const studentNoVal = document.getElementById('register-student-no').value;
 
-    // App Navigation router
-    switchTab(tabId) {
-        this.playHapticSound(340, 0.05);
-        this.currentActiveTab = tabId;
+        this.currentUser = {
+            name: nameVal,
+            username: emailVal,
+            studentNo: studentNoVal,
+            role: 'Student'
+        };
+        this.currentPersona = 'Student';
+        this.playHapticSuccess();
+        this.showToast(`Account ${studentNoVal} created successfully!`);
 
-        // Hide all views first
-        document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-
-        // Handle profile roles visibility redirection
-        if (tabId === 'profile' && this.currentUser.role === 'Lecturer') {
-            const view = document.getElementById('view-lecturer');
-            if (view) view.classList.add('active');
-        } else if (tabId === 'profile' && this.currentUser.role === 'Admin') {
-            const view = document.getElementById('view-admin');
-            if (view) view.classList.add('active');
-        } else {
-            const activeView = document.getElementById(`view-${tabId}`);
-            if (activeView) activeView.classList.add('active');
-        }
-
-        const activeTabBtn = document.getElementById(`tab-${tabId}`);
-        if (activeTabBtn) activeTabBtn.classList.add('active');
-    }
-
-    // Phone keys routing
-    handlePhoneBack() {
-        this.playHapticSound(260, 0.05);
-        if (this.currentActiveTab !== 'dashboard') {
-            this.switchTab('dashboard');
-        }
-    }
-
-    handlePhoneHome() {
-        this.playHapticSound(300, 0.05);
+        document.getElementById('screen-auth').classList.remove('active');
+        document.getElementById('screen-shell').classList.add('active');
+        this.renderAllViews();
         this.switchTab('dashboard');
     }
 
-    handlePhoneRecents() {
-        this.playHapticSound(330, 0.05);
-        this.showFeatureWip('App Task Switcher');
+    handleForgot(event) {
+        event.preventDefault();
+        this.playHapticSuccess();
+        this.showToast('Reset email sent to your academic inbox!');
+        this.switchAuthForm('login');
     }
 
-    // Rendering all elements
+    logout() {
+        this.playHapticSound(350, 0.1);
+        this.showToast('Logged out successfully');
+        document.getElementById('screen-shell').classList.remove('active');
+        document.getElementById('screen-auth').classList.add('active');
+        this.switchAuthForm('login');
+    }
+
+    // Dynamic Course modules management
+    adminAddModule(event) {
+        event.preventDefault();
+        const titleInput = document.getElementById('admin-add-module-title');
+        const topicInput = document.getElementById('admin-add-module-topic');
+
+        const title = titleInput.value.trim();
+        const topic = topicInput.value.trim();
+
+        if (title && topic) {
+            this.courseModules.push({
+                title: title,
+                topics: [topic]
+            });
+
+            titleInput.value = '';
+            topicInput.value = '';
+
+            this.playHapticSuccess();
+            this.showToast('New module added and synchronized across Kwekwe Poly!');
+            this.addNotification(`📚 New syllabus module added: ${title}`);
+            this.renderAllViews();
+        }
+    }
+
+    // Resources Release Controller (Fade)
+    releaseResource(docId) {
+        const doc = this.documentsRegistry.find(d => d.id === docId);
+        if (doc) {
+            doc.released = true;
+            doc.animClass = 'fade-in-view'; // triggers the fade release CSS transition
+            this.playHapticSuccess();
+            this.showToast(`Released document: ${doc.title}`);
+            this.addNotification(`📄 Academic notes released: ${doc.title}`);
+            this.renderAllViews();
+        }
+    }
+
+    // Toggle Notifications Pane
+    toggleNotifications() {
+        const pane = document.getElementById('notif-pane');
+        this.playHapticSound(500, 0.05);
+        if (pane) {
+            if (this.notificationsOpen) {
+                pane.classList.add('hidden');
+                this.notificationsOpen = false;
+            } else {
+                pane.classList.remove('hidden');
+                this.notificationsOpen = true;
+                this.renderNotificationsList();
+            }
+        }
+    }
+
+    addNotification(text) {
+        this.notifications.unshift({
+            id: Date.now(),
+            text: text,
+            read: false
+        });
+        this.playHapticNotification();
+        this.renderNotificationsList();
+    }
+
+    clearNotifications() {
+        this.notifications = [];
+        this.playHapticSound(300, 0.05);
+        this.renderNotificationsList();
+        this.showToast('All notifications cleared');
+    }
+
+    renderNotificationsList() {
+        const list = document.getElementById('notif-list');
+        const badge = document.getElementById('notif-badge');
+
+        const unreadCount = this.notifications.filter(n => !n.read).length;
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        if (list) {
+            list.innerHTML = '';
+            if (this.notifications.length === 0) {
+                list.innerHTML = '<div class="empty-notifications">No new notifications</div>';
+                return;
+            }
+
+            this.notifications.forEach(n => {
+                const item = document.createElement('div');
+                item.className = `notif-pane-item ${n.read ? 'read' : ''}`;
+                item.innerHTML = `
+                    <p class="notif-text">${n.text}</p>
+                    <span class="notif-time">Just Now</span>
+                `;
+                item.onclick = () => {
+                    n.read = true;
+                    this.renderNotificationsList();
+                };
+                list.appendChild(item);
+            });
+        }
+    }
+
+    // Task Planner checklists
+    addTask(event) {
+        event.preventDefault();
+        const textInput = document.getElementById('new-task-text');
+        const prioInput = document.getElementById('new-task-priority');
+
+        const text = textInput.value.trim();
+        const priority = prioInput.value;
+
+        if (text) {
+            this.plannerTasks.push({
+                id: Date.now(),
+                text: text,
+                priority: priority,
+                completed: false
+            });
+            textInput.value = '';
+            this.playHapticSuccess();
+            this.renderPlanner();
+            this.showToast('Task added to your checklist');
+        }
+    }
+
+    toggleTask(taskId) {
+        const task = this.plannerTasks.find(t => t.id === taskId);
+        if (task) {
+            task.completed = !task.completed;
+            this.playHapticSound(task.completed ? 600 : 400, 0.05);
+            this.renderPlanner();
+        }
+    }
+
+    clearCompletedTasks() {
+        this.plannerTasks = this.plannerTasks.filter(t => !t.completed);
+        this.playHapticSound(300, 0.05);
+        this.renderPlanner();
+        this.showToast('Cleared completed items');
+    }
+
+    // Dynamic rendering functions
     renderAllViews() {
         this.renderDashboard();
-        this.renderCoursesAccordion();
-        this.renderResourcesList();
+        this.renderChatMessages();
+        this.renderCourses();
+        this.renderResources();
         this.renderPlanner();
         this.renderProfile();
-        this.renderLecturerPanel();
-        this.renderAdminPanel();
-        this.updateGlobalKbStats();
-    }
-
-    updateGlobalKbStats() {
-        const docCountEl = document.getElementById('kb-docs-count');
-        const chunkCountEl = document.getElementById('kb-chunks-count');
-        if (docCountEl) docCountEl.innerText = this.knowledgeBase.length;
-        if (chunkCountEl) chunkCountEl.innerText = this.knowledgeBase.length * 10 + 2;
+        this.renderAdminSubTab();
+        this.renderNotificationsList();
     }
 
     renderDashboard() {
-        const usernameEl = document.getElementById('dash-username');
-        const roleEl = document.getElementById('dash-role');
-        const streakEl = document.getElementById('streak-count');
-
-        if (usernameEl) usernameEl.innerText = this.currentUser.name;
-        if (roleEl) {
-            roleEl.innerText = this.currentUser.role;
-            roleEl.style.background = this.currentUser.role === 'Lecturer' ? 'rgba(79,70,229,0.15)' : (this.currentUser.role === 'Admin' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)');
-            roleEl.style.color = this.currentUser.role === 'Lecturer' ? 'var(--primary)' : (this.currentUser.role === 'Admin' ? 'var(--danger)' : 'var(--secondary)');
-        }
+        const streakEl = document.getElementById('streak-num');
         if (streakEl) streakEl.innerText = this.streakCount;
 
-        // Render Recent queries on home
-        const container = document.getElementById('recent-queries-container');
-        if (container) {
-            container.innerHTML = '';
-            if (this.chatQueries.length === 0) {
-                container.innerHTML = '<p style="font-size:0.75rem; color:var(--text-muted);">No recent study queries.</p>';
-                return;
-            }
-            this.chatQueries.forEach(q => {
-                const item = document.createElement('div');
-                item.className = 'recent-query-item';
-                item.onclick = () => {
-                    this.switchTab('chat');
-                    this.prefillChatInput(q.query);
-                };
-                item.innerHTML = `
-                    <span class="recent-query-text">💡 "${q.query}"</span>
-                    <span class="recent-query-arrow">➔</span>
-                `;
-                container.appendChild(item);
-            });
-        }
+        const queriesEl = document.getElementById('dash-queries-count');
+        if (queriesEl) queriesEl.innerText = `${this.chatQueries.length} Queries`;
+
+        const coursesEl = document.getElementById('dash-courses-count');
+        if (coursesEl) coursesEl.innerText = `1 Course`;
     }
 
-    incrementStreak() {
-        this.playHapticSuccess();
-        this.streakCount++;
-        const el = document.getElementById('streak-count');
-        if (el) el.innerText = this.streakCount;
-    }
-
-    // Courses directory browser
-    renderCoursesAccordion() {
-        const container = document.getElementById('courses-accordion-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        this.coursesData.forEach(c => {
-            const card = document.createElement('div');
-            card.className = 'course-node';
-            card.innerHTML = `
-                <div class="course-node-header" onclick="this.closest('.course-node').classList.toggle('open')">
-                    <div>
-                        <div class="course-node-title">${c.title}</div>
-                        <div class="course-node-meta">${c.code} • ${c.progress}% Complete</div>
-                    </div>
-                    <span class="accordion-arrow">▶</span>
-                </div>
-                <div class="course-node-body">
-                    ${c.modules.map(mod => `
-                        <div class="module-node">
-                            <div class="module-title">${mod.title}</div>
-                            <div class="topics-list">
-                                ${mod.topics.map(topic => `
-                                    <div class="topic-item-row" onclick="edumentor.askAITutorAbout('${topic}')">
-                                        <span><span class="topic-bullet">▪</span> ${topic}</span>
-                                        <button class="btn-ask-topic">Ask Mentor AI</button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    filterCourses(val) {
-        const container = document.getElementById('courses-accordion-container');
-        if (!container) return;
-
-        const q = val.toLowerCase();
-        document.querySelectorAll('.course-node').forEach((node, idx) => {
-            const course = this.coursesData[idx];
-            const match = course.title.toLowerCase().includes(q) || course.code.toLowerCase().includes(q) || JSON.stringify(course.modules).toLowerCase().includes(q);
-            node.style.display = match ? 'block' : 'none';
-        });
-    }
-
-    askAITutorAbout(topic) {
-        this.switchTab('chat');
-        this.prefillChatInput(`Help me understand ${topic}.`);
-    }
-
-    openCourseDetail(courseTitle) {
-        this.switchTab('courses');
-        const input = document.getElementById('courses-search-input');
-        if (input) {
-            input.value = courseTitle;
-            this.filterCourses(courseTitle);
-        }
-    }
-
-    // Resources list with download/bookmark handlers
-    renderResourcesList() {
-        const container = document.getElementById('resources-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        this.knowledgeBase.forEach(doc => {
-            const isBookmarked = this.bookmarks.includes(doc.id);
-            const isDownloaded = this.downloads.includes(doc.id);
-
-            const card = document.createElement('div');
-            card.className = 'resource-card';
-            card.dataset.type = doc.type;
-            card.innerHTML = `
-                <div class="resource-icon-box">
-                    ${doc.type === 'notes' ? '📝' : (doc.type === 'syllabus' ? '📋' : '📄')}
-                </div>
-                <div class="resource-info">
-                    <h4>${doc.title}</h4>
-                    <div class="resource-meta">${doc.content.substring(0, 45)}...</div>
-                </div>
-                <div class="resource-actions">
-                    <button class="btn-res-act ${isBookmarked ? 'active' : ''}" onclick="edumentor.toggleBookmark(${doc.id}, this)">
-                        🔖
-                    </button>
-                    <button class="btn-res-act ${isDownloaded ? 'downloaded' : ''}" onclick="edumentor.toggleDownload(${doc.id}, this)">
-                        ${isDownloaded ? '✓' : '⬇'}
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    filterResources(val) {
-        const container = document.getElementById('resources-container');
-        if (!container) return;
-        const q = val.toLowerCase();
-
-        document.querySelectorAll('.resource-card').forEach(card => {
-            const title = card.querySelector('h4').innerText.toLowerCase();
-            const meta = card.querySelector('.resource-meta').innerText.toLowerCase();
-            card.style.display = (title.includes(q) || meta.includes(q)) ? 'flex' : 'none';
-        });
-    }
-
-    filterResourceType(type, btn) {
-        this.playHapticSound(300, 0.05);
-        document.querySelectorAll('.resource-tabs .tab-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        document.querySelectorAll('.resource-card').forEach(card => {
-            if (type === 'all' || card.dataset.type === type) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    toggleBookmark(docId, btn) {
-        this.playHapticSound(320, 0.05);
-        const idx = this.bookmarks.indexOf(docId);
-        if (idx !== -1) {
-            this.bookmarks.splice(idx, 1);
-            btn.classList.remove('active');
-        } else {
-            this.bookmarks.push(docId);
-            btn.classList.add('active');
-        }
-        const bEl = document.getElementById('bookmarks-count');
-        if (bEl) bEl.innerText = this.bookmarks.length;
-    }
-
-    toggleDownload(docId, btn) {
-        this.playHapticSound(360, 0.05);
-        const idx = this.downloads.indexOf(docId);
-        if (idx !== -1) {
-            this.downloads.splice(idx, 1);
-            btn.classList.remove('downloaded');
-            btn.innerText = '⬇';
-        } else {
-            this.downloads.push(docId);
-            btn.classList.add('downloaded');
-            btn.innerText = '✓';
-        }
-    }
-
-    // Planner actions
-    renderPlanner() {
-        const container = document.getElementById('planner-tasks-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        this.plannerTasks.forEach(t => {
-            const item = document.createElement('div');
-            item.className = `task-item ${t.completed ? 'completed' : ''}`;
-            item.onclick = () => this.togglePlannerTask(t.id);
-            item.innerHTML = `
-                <input type="checkbox" ${t.completed ? 'checked' : ''} onclick="event.stopPropagation(); edumentor.togglePlannerTask(${t.id})">
-                <span class="task-text">${t.text}</span>
-            `;
-            container.appendChild(item);
-        });
-    }
-
-    togglePlannerTask(id) {
-        this.playHapticSound(320, 0.05);
-        const task = this.plannerTasks.find(t => t.id === id);
-        if (task) {
-            task.completed = !task.completed;
-            this.renderPlanner();
-        }
-    }
-
-    addNewPlannerTask() {
-        const val = prompt('Enter study goal title:');
-        if (val && val.trim()) {
-            this.playHapticSuccess();
-            this.plannerTasks.push({
-                id: Date.now(),
-                text: val.trim(),
-                completed: false
-            });
-            this.renderPlanner();
-        }
-    }
-
-    // Profile settings
-    renderProfile() {
-        const avatarEl = document.getElementById('profile-avatar-char');
-        const nameEl = document.getElementById('profile-full-name');
-        const metaEl = document.getElementById('profile-meta');
-
-        if (avatarEl) avatarEl.innerText = this.currentUser.name.charAt(0);
-        if (nameEl) nameEl.innerText = this.currentUser.name;
-        if (metaEl) metaEl.innerText = `${this.currentUser.role === 'Student' ? 'BSc Information Technology' : 'Academic Faculty'} • Semester 5`;
-    }
-
-    // Chat Logic with Custom Academic Response Builder (Gemini Mocked RAG Pipeline)
-    setupChatAutoResize() {
-        const textarea = document.getElementById('chat-textarea-input');
-        if (textarea) {
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight > 60 ? 60 : this.scrollHeight) + 'px';
-            });
-        }
-    }
-
-    prefillChatInput(text) {
-        const textarea = document.getElementById('chat-textarea-input');
-        if (textarea) {
-            textarea.value = text;
-            textarea.dispatchEvent(new Event('input'));
-        }
-    }
-
-    handleChatKey(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            this.sendChatMessage();
-        }
-    }
-
-    triggerVoiceInput() {
-        this.playHapticSound(440, 0.1);
-        const container = document.getElementById('audio-input-indicator');
-        if (container) {
-            container.classList.remove('hidden');
-            setTimeout(() => {
-                container.classList.add('hidden');
-                this.prefillChatInput('What is the difference between TCP and UDP?');
-                this.playHapticSuccess();
-            }, 3000);
-        }
-    }
-
-    cancelVoiceInput() {
-        const container = document.getElementById('audio-input-indicator');
-        if (container) container.classList.add('hidden');
-    }
-
-    clearChatHistory() {
-        this.playHapticSound(240, 0.1);
-        const container = document.getElementById('chat-messages-box');
-        if (container) {
-            container.innerHTML = `
+    renderChatMessages() {
+        // Initial welcome chat state if empty
+        const box = document.getElementById('chat-messages-box');
+        if (box && box.children.length === 0) {
+            box.innerHTML = `
                 <div class="chat-welcome-state">
                     <span class="welcome-robot">🤖</span>
-                    <h3>I am your Academic Mentor</h3>
-                    <p>I answer based on uploaded syllabus, lecture notes, textbooks, and previous exam papers. Pick a suggestion below to test my RAG pipeline:</p>
+                    <h3>Kwekwe Poly Assistant</h3>
+                    <p>I behave like a personal lecturer and study companion. Type a query or choose a course topic recommendation below.</p>
                     <div class="prompt-suggestions">
                         <button class="prompt-suggest-btn" onclick="edumentor.prefillChatInput('Explain database normalization.')">
                             💡 "Explain database normalization."
                         </button>
                         <button class="prompt-suggest-btn" onclick="edumentor.prefillChatInput('What is the difference between TCP and UDP?')">
-                            💡 "What is the difference between TCP and UDP?"
+                            💡 "Difference between TCP & UDP"
                         </button>
                     </div>
                 </div>
@@ -715,16 +552,343 @@ class EduMentorSimulator {
         }
     }
 
-    sendChatMessage() {
-        const textarea = document.getElementById('chat-textarea-input');
-        if (!textarea || !textarea.value.trim()) return;
+    renderCourses() {
+        const box = document.getElementById('courses-accordion-list');
+        if (!box) return;
+        box.innerHTML = '';
+
+        // Standard Single course (Database Systems CS301)
+        const card = document.createElement('div');
+        card.className = 'course-node open'; // starts open to show modules
+
+        let modulesHtml = '';
+        this.courseModules.forEach((mod, idx) => {
+            let topicsHtml = '';
+            mod.topics.forEach(topic => {
+                topicsHtml += `
+                    <div class="topic-item-row" onclick="edumentor.askAITutorAbout('${topic}')">
+                        <span><span class="topic-bullet">▪</span> ${topic}</span>
+                        <button class="btn-ask-topic">Ask Mentor AI</button>
+                    </div>
+                `;
+            });
+
+            modulesHtml += `
+                <div class="module-node">
+                    <div class="module-title">${mod.title}</div>
+                    <div class="topics-list">
+                        ${topicsHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="course-node-header" onclick="this.closest('.course-node').classList.toggle('open')">
+                <div class="course-node-title-box">
+                    <div class="course-node-title">Database Systems (CS301)</div>
+                    <div class="course-node-meta">IT Program • 100% Synced • ${this.courseModules.length} Modules</div>
+                </div>
+                <span class="accordion-arrow">▼</span>
+            </div>
+            <div class="course-node-body">
+                ${modulesHtml}
+            </div>
+        `;
+        box.appendChild(card);
+
+        // Update telemetry counts
+        const syncCount = document.getElementById('sync-modules-count');
+        if (syncCount) syncCount.innerText = this.courseModules.length;
+    }
+
+    renderResources() {
+        const grid = document.getElementById('resources-grid-list');
+        const statsCount = document.getElementById('kb-docs-count');
+        const telemetryList = document.getElementById('telemetry-source-list');
+
+        if (!grid) return;
+        grid.innerHTML = '';
+        if (telemetryList) telemetryList.innerHTML = '';
+
+        let releasedCount = 0;
+
+        this.documentsRegistry.forEach(doc => {
+            // Render external telemetry sidebar item
+            if (telemetryList) {
+                const badgeClass = doc.released ? 'badge-success' : 'badge-danger';
+                const badgeText = doc.released ? 'Released' : 'Locked';
+                const item = document.createElement('div');
+                item.className = 'kb-source-item';
+                item.innerHTML = `
+                    <span>📄 ${doc.title}</span>
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                `;
+                telemetryList.appendChild(item);
+            }
+
+            // Only display in the Student resources grid if released!
+            if (doc.released) {
+                releasedCount++;
+                const isBookmarked = this.bookmarks.includes(doc.id);
+                const isDownloaded = this.downloads.includes(doc.id);
+
+                const card = document.createElement('div');
+                card.className = `resource-card ${doc.animClass}`;
+                card.innerHTML = `
+                    <div class="resource-icon-box">
+                        <span class="res-icon">📄</span>
+                    </div>
+                    <div class="resource-info">
+                        <div class="resource-title">${doc.title}</div>
+                        <div class="resource-meta">${doc.content.substring(0, 45)}...</div>
+                    </div>
+                    <div class="resource-actions">
+                        <button class="btn-res-act ${isBookmarked ? 'active' : ''}" onclick="edumentor.toggleBookmark(${doc.id}, this)">
+                            ${isBookmarked ? '★' : '☆'}
+                        </button>
+                        <button class="btn-res-act ${isDownloaded ? 'downloaded' : ''}" onclick="edumentor.toggleDownload(${doc.id}, this)">
+                            📥
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        });
+
+        if (statsCount) statsCount.innerText = releasedCount;
+
+        if (releasedCount === 0) {
+            grid.innerHTML = `
+                <div class="empty-resources-state">
+                    <span class="lock-emoji">🔒</span>
+                    <h4>Syllabus Resources Locked</h4>
+                    <p>There are no active study materials released yet. Please check back when your lecturer or administrator releases them.</p>
+                </div>
+            `;
+        }
+    }
+
+    renderPlanner() {
+        const container = document.getElementById('task-checklist-box');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (this.plannerTasks.length === 0) {
+            container.innerHTML = '<div class="empty-checklist">No tasks set. Add one above!</div>';
+            return;
+        }
+
+        this.plannerTasks.forEach(t => {
+            const item = document.createElement('div');
+            item.className = `task-item ${t.completed ? 'completed' : ''} prio-${t.priority}`;
+            item.innerHTML = `
+                <input type="checkbox" ${t.completed ? 'checked' : ''} onclick="edumentor.toggleTask(${t.id})">
+                <span class="task-text">${t.text}</span>
+                <span class="prio-tag">${t.priority.toUpperCase()}</span>
+                <button class="btn-delete-task" onclick="edumentor.deleteTask(${t.id})">✕</button>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    deleteTask(id) {
+        this.plannerTasks = this.plannerTasks.filter(t => t.id !== id);
+        this.playHapticSound(300, 0.05);
+        this.renderPlanner();
+    }
+
+    renderProfile() {
+        const nameEl = document.getElementById('profile-user-name');
+        const roleEl = document.getElementById('profile-user-role');
+        const noEl = document.getElementById('profile-student-no');
+        const consoleLauncher = document.getElementById('profile-admin-console-launcher');
+        const roleLabelHeader = document.getElementById('user-role-lbl');
+
+        if (nameEl) nameEl.innerText = this.currentUser.name;
+        if (roleEl) roleEl.innerText = `${this.currentUser.role} • Kwekwe Poly`;
+
+        if (noEl) {
+            if (this.currentUser.role === 'Student') {
+                noEl.innerText = `Student No: ${this.currentUser.studentNo}`;
+                noEl.style.display = 'block';
+            } else {
+                noEl.style.display = 'none';
+            }
+        }
+
+        if (roleLabelHeader) roleLabelHeader.innerText = `${this.currentUser.role} Portal`;
+
+        if (consoleLauncher) {
+            if (this.currentUser.role === 'Admin') {
+                consoleLauncher.classList.remove('hidden');
+            } else {
+                consoleLauncher.classList.add('hidden');
+            }
+        }
+    }
+
+    renderAdminSubTab() {
+        const uList = document.getElementById('admin-users-list');
+        const dList = document.getElementById('admin-depts-list');
+        const docsList = document.getElementById('admin-docs-list');
+
+        if (this.adminActiveSubTab === 'users' && uList) {
+            uList.innerHTML = '';
+            this.users.forEach((u, idx) => {
+                const row = document.createElement('div');
+                row.className = 'admin-account-row';
+                row.innerHTML = `
+                    <div class="account-info">
+                        <strong>${u.name}</strong>
+                        <span class="account-meta">${u.username} • ID: ${u.studentNo}</span>
+                        <span class="account-role-tag role-${u.role.toLowerCase()}">${u.role}</span>
+                    </div>
+                `;
+                uList.appendChild(row);
+            });
+        }
+
+        if (this.adminActiveSubTab === 'departments' && dList) {
+            dList.innerHTML = '';
+            this.departments.forEach((d, idx) => {
+                const row = document.createElement('div');
+                row.className = 'admin-account-row';
+                row.innerHTML = `
+                    <div class="account-info">
+                        <strong>${d.name}</strong>
+                        <span class="account-meta">Head: ${d.head}</span>
+                    </div>
+                    <button class="btn-admin-act" onclick="edumentor.deleteDept(${idx})" style="color:var(--danger); border-color:rgba(239,68,68,0.2);">Remove</button>
+                `;
+                dList.appendChild(row);
+            });
+        }
+
+        if (this.adminActiveSubTab === 'documents' && docsList) {
+            docsList.innerHTML = '';
+            this.documentsRegistry.forEach(doc => {
+                const row = document.createElement('div');
+                row.className = 'admin-account-row';
+
+                let releaseBtn = '';
+                if (!doc.released) {
+                    releaseBtn = `<button class="btn-admin-act" onclick="edumentor.releaseResource(${doc.id})" style="background:var(--primary); color:#fff; border:none; padding:0.2rem 0.5rem;">Fade Release</button>`;
+                } else {
+                    releaseBtn = `<span class="badge badge-success" style="font-size:10px;">Released</span>`;
+                }
+
+                row.innerHTML = `
+                    <div class="account-info">
+                        <strong>📄 ${doc.title}</strong>
+                        <span class="account-meta">${doc.content.substring(0, 50)}...</span>
+                    </div>
+                    <div class="account-actions">
+                        ${releaseBtn}
+                    </div>
+                `;
+                docsList.appendChild(row);
+            });
+        }
+    }
+
+    switchAdminSubTab(subTabId) {
+        this.playHapticSound(500, 0.03);
+        this.adminActiveSubTab = subTabId;
+
+        document.querySelectorAll('.admin-sub-view').forEach(view => view.classList.add('hidden'));
+        document.getElementById(`admin-sub-view-${subTabId}`).classList.remove('hidden');
+
+        document.querySelectorAll('#view-admin .resource-tabs .tab-pill').forEach(pill => pill.classList.remove('active'));
+        document.getElementById(`btn-admin-tab-${subTabId}`).classList.add('active');
+
+        this.renderAdminSubTab();
+    }
+
+    // Document Bookmark and Downloads
+    toggleBookmark(docId, btn) {
+        this.playHapticSound(600, 0.05);
+        if (this.bookmarks.includes(docId)) {
+            this.bookmarks = this.bookmarks.filter(id => id !== docId);
+            btn.classList.remove('active');
+            btn.innerText = '☆';
+            this.showToast('Bookmark removed');
+        } else {
+            this.bookmarks.push(docId);
+            btn.classList.add('active');
+            btn.innerText = '★';
+            this.showToast('Resource bookmarked!');
+        }
+    }
+
+    toggleDownload(docId, btn) {
+        this.playHapticSound(600, 0.05);
+        if (this.downloads.includes(docId)) {
+            this.downloads = this.downloads.filter(id => id !== docId);
+            btn.classList.remove('downloaded');
+            this.showToast('Downloaded file cleared');
+        } else {
+            this.downloads.push(docId);
+            btn.classList.add('downloaded');
+            this.showToast('Downloaded to offline storage!');
+        }
+    }
+
+    // Portal routing
+    openAdminPanel() {
+        this.switchTab('admin');
+    }
+
+    closeAdminPanel() {
+        this.switchTab('profile');
+    }
+
+    // Chat Controller & input resizing
+    autoGrowTextarea(element) {
+        element.style.height = '32px';
+        element.style.height = (element.scrollHeight - 4) + 'px';
+    }
+
+    prefillChatInput(val) {
+        const textarea = document.getElementById('chat-input-textarea');
+        if (textarea) {
+            textarea.value = val;
+            this.autoGrowTextarea(textarea);
+        }
+    }
+
+    prefillAndGoToChat(val) {
+        this.prefillChatInput(val);
+        this.switchTab('chat');
+    }
+
+    askAITutorAbout(topic) {
+        this.prefillAndGoToChat(`Help me understand ${topic} in detail.`);
+    }
+
+    setupChatAutoResize() {
+        const textarea = document.getElementById('chat-input-textarea');
+        if (textarea) {
+            textarea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.submitQuery();
+                }
+            });
+        }
+    }
+
+    submitQuery() {
+        const textarea = document.getElementById('chat-input-textarea');
+        if (!textarea) return;
 
         const val = textarea.value.trim();
-        this.playHapticSound(450, 0.05);
+        if (!val) return;
 
-        // Append student message bubble
+        this.playHapticSound(500, 0.05);
         const box = document.getElementById('chat-messages-box');
         if (box) {
+            // Remove initial welcome chat state
             const welcome = box.querySelector('.chat-welcome-state');
             if (welcome) welcome.remove();
 
@@ -764,15 +928,16 @@ class EduMentorSimulator {
             }, 1600);
 
             setTimeout(() => {
-                step3.style.color = 'var(--secondary)';
+                step2.innerText = "📄 Match found. Sourced from Kwekwe Poly registry...";
+                step2.style.color = 'var(--secondary)';
+                step3.style.color = '#cbd5e1';
                 this.playHapticSound(600, 0.02);
                 flowPanel.classList.add('hidden');
 
-                // Construct Gemini response mapping
+                // Construct AI Response
                 this.generateAiResponse(val);
             }, 2400);
         } else {
-            // instant fall-back if indicator missing
             this.generateAiResponse(val);
         }
     }
@@ -785,7 +950,6 @@ class EduMentorSimulator {
         const aiBubble = document.createElement('div');
         aiBubble.className = 'message-bubble ai';
 
-        // Match Query keywords to mock a smart RAG semantic look-up
         const q = query.toLowerCase();
         let answerMarkdown = '';
         let matchedSources = [];
@@ -833,14 +997,13 @@ CREATE TABLE users (
                 <p><strong>Related Topics:</strong> DNS resolution, TCP sliding window, Socket multiplexing.</p>
             `;
         } else {
-            // STRICT RESPONSE RULE: Fall back to default academic guidance if info unavailable in current materials
             answerMarkdown = `<p>This topic is not available in your current course materials. Please upload relevant notes or consult your lecturer.</p>`;
         }
 
-        // Render response bubble
         aiBubble.innerHTML = `
             <div class="ai-message-header">
-                <span>🤖 EduMentor Personal AI</span>
+                <span class="ai-avatar">🤖</span>
+                <strong>EduMentor AI</strong>
                 <div class="ai-msg-actions">
                     <button class="btn-msg-action" onclick="navigator.clipboard.writeText(this.closest('.message-bubble').querySelector('.message-content').innerText); edumentor.playHapticSuccess(); alert('Answer copied to clipboard!');" title="Copy Reply">📋 Copy</button>
                     <button class="btn-msg-action" onclick="edumentor.saveResponse('${query.replace(/'/g, "\\'")}');" title="Save Reply">⭐ Save</button>
@@ -848,243 +1011,71 @@ CREATE TABLE users (
             </div>
             <div class="message-content">
                 ${answerMarkdown}
+                ${matchedSources.length > 0 ? `
+                    <div class="ai-sources-ref">
+                        <strong>Sourced from Kwekwe Poly materials:</strong>
+                        ${matchedSources.map(s => `<span class="source-tag">📄 ${s}</span>`).join('')}
+                    </div>
+                ` : ''}
             </div>
-            ${matchedSources.length > 0 ? `
-                <div class="ai-sources-ref">
-                    📚 Sources: ${matchedSources.join(' | ')}
-                </div>
-            ` : ''}
         `;
-
         box.appendChild(aiBubble);
         box.scrollTop = box.scrollHeight;
-
-        // Feed query back to recent searches
-        if (!this.chatQueries.some(history => history.query.toLowerCase() === query.toLowerCase())) {
-            this.chatQueries.unshift({ query, date: 'Just now' });
-            this.renderDashboard();
-        }
     }
 
     saveResponse(query) {
         this.playHapticSuccess();
-        alert(`Saved academic answer for "${query}" to learning progress list!`);
-    }
-
-    // Lecturer Features Panel
-    renderLecturerPanel() {
-        const container = document.getElementById('managed-content-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        this.knowledgeBase.forEach(doc => {
-            const item = document.createElement('div');
-            item.className = 'managed-item';
-            item.innerHTML = `
-                <div class="managed-details">
-                    <h4>📄 ${doc.title}</h4>
-                    <span>Category: <strong>${doc.type.toUpperCase()}</strong> • Chunks mapped: <strong>10</strong></span>
-                </div>
-                <button class="btn-delete-doc" onclick="edumentor.deleteDocument(${doc.id})">🗑️ Delete</button>
-            `;
-            container.appendChild(item);
-        });
-    }
-
-    handleDocUpload(e) {
-        e.preventDefault();
-        this.playHapticSuccess();
-        const title = document.getElementById('upload-doc-title').value.trim();
-        const content = document.getElementById('upload-doc-content').value.trim();
-        const type = document.querySelector('input[name="upload-cat"]:checked').value;
-
-        if (title && content) {
-            const newDoc = {
-                id: Date.now(),
-                title,
-                type,
-                content
-            };
-            this.knowledgeBase.push(newDoc);
-
-            // Auto add to courses if database
-            if (title.toLowerCase().includes('database') || title.toLowerCase().includes('sql')) {
-                this.coursesData[0].modules[1].topics.push(title.replace('.pdf', ''));
-            }
-
-            document.getElementById('doc-upload-form').reset();
-            this.renderAllViews();
-            alert(`RAG Pipeline Extraction complete! Created 10 chunks & embedded in pgvector for document "${title}".`);
-        }
-    }
-
-    deleteDocument(id) {
-        this.playHapticSound(250, 0.08);
-        this.knowledgeBase = this.knowledgeBase.filter(doc => doc.id !== id);
-        this.renderAllViews();
-    }
-
-    // Admin Features Panel with multiple views
-    renderAdminPanel() {
-        const totalUsersEl = document.getElementById('admin-stat-users');
-        const queriesEl = document.getElementById('admin-stat-queries');
-        const docsCountEl = document.getElementById('admin-stat-docs');
-
-        if (totalUsersEl) totalUsersEl.innerText = this.users.length * 15;
-        if (queriesEl) queriesEl.innerText = this.knowledgeBase.length * 20 + 142;
-        if (docsCountEl) docsCountEl.innerText = this.knowledgeBase.length;
-
-        this.renderAdminUsers();
-        this.renderAdminDepartments();
-        this.renderAdminDocuments();
-    }
-
-    renderAdminUsers() {
-        const container = document.getElementById('admin-accounts-container');
-        if (container) {
-            container.innerHTML = '';
-            this.users.forEach((u, idx) => {
-                const row = document.createElement('div');
-                row.className = 'admin-account-row';
-                row.innerHTML = `
-                    <div class="account-info">
-                        <strong>${u.name}</strong>
-                        <span>@${u.username}</span>
-                        <span class="account-role-tag" style="background:${u.role === 'Admin' ? 'var(--danger)' : (u.role === 'Lecturer' ? 'var(--primary)' : 'var(--secondary)')}">${u.role}</span>
-                    </div>
-                    <div class="account-actions">
-                        <button class="btn-admin-act" onclick="edumentor.suspendUser('${u.username}')">Suspend</button>
-                        <button class="btn-admin-act" onclick="edumentor.deleteUser(${idx})">Delete</button>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
-        }
-    }
-
-    renderAdminDepartments() {
-        const container = document.getElementById('admin-departments-container');
-        if (container) {
-            container.innerHTML = '';
-            this.departments.forEach((dept, idx) => {
-                const row = document.createElement('div');
-                row.className = 'admin-account-row';
-                row.innerHTML = `
-                    <div class="account-info">
-                        <strong>🏢 ${dept.name}</strong>
-                        <span>Head: ${dept.head}</span>
-                    </div>
-                    <div class="account-actions">
-                        <button class="btn-admin-act" onclick="edumentor.deleteDept(${idx})" style="color: var(--danger); border-color: rgba(239,68,68,0.2);">Remove</button>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
-        }
-    }
-
-    renderAdminDocuments() {
-        const container = document.getElementById('admin-documents-container');
-        if (container) {
-            container.innerHTML = '';
-            this.knowledgeBase.forEach(doc => {
-                const row = document.createElement('div');
-                row.className = 'admin-account-row';
-                row.innerHTML = `
-                    <div class="account-info">
-                        <strong>📄 ${doc.title}</strong>
-                        <span>Type: ${doc.type.toUpperCase()} • 10 Chunks</span>
-                    </div>
-                    <div class="account-actions">
-                        <button class="btn-admin-act" onclick="edumentor.deleteDocument(${doc.id})">Purge</button>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
-        }
-    }
-
-    switchAdminSubTab(subTabId) {
-        this.playHapticSound(300, 0.05);
-        this.adminActiveSubTab = subTabId;
-
-        // Toggle subviews
-        document.querySelectorAll('.admin-sub-view').forEach(view => view.classList.add('hidden'));
-        document.getElementById(`admin-sub-view-${subTabId}`).classList.remove('hidden');
-
-        // Toggle subtab pills
-        document.querySelectorAll('#view-admin .resource-tabs .tab-pill').forEach(pill => pill.classList.remove('active'));
-        document.getElementById(`btn-admin-tab-${subTabId}`).classList.add('active');
-    }
-
-    handleAdminCreateUser(e) {
-        e.preventDefault();
-        this.playHapticSuccess();
-        const name = document.getElementById('admin-add-user-name').value.trim();
-        const username = document.getElementById('admin-add-user-username').value.trim().toLowerCase();
-        const role = document.getElementById('admin-add-user-role').value;
-
-        if (name && username) {
-            this.users.push({ name, username, role });
-            e.target.reset();
-            this.renderAdminPanel();
-            alert(`Account for @${username} has been successfully provisioned.`);
-        }
-    }
-
-    handleAdminCreateDept(e) {
-        e.preventDefault();
-        this.playHapticSuccess();
-        const name = document.getElementById('admin-add-dept-name').value.trim();
-        const head = document.getElementById('admin-add-dept-head').value.trim();
-
-        if (name && head) {
-            this.departments.push({ id: Date.now(), name, head });
-            e.target.reset();
-            this.renderAdminPanel();
-            alert(`Department "${name}" has been successfully added.`);
-        }
-    }
-
-    suspendUser(username) {
-        this.playHapticSound(250, 0.08);
-        alert(`Account @${username} has been suspended inside mock database successfully.`);
-    }
-
-    deleteUser(idx) {
-        this.playHapticSound(250, 0.08);
-        this.users.splice(idx, 1);
-        this.renderAdminPanel();
+        this.showToast('Response bookmarked under study profile!');
     }
 
     deleteDept(idx) {
-        this.playHapticSound(250, 0.08);
-        this.departments.splice(idx, 1);
-        this.renderAdminPanel();
-    }
-
-    // Modal Architecture Preview helpers
-    showFeatureWip(name) {
-        this.playHapticSound(440, 0.05);
-        const modal = document.getElementById('wip-modal');
-        const el = document.getElementById('wip-feature-name');
-        if (modal && el) {
-            el.innerText = name;
-            modal.classList.remove('hidden');
-        }
-    }
-
-    closeWipModal() {
         this.playHapticSound(300, 0.05);
-        const modal = document.getElementById('wip-modal');
-        if (modal) modal.classList.add('hidden');
+        this.departments.splice(idx, 1);
+        this.renderAdminSubTab();
+        this.showToast('Department removed');
+    }
+
+    adminAddDept(event) {
+        event.preventDefault();
+        const nameVal = document.getElementById('admin-add-dept-name').value;
+        const headVal = document.getElementById('admin-add-dept-head').value;
+
+        this.departments.push({
+            id: Date.now(),
+            name: nameVal,
+            head: headVal
+        });
+
+        document.getElementById('admin-add-dept-name').value = '';
+        document.getElementById('admin-add-dept-head').value = '';
+
+        this.playHapticSuccess();
+        this.renderAdminSubTab();
+        this.showToast(`Department ${nameVal} added successfully!`);
+    }
+
+    adminAddUser(event) {
+        event.preventDefault();
+        const nameVal = document.getElementById('admin-add-username').value;
+        const emailVal = document.getElementById('admin-add-email').value;
+        const roleVal = document.getElementById('admin-add-role').value;
+
+        this.users.push({
+            name: nameVal,
+            username: emailVal,
+            role: roleVal,
+            studentNo: roleVal === 'Student' ? 'KP-2026-' + Math.floor(1000 + Math.random() * 9000).toString(16).toUpperCase() : 'N/A'
+        });
+
+        document.getElementById('admin-add-username').value = '';
+        document.getElementById('admin-add-email').value = '';
+
+        this.playHapticSuccess();
+        this.renderAdminSubTab();
+        this.showToast(`Provisioned account for ${nameVal}`);
     }
 }
 
-// Instantiate and initialize on document load robustly
+// Global initialization
 const edumentor = new EduMentorSimulator();
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => edumentor.init());
-} else {
-    edumentor.init();
-}
+window.addEventListener('load', () => edumentor.init());

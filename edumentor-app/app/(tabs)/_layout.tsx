@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   return (
@@ -7,9 +8,12 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#0f172a',
+          backgroundColor: '#0a0e1a',
           borderTopWidth: 1,
-          borderTopColor: 'rgba(255,255,255,0.08)'
+          borderTopColor: 'rgba(255,255,255,0.08)',
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 6
         },
         tabBarActiveTintColor: '#4f46e5',
         tabBarInactiveTintColor: '#94a3b8',
@@ -22,37 +26,55 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Home'
+          title: 'Home',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={20} color={color} />
+          )
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'AI Tutor'
+          title: 'AI Tutor',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} size={20} color={color} />
+          )
         }}
       />
       <Tabs.Screen
         name="courses"
         options={{
-          title: 'Courses'
+          title: 'Courses',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'book' : 'book-outline'} size={20} color={color} />
+          )
         }}
       />
       <Tabs.Screen
         name="resources"
         options={{
-          title: 'Resources'
+          title: 'Resources',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'document-text' : 'document-text-outline'} size={20} color={color} />
+          )
         }}
       />
       <Tabs.Screen
         name="planner"
         options={{
-          title: 'Planner'
+          title: 'Planner',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={20} color={color} />
+          )
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile'
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={20} color={color} />
+          )
         }}
       />
     </Tabs>

@@ -18,7 +18,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: 'I am your EduMentor AI Academic Tutor. Sourced directly from Gemini with Groq and OpenRouter fallbacks.',
+      text: 'I am your EduMentor AI Academic Tutor at Kwekwe Poly. Sourced directly from Gemini 2.0 with Groq Llama and OpenRouter fallback networks.',
       timestamp: '10:42 AM',
       model: 'gemini-2.0-flash'
     }
@@ -103,8 +103,8 @@ export default function ChatScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>EduMentor AI Assistant</Text>
-        <Text style={styles.status}>● Gemini Primary • Secure Fallback</Text>
+        <Text style={styles.title}>EduMentor Assistant</Text>
+        <Text style={styles.status}>● Kwekwe Poly AI • Secure Fallback Mode</Text>
       </View>
 
       {/* Sub-tab segment switcher */}
@@ -181,12 +181,14 @@ export default function ChatScreen() {
         </View>
       )}
 
-      {/* 2. STUDY ASSISTANT SUBVIEW */}
+      {/* 2. STUDY ASSISTANT SUBVIEW (Refined Subject Config Form) */}
       {activeSubTab === 'study' && (
-        <ScrollView style={styles.subView}>
-          <Card style={styles.configCard}>
+        <ScrollView style={styles.subView} contentContainerStyle={{ paddingBottom: 20 }}>
+          <Card style={styles.refinedConfigCard}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.configTitle}>Active Subject Config</Text>
+              <Text variant="titleMedium" style={styles.configTitle}>⚙️ Subject Configuration</Text>
+              <Text style={styles.configSub}>Customize your AI mentor context boundaries below.</Text>
+
               <TextInput
                 label="Target Course/Subject"
                 value={subject}
@@ -194,16 +196,22 @@ export default function ChatScreen() {
                 mode="outlined"
                 style={styles.configInput}
                 textColor="#fff"
+                activeOutlineColor="#4f46e5"
+                outlineColor="rgba(255,255,255,0.15)"
               />
               <TextInput
-                label="Custom PDF Notes Context (Simulate vector context)"
+                label="Custom Lecture / PDF Notes Context"
                 value={context}
                 onChangeText={setContext}
                 mode="outlined"
                 multiline
-                numberOfLines={3}
-                style={styles.configInput}
+                numberOfLines={4}
+                placeholder="Paste your lecture notes here to guide your personal mentor's responses..."
+                placeholderTextColor="#64748b"
+                style={styles.configInputMulti}
                 textColor="#fff"
+                activeOutlineColor="#4f46e5"
+                outlineColor="rgba(255,255,255,0.15)"
               />
             </Card.Content>
           </Card>
@@ -413,22 +421,34 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center'
   },
-  configCard: {
-    backgroundColor: '#1e293b',
-    borderColor: 'rgba(255,255,255,0.08)',
+  refinedConfigCard: {
+    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    borderColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
-    borderRadius: 12,
-    marginBottom: 12
+    borderRadius: 20,
+    padding: 14,
+    marginBottom: 16
   },
   configTitle: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
-    marginBottom: 8
+    fontSize: 16,
+    marginBottom: 2
+  },
+  configSub: {
+    color: '#94a3b8',
+    fontSize: 11,
+    marginBottom: 12
   },
   configInput: {
-    backgroundColor: 'transparent',
-    marginBottom: 8
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    marginBottom: 10,
+    fontSize: 12
+  },
+  configInputMulti: {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    fontSize: 12,
+    lineHeight: 16
   },
   studyActions: {
     gap: 10

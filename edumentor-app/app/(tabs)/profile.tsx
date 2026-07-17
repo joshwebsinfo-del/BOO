@@ -22,11 +22,11 @@ export default function ProfileScreen() {
         <Card.Content>
           <View style={styles.row}>
             <Text style={styles.label}>Institution</Text>
-            <Text style={styles.val}>Egles Varsity</Text>
+            <Text style={styles.val}>Kwekwe Poly</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Student ID</Text>
-            <Text style={styles.val}>STU-2025-4421</Text>
+            <Text style={styles.val}>KP-2026-993F</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Cumulative GPA</Text>
