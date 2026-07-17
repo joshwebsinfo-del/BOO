@@ -29,6 +29,11 @@ class EduMentorSimulator {
             }
         ];
 
+        // Video Tutorials list
+        this.videoTutorials = [
+            { id: 1, title: 'Database Systems Crash Course', module_name: 'Module 1: Relational Algebra', topic_name: '1.2 Schema Design & Normalization Rules', video_url: 'https://www.youtube.com/watch?v=KwekwePolyCS301' }
+        ];
+
         // Global Documents Registry (all start as completely unreleased/hidden except the syllabus!)
         this.documentsRegistry = [
             { id: 1, title: 'Syllabus_CS301.pdf', type: 'syllabus', content: 'Database systems CS301. Course content: relational data model, schemas, normalization, anomalies, 1NF, 2NF, 3NF, BCNF.', released: true, animClass: '' },
@@ -77,8 +82,10 @@ class EduMentorSimulator {
         this.adminActiveSubTab = 'users';
     }
 
-    init() {
+    async init() {
         this.setupClock();
+        await this.fetchVideoTutorials();
+        await this.fetchPlannerTasks();
         this.renderAllViews();
         this.setupChatAutoResize();
         this.playHapticSound(600, 0.08); // Initial startup beep
@@ -90,6 +97,39 @@ class EduMentorSimulator {
                 onboard.classList.add('active');
             }
         }, 1500);
+    }
+
+    async fetchVideoTutorials() {
+        try {
+            const res = await fetch('/api/video_tutorials');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    this.videoTutorials = data;
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching tutorials from Supabase/PostgreSQL backend:', err);
+        }
+    }
+
+    async fetchPlannerTasks() {
+        try {
+            const res = await fetch('/api/planner_tasks');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    this.plannerTasks = data.map(item => ({
+                        id: item.id,
+                        text: item.task_text,
+                        priority: item.priority || 'medium',
+                        completed: item.completed == 1 || item.completed === true
+                    }));
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching planner tasks:', err);
+        }
     }
 
     setupClock() {
@@ -469,7 +509,7 @@ class EduMentorSimulator {
     }
 
     // Task Planner checklists
-    addTask(event) {
+    async addTask(event) {
         event.preventDefault();
         const textInput = document.getElementById('new-task-text');
         const prioInput = document.getElementById('new-task-priority');
@@ -478,33 +518,70 @@ class EduMentorSimulator {
         const priority = prioInput.value;
 
         if (text) {
+            const newTaskObj = {
+                user_id: this.currentUser.username,
+                task_text: text,
+                priority: priority,
+                completed: 0
+            };
+
             this.plannerTasks.push({
                 id: Date.now(),
                 text: text,
                 priority: priority,
                 completed: false
             });
-            textInput.value = '';
+
             this.playHapticSuccess();
             this.renderPlanner();
             this.showToast('Task added to your checklist');
+            textInput.value = '';
+
+            try {
+                await fetch('/api/planner_tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newTaskObj)
+                });
+            } catch (err) {
+                console.error('Error saving task to Supabase/PostgreSQL:', err);
+            }
         }
     }
 
-    toggleTask(taskId) {
+    async toggleTask(taskId) {
         const task = this.plannerTasks.find(t => t.id === taskId);
         if (task) {
             task.completed = !task.completed;
             this.playHapticSound(task.completed ? 600 : 400, 0.05);
             this.renderPlanner();
+
+            try {
+                await fetch(`/api/planner_tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ completed: task.completed ? 1 : 0 })
+                });
+            } catch (err) {
+                // Ignore fallback failures
+            }
         }
     }
 
-    clearCompletedTasks() {
+    async clearCompletedTasks() {
+        const completedTasks = this.plannerTasks.filter(t => t.completed);
         this.plannerTasks = this.plannerTasks.filter(t => !t.completed);
         this.playHapticSound(300, 0.05);
         this.renderPlanner();
         this.showToast('Cleared completed items');
+
+        for (const t of completedTasks) {
+            try {
+                await fetch(`/api/planner_tasks/${t.id}`, { method: 'DELETE' });
+            } catch (e) {
+                // Ignore fallback failures
+            }
+        }
     }
 
     // Dynamic rendering functions
@@ -528,6 +605,33 @@ class EduMentorSimulator {
 
         const coursesEl = document.getElementById('dash-courses-count');
         if (coursesEl) coursesEl.innerText = `1 Course`;
+
+        // Render dynamic tutorials feed
+        const feedContainer = document.getElementById('dashboard-tutorials-list');
+        if (feedContainer) {
+            feedContainer.innerHTML = '';
+            if (this.videoTutorials.length === 0) {
+                feedContainer.innerHTML = '<p style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:1rem;">No tutorials available.</p>';
+            } else {
+                this.videoTutorials.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'tutorial-card';
+                    card.style = 'background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 0.8rem; display: flex; gap: 0.8rem; align-items: center; transition: all 0.2s;';
+                    card.innerHTML = `
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #ef4444;">
+                            ▶
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 0.65rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${t.module_name}</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin: 0.1rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Topic: ${t.topic_name}</div>
+                        </div>
+                        <a href="${t.video_url}" target="_blank" onclick="edumentor.playHapticSuccess();" style="text-decoration: none; background: var(--primary); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.4rem 0.6rem; border-radius: 8px;">Watch</a>
+                    `;
+                    feedContainer.appendChild(card);
+                });
+            }
+        }
     }
 
     renderChatMessages() {
@@ -899,6 +1003,23 @@ class EduMentorSimulator {
             box.scrollTop = box.scrollHeight;
         }
 
+        // Save chat log to Supabase via backend POST
+        try {
+            fetch('/api/save_chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: this.currentUser.username,
+                    question: val,
+                    answer: 'Constructed by cascade RAG system',
+                    subject: 'Database Systems CS301',
+                    model: 'Gemini/Groq Llama Cascade'
+                })
+            });
+        } catch (e) {
+            // Silence silent background loggers
+        }
+
         // Reset input fields
         textarea.value = '';
         textarea.style.height = '32px';
@@ -1073,6 +1194,50 @@ CREATE TABLE users (
         this.playHapticSuccess();
         this.renderAdminSubTab();
         this.showToast(`Provisioned account for ${nameVal}`);
+    }
+
+    async adminAddVideo(event) {
+        event.preventDefault();
+        const titleEl = document.getElementById('admin-add-video-title');
+        const moduleEl = document.getElementById('admin-add-video-module');
+        const topicEl = document.getElementById('admin-add-video-topic');
+        const urlEl = document.getElementById('admin-add-video-url');
+
+        const title = titleEl.value.trim();
+        const module_name = moduleEl.value.trim();
+        const topic_name = topicEl.value.trim();
+        const video_url = urlEl.value.trim();
+
+        if (title && module_name && topic_name && video_url) {
+            const newVideo = {
+                title,
+                module_name,
+                topic_name,
+                video_url
+            };
+
+            this.videoTutorials.unshift(newVideo);
+            this.playHapticSuccess();
+            this.showToast(`Published tutorial: ${title}`);
+            this.addNotification(`📹 New video tutorial released: "${title}" (${module_name})`);
+
+            titleEl.value = '';
+            moduleEl.value = '';
+            topicEl.value = '';
+            urlEl.value = '';
+
+            this.renderAllViews();
+
+            try {
+                await fetch('/api/video_tutorials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newVideo)
+                });
+            } catch (err) {
+                console.error('Error saving tutorial to Supabase/PostgreSQL:', err);
+            }
+        }
     }
 }
 

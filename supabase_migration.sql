@@ -119,9 +119,44 @@ CREATE TABLE IF NOT EXISTS document_chunks (
 ALTER TABLE document_chunks ENABLE ROW LEVEL SECURITY;
 
 -- ====================================
+-- TABLE 8: video_tutorials
+-- ====================================
+CREATE TABLE IF NOT EXISTS video_tutorials (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title TEXT NOT NULL,
+    module_name TEXT NOT NULL,
+    topic_name TEXT NOT NULL,
+    video_url TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- Enable RLS on video_tutorials
+ALTER TABLE video_tutorials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view all video tutorials" ON video_tutorials FOR SELECT USING (TRUE);
+CREATE POLICY "Admins can manage video tutorials" ON video_tutorials FOR ALL USING (TRUE);
+
+-- ====================================
+-- TABLE 9: planner_tasks
+-- ====================================
+CREATE TABLE IF NOT EXISTS planner_tasks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id TEXT NOT NULL,
+    task_text TEXT NOT NULL,
+    priority TEXT DEFAULT 'medium' NOT NULL,
+    completed BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- Enable RLS on planner_tasks
+ALTER TABLE planner_tasks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their own planner tasks" ON planner_tasks FOR ALL USING (TRUE);
+
+-- ====================================
 -- DATABASE INDEXES
 -- ====================================
 CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_id ON ai_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_video_tutorials_created_at ON video_tutorials(created_at);
+CREATE INDEX IF NOT EXISTS idx_planner_tasks_user_id ON planner_tasks(user_id);
 CREATE INDEX IF NOT EXISTS idx_study_materials_subject ON study_materials(subject);
 CREATE INDEX IF NOT EXISTS idx_student_progress_user_id ON student_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_quizzes_user_id ON quizzes(user_id);

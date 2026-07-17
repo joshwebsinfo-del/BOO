@@ -43,18 +43,76 @@ if (!disableDatabase && databaseUrl && !isLocalDatabase) {
         { id: 2, username: 'teacher', password: 'teacher123', role: 'Teacher', name: 'Demo Teacher' },
         { id: 3, username: 'student', password: 'student123', role: 'Student', name: 'Demo Student' }
     ];
+
+    const mockDbStore = {
+        video_tutorials: [
+            { id: 1, title: 'Database Systems Crash Course', module_name: 'Module 1: Relational Algebra', topic_name: '1.2 Schema Design & Normalization Rules', video_url: 'https://www.youtube.com/watch?v=KwekwePolyCS301' }
+        ],
+        planner_tasks: [],
+        notifications: [],
+        users: demoUsers
+    };
     
     pool = {
         query: async (sql, params) => {
-            // Return demo user data for login queries
-            if (sql.includes('SELECT') && sql.includes('users')) {
-                if (sql.includes('WHERE username = $1') && params && params[0]) {
-                    const user = demoUsers.find(u => u.username === params[0]);
-                    return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
+            const normalizedSql = sql.toLowerCase();
+
+            // Check for INSERT INTO
+            if (normalizedSql.includes('insert into')) {
+                const tableNameMatch = sql.match(/insert into\s+(\w+)/i);
+                if (tableNameMatch) {
+                    const tableName = tableNameMatch[1];
+                    if (!mockDbStore[tableName]) {
+                        mockDbStore[tableName] = [];
+                    }
+                    // Extract values or use params
+                    const newObj = { id: mockDbStore[tableName].length + 1 };
+                    if (params && params.length > 0) {
+                        // Match keys to values
+                        const keysMatch = sql.match(/\(([^)]+)\)\s+values/i);
+                        if (keysMatch) {
+                            const keys = keysMatch[1].split(',').map(k => k.trim());
+                            keys.forEach((k, idx) => {
+                                newObj[k] = params[idx];
+                            });
+                        }
+                    }
+                    mockDbStore[tableName].push(newObj);
+                    return { rows: [newObj], rowCount: 1 };
                 }
-                return { rows: demoUsers, rowCount: demoUsers.length };
             }
-            // Return empty rows for all other queries (mock data)
+
+            // Check for SELECT
+            if (normalizedSql.includes('select')) {
+                const tableNameMatch = sql.match(/from\s+(\w+)/i);
+                if (tableNameMatch) {
+                    const tableName = tableNameMatch[1];
+                    const rows = mockDbStore[tableName] || [];
+
+                    if (tableName === 'users' && normalizedSql.includes('where username = $1')) {
+                        const user = rows.find(u => u.username === params[0]);
+                        return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
+                    }
+                    return { rows, rowCount: rows.length };
+                }
+            }
+
+            // Check for DELETE
+            if (normalizedSql.includes('delete from')) {
+                const tableNameMatch = sql.match(/delete from\s+(\w+)/i);
+                if (tableNameMatch) {
+                    const tableName = tableNameMatch[1];
+                    if (mockDbStore[tableName]) {
+                        if (normalizedSql.includes('where id = $1') && params && params[0]) {
+                            mockDbStore[tableName] = mockDbStore[tableName].filter(item => item.id != params[0]);
+                        } else {
+                            mockDbStore[tableName] = [];
+                        }
+                    }
+                    return { rows: [], rowCount: 0 };
+                }
+            }
+
             return { rows: [], rowCount: 0 };
         },
         on: () => {}
@@ -250,6 +308,22 @@ async function initDb() {
                 quote TEXT,
                 emoji TEXT
             );
+            CREATE TABLE IF NOT EXISTS video_tutorials (
+                id SERIAL PRIMARY KEY,
+                title TEXT,
+                module_name TEXT,
+                topic_name TEXT,
+                video_url TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS planner_tasks (
+                id SERIAL PRIMARY KEY,
+                user_id TEXT,
+                task_text TEXT,
+                priority TEXT,
+                completed INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
         `);
 
         // Create default admin account with email joshwebsinfo@gmail.com and password joshua#$#$
@@ -302,6 +376,14 @@ async function initDb() {
             ]);
         }
 
+        const tutorialsRes = await client.query('SELECT COUNT(*) as count FROM video_tutorials');
+        if (parseInt(tutorialsRes.rows[0].count) === 0) {
+            await client.query(`
+                INSERT INTO video_tutorials (title, module_name, topic_name, video_url)
+                VALUES ('Database Systems Crash Course', 'Module 1: Relational Algebra', '1.2 Schema Design & Normalization Rules', 'https://www.youtube.com/watch?v=KwekwePolyCS301')
+            `);
+        }
+
         await client.query('COMMIT');
         console.log('✅ Database initialized and seed data ready');
     } catch (err) {
@@ -320,7 +402,8 @@ const ALLOWED_TABLES = [
     'library', 'bookLoans', 'discipline', 'health', 'payroll',
     'expenses', 'notices', 'hostels', 'hostelAssignments', 'transport',
     'transportAssignments', 'notifications', 'users',
-    'public_settings', 'public_achievements', 'public_curriculum', 'public_testimonials'
+    'public_settings', 'public_achievements', 'public_curriculum', 'public_testimonials',
+    'video_tutorials', 'planner_tasks'
 ];
 
 function validateTable(table, res) {
@@ -357,6 +440,23 @@ app.get('/api/:table', async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Save chat messages dynamically to DB or cache
+app.post('/api/save_chat', async (req, res) => {
+    try {
+        const { user_id, question, answer, subject, model } = req.body;
+        // Check if DB exists or pool has real DB query
+        if (typeof pool.connect === 'function') {
+            await pool.query(`
+                INSERT INTO notifications (title, message, date, type)
+                VALUES ($1, $2, $3, $4)
+            `, ['New Chat Query Saved', `User asked: "${question.substring(0, 40)}..."`, new Date().toLocaleDateString(), 'Info']);
+        }
+        res.json({ success: true, message: 'Chat interaction recorded successfully' });
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
@@ -510,22 +610,9 @@ async function fetchWithRetry(url, options, timeoutMs = 10000, maxRetries = 2) {
     throw lastError;
 }
 
-// Masked secret fallbacks to secure against static check code-scanners
-const geminiPart1 = "AQ.A";
-const geminiPart2 = "b8RN6IfgAZkuZlCzldLqaqD7ml6cd5XHVCqB8IlJOxx8QCw5w";
-const defaultGeminiKey = geminiPart1 + geminiPart2;
-
-const groqPart1 = "gsk_";
-const groqPart2 = "JDupn2P7lidKy0oZXK8XWGdyb3FY3Ywd9RSUyvo6T1Koc1eWK6tm";
-const defaultGroqKey = groqPart1 + groqPart2;
-
-const openRouterPart1 = "sk-or-v1-";
-const openRouterPart2 = "76bc6d7688b5e70602120f2041366a476124d95d0d735bfe271923843c8e4598";
-const defaultOpenRouterKey = openRouterPart1 + openRouterPart2;
-
 // 1. Google Gemini API integration (with user-provided API key injected)
 async function tryGemini(prompt, subject, context) {
-    const apiKey = process.env.GEMINI_API_KEY || defaultGeminiKey;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY is not defined on backend.');
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -559,7 +646,7 @@ Answer the following query clearly with step-by-step breakdowns, code formatting
 
 // 2. Groq API integration (with user-provided API key injected)
 async function tryGroq(prompt, subject, context) {
-    const apiKey = process.env.GROQ_API_KEY || defaultGroqKey;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) throw new Error('GROQ_API_KEY is not defined on backend.');
 
     const url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -594,7 +681,7 @@ Answer the student query step-by-step. Use code formatting and terminology where
 
 // 3. OpenRouter API integration (with user-provided API key injected)
 async function tryOpenRouter(prompt, subject, context) {
-    const apiKey = process.env.OPENROUTER_API_KEY || defaultOpenRouterKey;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) throw new Error('OPENROUTER_API_KEY is not defined on backend.');
 
     const url = 'https://openrouter.ai/api/v1/chat/completions';

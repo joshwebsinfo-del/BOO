@@ -1,46 +1,119 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Checkbox, TextInput, Button, IconButton } from 'react-native-paper';
 
 type Task = {
-  id: number;
+  id: string | number;
   text: string;
   checked: boolean;
   priority: 'High' | 'Medium' | 'Low';
 };
 
 export default function PlannerScreen() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, text: 'Read database normalization notes', checked: true, priority: 'High' },
-    { id: 2, text: 'Review past midterm exams', checked: false, priority: 'Medium' },
-    { id: 3, text: 'Consult EduMentor AI about TCP handshakes', checked: false, priority: 'Low' }
-  ]);
-
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskText, setNewTaskText] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<'High' | 'Medium' | 'Low'>('Medium');
 
-  const toggleCheck = (id: number) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, checked: !t.checked } : t));
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch('http://10.0.2.2:3000/api/planner_tasks');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const loaded: Task[] = data.map((item: any) => ({
+            id: item.id,
+            text: item.task_text,
+            checked: item.completed == 1 || item.completed === true,
+            priority: (item.priority?.charAt(0).toUpperCase() + item.priority?.slice(1)) || 'Medium'
+          }));
+          setTasks(loaded);
+          return;
+        }
+      }
+    } catch (err) {
+      // Offline fallback
+    }
+    // Set seed list defaults
+    setTasks([
+      { id: 1, text: 'Read database normalization notes', checked: true, priority: 'High' },
+      { id: 2, text: 'Review past midterm exams', checked: false, priority: 'Medium' },
+      { id: 3, text: 'Consult EduMentor AI about TCP handshakes', checked: false, priority: 'Low' }
+    ]);
   };
 
-  const handleAddTask = () => {
+  const toggleCheck = async (id: string | number) => {
+    const updated = tasks.map(t => t.id === id ? { ...t, checked: !t.checked } : t);
+    setTasks(updated);
+
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      try {
+        await fetch(`http://10.0.2.2:3000/api/planner_tasks/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completed: !task.checked ? 1 : 0 })
+        });
+      } catch (err) {
+        // Safe fail
+      }
+    }
+  };
+
+  const handleAddTask = async () => {
     if (!newTaskText.trim()) return;
+
+    const localId = Date.now();
     const newTask: Task = {
-      id: Date.now(),
+      id: localId,
       text: newTaskText.trim(),
       checked: false,
       priority: newTaskPriority
     };
+
     setTasks(prev => [newTask, ...prev]);
     setNewTaskText('');
+
+    try {
+      await fetch('http://10.0.2.2:3000/api/planner_tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: 'student@kwekwe.ac.zw',
+          task_text: newTask.text,
+          priority: newTaskPriority.toLowerCase(),
+          completed: 0
+        })
+      });
+    } catch (err) {
+      // Safe offline
+    }
   };
 
-  const handleDeleteTask = (id: number) => {
+  const handleDeleteTask = async (id: string | number) => {
     setTasks(prev => prev.filter(t => t.id !== id));
+    try {
+      await fetch(`http://10.0.2.2:3000/api/planner_tasks/${id}`, {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      // Safe fail
+    }
   };
 
-  const handleClearCompleted = () => {
+  const handleClearCompleted = async () => {
+    const completed = tasks.filter(t => t.checked);
     setTasks(prev => prev.filter(t => !t.checked));
+    for (const t of completed) {
+      try {
+        await fetch(`http://10.0.2.2:3000/api/planner_tasks/${t.id}`, {
+          method: 'DELETE'
+        });
+      } catch (e) {}
+    }
   };
 
   const getPriorityColor = (prio: string) => {

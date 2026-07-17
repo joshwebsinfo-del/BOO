@@ -61,6 +61,22 @@ export default function ChatScreen() {
         model: response.model
       };
       setMessages(prev => [...prev, aiMsg]);
+
+      // POST to persist log dynamically
+      try {
+        fetch('http://10.0.2.2:3000/api/save_chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: 'student@kwekwe.ac.zw',
+            question: textToSend.trim(),
+            answer: response.answer,
+            subject: subject,
+            model: response.model
+          })
+        });
+      } catch (err) {}
+
     } catch (err: any) {
       const errorMsg: Message = {
         sender: 'ai',

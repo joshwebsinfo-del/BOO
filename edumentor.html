@@ -251,6 +251,16 @@
 
                                 <!-- VIEW A: DASHBOARD -->
                                 <div id="view-dashboard" class="tab-view active">
+                                    <!-- Premium Welcome / Student Greeting -->
+                                    <div class="it-student-greeting" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 16px; margin-bottom: 1rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                                        <div style="position: absolute; right: -10px; top: -10px; font-size: 80px; opacity: 0.1; font-weight: 900; color: var(--primary);">IT</div>
+                                        <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff;">Welcome back, Student! 👋</h4>
+                                        <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.8);">Kwekwe Poly Information Technology • Division of CS & IS</p>
+                                        <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; font-size: 0.75rem; color: #a855f7; font-weight: 700; background: rgba(168, 85, 247, 0.1); width: fit-content; padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.2);">
+                                            <span>💻</span> <span>Focus Area: Database Systems & Software Engineering</span>
+                                        </div>
+                                    </div>
+
                                     <!-- Streak counter widget -->
                                     <div class="streak-card">
                                         <div class="streak-info">
@@ -275,6 +285,15 @@
                                             <h4 id="dash-queries-count">2 Queries</h4>
                                             <p>Study questions</p>
                                         </div>
+                                    </div>
+
+                                    <!-- FEATURED VIDEO TUTORIALS FEED -->
+                                    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>🎥 Video Tutorials Hub</span>
+                                        <span style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Admin Verified</span>
+                                    </div>
+                                    <div class="tutorials-feed-container" id="dashboard-tutorials-list" style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
+                                        <!-- Tutorials dynamically inserted from DB -->
                                     </div>
 
                                     <!-- Recommendations -->
@@ -488,6 +507,18 @@
                                                 <input type="text" id="admin-add-module-title" placeholder="Module Title (e.g. Module 3: SQL)" required>
                                                 <input type="text" id="admin-add-module-topic" placeholder="Topic name (e.g. JOINs & Subqueries)" required>
                                                 <button type="submit" class="btn-control" style="background:var(--primary); color:#fff; border:none; width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:6px; font-weight:700;">Add & Sync Module</button>
+                                            </form>
+                                        </div>
+
+                                        <!-- DYNAMIC VIDEO TUTORIAL PUBLISHER -->
+                                        <div class="admin-form-box" style="margin-bottom: 0.8rem;">
+                                            <h5>📹 Publish Video Tutorial (Home Feed Link)</h5>
+                                            <form onsubmit="edumentor.adminAddVideo(event)">
+                                                <input type="text" id="admin-add-video-title" placeholder="Tutorial Title (e.g. schema mapping crash)" required>
+                                                <input type="text" id="admin-add-video-module" placeholder="Module Name (e.g. Module 1: Relational Algebra)" required>
+                                                <input type="text" id="admin-add-video-topic" placeholder="Topic Name (e.g. Schema mapping)" required>
+                                                <input type="url" id="admin-add-video-url" placeholder="Video Link URL" required>
+                                                <button type="submit" class="btn-control" style="background:var(--primary); color:#fff; border:none; width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:6px; font-weight:700;">Publish & Broadcast Video</button>
                                             </form>
                                         </div>
 
