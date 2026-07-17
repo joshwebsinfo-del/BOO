@@ -1268,3 +1268,14 @@ tr:hover td {
         backdrop-filter: none;
     }
 }
+
+/* EduMentor AI Top Launcher hover effects */
+.edumentor-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5) !important;
+}
+
+.edumentor-btn:active {
+    transform: translateY(0);
+}

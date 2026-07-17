@@ -78,6 +78,14 @@ class EduMentorSimulator {
             { name: 'Demo Teacher', username: 'teacher', role: 'Lecturer' },
             { name: 'Demo Student', username: 'student', role: 'Student' }
         ];
+
+        // Mock Departments list
+        this.departments = [
+            { id: 1, name: 'Information Technology', head: 'Dr. Alistair Chen' },
+            { id: 2, name: 'Computer Science', head: 'Prof. Sarah Jenkins' }
+        ];
+
+        this.adminActiveSubTab = 'users';
     }
 
     init() {
@@ -916,15 +924,23 @@ CREATE TABLE users (
         this.renderAllViews();
     }
 
-    // Admin Features Panel
+    // Admin Features Panel with multiple views
     renderAdminPanel() {
         const totalUsersEl = document.getElementById('admin-stat-users');
         const queriesEl = document.getElementById('admin-stat-queries');
-        const container = document.getElementById('admin-accounts-container');
+        const docsCountEl = document.getElementById('admin-stat-docs');
 
         if (totalUsersEl) totalUsersEl.innerText = this.users.length * 15;
         if (queriesEl) queriesEl.innerText = this.knowledgeBase.length * 20 + 142;
+        if (docsCountEl) docsCountEl.innerText = this.knowledgeBase.length;
 
+        this.renderAdminUsers();
+        this.renderAdminDepartments();
+        this.renderAdminDocuments();
+    }
+
+    renderAdminUsers() {
+        const container = document.getElementById('admin-accounts-container');
         if (container) {
             container.innerHTML = '';
             this.users.forEach((u, idx) => {
@@ -946,6 +962,90 @@ CREATE TABLE users (
         }
     }
 
+    renderAdminDepartments() {
+        const container = document.getElementById('admin-departments-container');
+        if (container) {
+            container.innerHTML = '';
+            this.departments.forEach((dept, idx) => {
+                const row = document.createElement('div');
+                row.className = 'admin-account-row';
+                row.innerHTML = `
+                    <div class="account-info">
+                        <strong>🏢 ${dept.name}</strong>
+                        <span>Head: ${dept.head}</span>
+                    </div>
+                    <div class="account-actions">
+                        <button class="btn-admin-act" onclick="edumentor.deleteDept(${idx})" style="color: var(--danger); border-color: rgba(239,68,68,0.2);">Remove</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+    }
+
+    renderAdminDocuments() {
+        const container = document.getElementById('admin-documents-container');
+        if (container) {
+            container.innerHTML = '';
+            this.knowledgeBase.forEach(doc => {
+                const row = document.createElement('div');
+                row.className = 'admin-account-row';
+                row.innerHTML = `
+                    <div class="account-info">
+                        <strong>📄 ${doc.title}</strong>
+                        <span>Type: ${doc.type.toUpperCase()} • 10 Chunks</span>
+                    </div>
+                    <div class="account-actions">
+                        <button class="btn-admin-act" onclick="edumentor.deleteDocument(${doc.id})">Purge</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+    }
+
+    switchAdminSubTab(subTabId) {
+        this.playHapticSound(300, 0.05);
+        this.adminActiveSubTab = subTabId;
+
+        // Toggle subviews
+        document.querySelectorAll('.admin-sub-view').forEach(view => view.classList.add('hidden'));
+        document.getElementById(`admin-sub-view-${subTabId}`).classList.remove('hidden');
+
+        // Toggle subtab pills
+        document.querySelectorAll('#view-admin .resource-tabs .tab-pill').forEach(pill => pill.classList.remove('active'));
+        document.getElementById(`btn-admin-tab-${subTabId}`).classList.add('active');
+    }
+
+    handleAdminCreateUser(e) {
+        e.preventDefault();
+        this.playHapticSuccess();
+        const name = document.getElementById('admin-add-user-name').value.trim();
+        const username = document.getElementById('admin-add-user-username').value.trim().toLowerCase();
+        const role = document.getElementById('admin-add-user-role').value;
+
+        if (name && username) {
+            this.users.push({ name, username, role });
+            e.target.reset();
+            this.renderAdminPanel();
+            alert(`Account for @${username} has been successfully provisioned.`);
+        }
+    }
+
+    handleAdminCreateDept(e) {
+        e.preventDefault();
+        this.playHapticSuccess();
+        const name = document.getElementById('admin-add-dept-name').value.trim();
+        const head = document.getElementById('admin-add-dept-head').value.trim();
+
+        if (name && head) {
+            this.departments.push({ id: Date.now(), name, head });
+            e.target.reset();
+            this.renderAdminPanel();
+            alert(`Department "${name}" has been successfully added.`);
+        }
+    }
+
     suspendUser(username) {
         this.playHapticSound(250, 0.08);
         alert(`Account @${username} has been suspended inside mock database successfully.`);
@@ -954,6 +1054,12 @@ CREATE TABLE users (
     deleteUser(idx) {
         this.playHapticSound(250, 0.08);
         this.users.splice(idx, 1);
+        this.renderAdminPanel();
+    }
+
+    deleteDept(idx) {
+        this.playHapticSound(250, 0.08);
+        this.departments.splice(idx, 1);
         this.renderAdminPanel();
     }
 

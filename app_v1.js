@@ -624,6 +624,11 @@ const app = {
                     { id: 'notices', name: 'Notice Board', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
                     { id: 'resources', name: 'Resources', roles: ['Admin', 'Teacher', 'Parent', 'Student'] }
                 ]
+            },
+            {
+                label: 'EduMentor AI', items: [
+                    { id: 'edumentor', name: 'EduMentor App 🤖', roles: ['Admin', 'Teacher', 'Parent', 'Student'] }
+                ]
             }
         ];
 
@@ -926,6 +931,9 @@ const app = {
                 break;
             case 'resources':
                 await this.renderResources();
+                break;
+            case 'edumentor':
+                window.location.href = '/edumentor.html';
                 break;
             default:
                 this.container.innerHTML = '<div class="glass-panel"><h1>404 Page Not Found</h1></div>';
@@ -2540,7 +2548,8 @@ const app = {
             'hostels': ['Admin', 'Parent'],
             'transport': ['Admin', 'Parent'],
             'notices': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'resources': ['Admin', 'Teacher', 'Parent', 'Student']
+            'resources': ['Admin', 'Teacher', 'Parent', 'Student'],
+            'edumentor': ['Admin', 'Teacher', 'Parent', 'Student']
         };
         return (matrix[page] || []).includes(role);
     },

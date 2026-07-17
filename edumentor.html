@@ -606,49 +606,103 @@
                                 <div class="tab-view" id="view-admin">
                                     <div class="view-header">
                                         <div class="user-welcome">
-                                            <span class="greeting">Admin Dashboard ⚙️</span>
+                                            <span class="greeting">Admin Console ⚙️</span>
                                             <span class="user-role-badge">Root Controller</span>
                                         </div>
                                     </div>
 
-                                    <!-- Analytics grid -->
-                                    <div class="metrics-grid" style="margin-bottom: 1.5rem;">
-                                        <div class="metric-item glass-card">
+                                    <!-- Analytics telemetry grid -->
+                                    <div class="metrics-grid" style="margin-bottom: 1rem;">
+                                        <div class="metric-item glass-card" style="padding: 0.75rem 0.5rem;">
                                             <span class="metric-val" id="admin-stat-users">182</span>
-                                            <span class="metric-lbl">Total Students</span>
+                                            <span class="metric-lbl" style="font-size: 0.55rem;">Accounts</span>
                                         </div>
-                                        <div class="metric-item glass-card">
+                                        <div class="metric-item glass-card" style="padding: 0.75rem 0.5rem;">
                                             <span class="metric-val" id="admin-stat-queries">1.4k</span>
-                                            <span class="metric-lbl">AI Queries</span>
+                                            <span class="metric-lbl" style="font-size: 0.55rem;">RAG Queries</span>
                                         </div>
-                                        <div class="metric-item glass-card">
-                                            <span class="metric-val">99.8%</span>
-                                            <span class="metric-lbl">Uptime</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- User accounts list -->
-                                    <div class="glass-card admin-manage-card">
-                                        <h3>Manage Registered Accounts</h3>
-                                        <div class="admin-accounts-list" id="admin-accounts-container">
-                                            <!-- List of simulated users, with mock suspend/delete/edit roles actions -->
+                                        <div class="metric-item glass-card" style="padding: 0.75rem 0.5rem;">
+                                            <span class="metric-val" id="admin-stat-docs">4</span>
+                                            <span class="metric-lbl" style="font-size: 0.55rem;">Global Docs</span>
                                         </div>
                                     </div>
 
-                                    <!-- Vector store telemetry -->
-                                    <div class="glass-card admin-manage-card" style="margin-top: 1rem;">
-                                        <h3>Supabase pgvector Stats</h3>
-                                        <div class="telemetry-row">
-                                            <span>Active Embedding Model:</span>
-                                            <strong>text-embedding-004</strong>
+                                    <!-- Admin Sub-navigation Chips -->
+                                    <div class="resource-tabs" style="margin-bottom: 1rem;">
+                                        <button class="tab-pill active" id="btn-admin-tab-users" onclick="edumentor.switchAdminSubTab('users')">Users</button>
+                                        <button class="tab-pill" id="btn-admin-tab-departments" onclick="edumentor.switchAdminSubTab('departments')">Depts</button>
+                                        <button class="tab-pill" id="btn-admin-tab-documents" onclick="edumentor.switchAdminSubTab('documents')">Docs</button>
+                                    </div>
+
+                                    <!-- Admin View A: Users list with Add Form -->
+                                    <div class="admin-sub-view" id="admin-sub-view-users">
+                                        <!-- Add Account Inline Form -->
+                                        <div class="glass-card" style="margin-bottom: 1rem; padding: 1rem;">
+                                            <h4 style="font-size: 0.82rem; margin-bottom: 0.5rem;">➕ Provision New Account</h4>
+                                            <form onsubmit="edumentor.handleAdminCreateUser(event)" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                                <input type="text" id="admin-add-user-name" placeholder="Full Name" required style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.4rem; border-radius: 6px; color: white; font-size: 0.75rem; outline: none;">
+                                                <input type="text" id="admin-add-user-username" placeholder="Username" required style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.4rem; border-radius: 6px; color: white; font-size: 0.75rem; outline: none;">
+                                                <select id="admin-add-user-role" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.4rem; border-radius: 6px; color: white; font-size: 0.75rem; outline: none; -webkit-appearance: none;">
+                                                    <option value="Student" style="color: black;">Student</option>
+                                                    <option value="Lecturer" style="color: black;">Lecturer</option>
+                                                    <option value="Admin" style="color: black;">Admin</option>
+                                                </select>
+                                                <button type="submit" class="btn-primary-pill" style="padding: 0.4rem; font-size: 0.75rem; border-radius: 6px;">Create Account</button>
+                                            </form>
                                         </div>
-                                        <div class="telemetry-row">
-                                            <span>Vector Dimensions:</span>
-                                            <strong>768 dimensions</strong>
+
+                                        <div class="glass-card admin-manage-card" style="padding: 1rem;">
+                                            <h3 style="font-size: 0.85rem; margin-bottom: 0.5rem;">Manage Registered Accounts</h3>
+                                            <div class="admin-accounts-list" id="admin-accounts-container">
+                                                <!-- List of simulated users -->
+                                            </div>
                                         </div>
-                                        <div class="telemetry-row">
-                                            <span>Cosine Distance Threshold:</span>
-                                            <strong>0.75</strong>
+                                    </div>
+
+                                    <!-- Admin View B: Departments list with Add Form -->
+                                    <div class="admin-sub-view hidden" id="admin-sub-view-departments">
+                                        <div class="glass-card" style="margin-bottom: 1rem; padding: 1rem;">
+                                            <h4 style="font-size: 0.82rem; margin-bottom: 0.5rem;">➕ Add Department</h4>
+                                            <form onsubmit="edumentor.handleAdminCreateDept(event)" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                                <input type="text" id="admin-add-dept-name" placeholder="Department Name" required style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.4rem; border-radius: 6px; color: white; font-size: 0.75rem; outline: none;">
+                                                <input type="text" id="admin-add-dept-head" placeholder="Department Head (e.g. Dr. Alistair)" required style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.4rem; border-radius: 6px; color: white; font-size: 0.75rem; outline: none;">
+                                                <button type="submit" class="btn-primary-pill" style="padding: 0.4rem; font-size: 0.75rem; border-radius: 6px;">Add Dept</button>
+                                            </form>
+                                        </div>
+
+                                        <div class="glass-card admin-manage-card" style="padding: 1rem;">
+                                            <h3 style="font-size: 0.85rem; margin-bottom: 0.5rem;">Academic Departments</h3>
+                                            <div class="admin-accounts-list" id="admin-departments-container">
+                                                <!-- List of departments -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Admin View C: Documents Registry list -->
+                                    <div class="admin-sub-view hidden" id="admin-sub-view-documents">
+                                        <div class="glass-card admin-manage-card" style="padding: 1rem;">
+                                            <h3 style="font-size: 0.85rem; margin-bottom: 0.5rem;">Global Document Index</h3>
+                                            <p style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.5rem;">Verify system-wide RAG files and functional chunks.</p>
+                                            <div class="admin-accounts-list" id="admin-documents-container">
+                                                <!-- List of documents with chunk details and suspend/delete options -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Vector store telemetry -->
+                                        <div class="glass-card admin-manage-card" style="margin-top: 1rem; padding: 1rem;">
+                                            <h3>Supabase pgvector Stats</h3>
+                                            <div class="telemetry-row">
+                                                <span>Active Embedding Model:</span>
+                                                <strong>text-embedding-004</strong>
+                                            </div>
+                                            <div class="telemetry-row">
+                                                <span>Vector Dimensions:</span>
+                                                <strong>768 dimensions</strong>
+                                            </div>
+                                            <div class="telemetry-row">
+                                                <span>Cosine Distance Threshold:</span>
+                                                <strong>0.75</strong>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
