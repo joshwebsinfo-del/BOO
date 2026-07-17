@@ -1,0 +1,12 @@
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+⚠️ DATABASE_URL is not defined. Using mock PostgreSQL pool.
+⚠️ Mock pool – skipping DB initialization.
+Egles SMIS server running on port 3000
+[AI Backend Request]: New query on Subject: "Database Systems"
+[AI Backend Cascade]: Attempting Gemini 2.0 Flash...
+[AI Backend Gemini Error]: GEMINI_API_KEY environment variable is not defined on backend.
+[AI Backend Cascade]: Falling back to Groq Llama 3.3...
+[AI Backend Groq Error]: GROQ_API_KEY environment variable is not defined on backend.
+[AI Backend Cascade]: Falling back to OpenRouter (DeepSeek R1/Llama)...
+[AI Backend OpenRouter Error]: OPENROUTER_API_KEY environment variable is not defined on backend.
+[AI Backend Terminal Error]: All primary and backup AI providers are currently unavailable. Please try again later.

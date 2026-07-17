@@ -444,6 +444,261 @@ app.get('/api/config', (req, res) => {
     });
 });
 
+// --- Node.js Express AI Backend Fallback Integration ---
+
+// In-memory rate limiting state
+const rateLimitWindowMs = 60 * 1000; // 1 minute
+const rateLimitMaxRequests = 30;
+const ipRequests = new Map();
+
+function customRateLimiter(req, res, next) {
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    const now = Date.now();
+    const userRequests = ipRequests.get(ip) || [];
+
+    // Filter requests in the current window
+    const activeRequests = userRequests.filter(timestamp => now - timestamp < rateLimitWindowMs);
+
+    if (activeRequests.length >= rateLimitMaxRequests) {
+        console.warn(`[Rate Limit Blocked]: IP ${ip} exceeded max request limit of ${rateLimitMaxRequests}/min`);
+        return res.status(429).json({
+            error: 'Too many requests. Please try again after a minute.',
+            success: false
+        });
+    }
+
+    activeRequests.push(now);
+    ipRequests.set(ip, activeRequests);
+    next();
+}
+
+// Timeout helper with AbortController
+async function fetchWithTimeout(url, options, timeoutMs = 10000) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeout);
+        return response;
+    } catch (err) {
+        clearTimeout(timeout);
+        throw err;
+    }
+}
+
+// Highly reliable fetch call helper with automatic retry logic
+async function fetchWithRetry(url, options, timeoutMs = 10000, maxRetries = 2) {
+    let lastError;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`[AI Backend]: Attempting API call (Attempt ${attempt}/${maxRetries}) to ${url.substring(0, 60)}...`);
+            const response = await fetchWithTimeout(url, options, timeoutMs);
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP Error ${response.status}: ${text}`);
+            }
+            return response;
+        } catch (err) {
+            console.warn(`[AI Backend warning]: Attempt ${attempt} failed: ${err.message}`);
+            lastError = err;
+            if (attempt < maxRetries) {
+                // Wait briefly before retrying (exponential backoff helper)
+                await new Promise(resolve => setTimeout(resolve, attempt * 500));
+            }
+        }
+    }
+    throw lastError;
+}
+
+// 1. Google Gemini API integration
+async function tryGemini(prompt, subject, context) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY environment variable is not defined on backend.');
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const systemPrompt = `You are EduMentor, a highly skilled academic tutor.
+Subject: ${subject || 'General Education'}
+Context details: ${context || 'None'}
+Answer the following query clearly with step-by-step breakdowns, code formatting if applicable, and terminology:`;
+
+    const body = {
+        contents: [
+            {
+                parts: [
+                    { text: `${systemPrompt}\n\nStudent Query: "${prompt}"` }
+                ]
+            }
+        ]
+    };
+
+    const response = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    }, 12000, 2);
+
+    const json = await response.json();
+    if (json.candidates && json.candidates[0] && json.candidates[0].content && json.candidates[0].content.parts[0]) {
+        return json.candidates[0].content.parts[0].text;
+    }
+    throw new Error('Unexpected Google Gemini payload format.');
+}
+
+// 2. Groq API integration
+async function tryGroq(prompt, subject, context) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) throw new Error('GROQ_API_KEY environment variable is not defined on backend.');
+
+    const url = 'https://api.groq.com/openai/v1/chat/completions';
+    const systemPrompt = `You are EduMentor, a highly skilled academic tutor.
+Subject: ${subject || 'General Education'}
+Context details: ${context || 'None'}
+Answer the student query step-by-step. Use code formatting and terminology where appropriate.`;
+
+    const body = {
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+        ]
+    };
+
+    const response = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+    }, 12000, 2);
+
+    const json = await response.json();
+    if (json.choices && json.choices[0] && json.choices[0].message) {
+        return json.choices[0].message.content;
+    }
+    throw new Error('Unexpected Groq payload format.');
+}
+
+// 3. OpenRouter API integration
+async function tryOpenRouter(prompt, subject, context) {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) throw new Error('OPENROUTER_API_KEY environment variable is not defined on backend.');
+
+    const url = 'https://openrouter.ai/api/v1/chat/completions';
+    const systemPrompt = `You are EduMentor, a highly skilled academic tutor.
+Subject: ${subject || 'General Education'}
+Context: ${context || 'None'}`;
+
+    // Cascade models within OpenRouter (DeepSeek R1 -> Llama 3.1 8b free fallback)
+    const models = ['deepseek/deepseek-r1', 'meta-llama/llama-3.1-8b-instruct:free'];
+    let lastError;
+
+    for (const model of models) {
+        try {
+            console.log(`[OpenRouter]: Trying OpenRouter model ${model}...`);
+            const body = {
+                model: model,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: prompt }
+                ]
+            };
+
+            const response = await fetchWithRetry(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': 'https://edumentor.smis.production',
+                    'X-Title': 'EduMentor AI'
+                },
+                body: JSON.stringify(body)
+            }, 12000, 1); // 1 retry per OpenRouter candidate model
+
+            const json = await response.json();
+            if (json.choices && json.choices[0] && json.choices[0].message) {
+                return {
+                    text: json.choices[0].message.content,
+                    modelUsed: model
+                };
+            }
+            throw new Error('Unexpected OpenRouter response payload layout.');
+        } catch (err) {
+            console.warn(`[OpenRouter Model Failed] ${model}: ${err.message}`);
+            lastError = err;
+        }
+    }
+    throw lastError;
+}
+
+// POST AI Chat Handler Route
+app.post('/api/ai/chat', customRateLimiter, async (req, res) => {
+    const { message, subject, context } = req.body;
+
+    // Request Validation
+    if (!message || typeof message !== 'string' || !message.trim()) {
+        console.warn('[AI Backend Validation Error]: Request missing message parameter.');
+        return res.status(400).json({
+            error: 'Missing required string parameter "message".',
+            success: false
+        });
+    }
+
+    console.log(`[AI Backend Request]: New query on Subject: "${subject || 'General'}"`);
+
+    // AI Providers Fallback System Chain
+    try {
+        // Step 1: Try primary provider (Google Gemini 2.0 Flash)
+        try {
+            console.log('[AI Backend Cascade]: Attempting Gemini 2.0 Flash...');
+            const answer = await tryGemini(message, subject, context);
+            console.log('[AI Backend Cascade Success]: Gemini 2.0 Flash responded successfully.');
+            return res.json({
+                answer,
+                model: 'gemini-2.0-flash',
+                success: true
+            });
+        } catch (geminiError) {
+            console.error(`[AI Backend Gemini Error]: ${geminiError.message}`);
+            console.log('[AI Backend Cascade]: Falling back to Groq Llama 3.3...');
+
+            // Step 2: Fall back to Backup 1 (Groq llama-3.3-70b-versatile)
+            try {
+                const answer = await tryGroq(message, subject, context);
+                console.log('[AI Backend Cascade Success]: Groq Llama 3.3 responded successfully.');
+                return res.json({
+                    answer,
+                    model: 'llama-3.3-70b-versatile',
+                    success: true
+                });
+            } catch (groqError) {
+                console.error(`[AI Backend Groq Error]: ${groqError.message}`);
+                console.log('[AI Backend Cascade]: Falling back to OpenRouter (DeepSeek R1/Llama)...');
+
+                // Step 3: Fall back to Backup 2 (OpenRouter deepseek/deepseek-r1 -> llama fallback)
+                try {
+                    const result = await tryOpenRouter(message, subject, context);
+                    console.log(`[AI Backend Cascade Success]: OpenRouter (${result.modelUsed}) responded successfully.`);
+                    return res.json({
+                        answer: result.text,
+                        model: result.modelUsed,
+                        success: true
+                    });
+                } catch (openRouterError) {
+                    console.error(`[AI Backend OpenRouter Error]: ${openRouterError.message}`);
+                    throw new Error('All primary and backup AI providers are currently unavailable. Please try again later.');
+                }
+            }
+        }
+    } catch (finalErr) {
+        console.error(`[AI Backend Terminal Error]: ${finalErr.message}`);
+        res.status(503).json({
+            error: finalErr.message,
+            success: false
+        });
+    }
+});
+
 app.listen(port, "0.0.0.0", () => {
     console.log(`Egles SMIS server running on port ${port}`);
 });
