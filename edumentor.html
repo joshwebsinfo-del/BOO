@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMentor AI | Kwekwe Poly Simulator</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="edumentor_style.css">
+</head>
+<body class="dark-mode">
+    <div class="simulator-wrapper">
+        <!-- Control panel outside the simulator -->
+        <div class="control-panel">
+            <div class="brand-badge">
+                <span class="pulse-dot"></span>
+                EduMentor Kwekwe Poly v1.1
+            </div>
+            <h2>EduMentor Simulator</h2>
+            <p class="control-desc">Interact with the Kwekwe Poly AI-powered personal academic mentor. Experience student, lecturer, and administrator workflows.</p>
+
+            <div class="control-group">
+                <label>Active User Persona</label>
+                <div class="persona-selectors">
+                    <button class="btn-persona active" id="btn-persona-student" onclick="edumentor.switchPersona('Student')">
+                        <span class="icon">🎓</span> Student
+                    </button>
+                    <button class="btn-persona" id="btn-persona-lecturer" onclick="edumentor.switchPersona('Lecturer')">
+                        <span class="icon">🧑‍🏫</span> Lecturer
+                    </button>
+                    <button class="btn-persona" id="btn-persona-admin" onclick="edumentor.switchPersona('Admin')">
+                        <span class="icon">⚙️</span> Admin
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Environment Controls</label>
+                <div class="env-buttons">
+                    <button class="btn-control" onclick="edumentor.toggleSimulatorTheme()">
+                        <span class="icon">🌓</span> Dark/Light Mode
+                    </button>
+                    <button class="btn-control" onclick="edumentor.resetSimulator()">
+                        <span class="icon">🔄</span> Restart App
+                    </button>
+                    <button class="btn-control" onclick="edumentor.playHapticSuccess()">
+                        <span class="icon">🔊</span> Audio Test
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sync & Fade telemetry metrics -->
+            <div class="knowledge-stats">
+                <h3>📚 Knowledge Base Stats</h3>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span class="stat-val" id="kb-docs-count">0</span>
+                        <span class="stat-lbl">Released Docs</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val" id="sync-modules-count">2</span>
+                        <span class="stat-lbl">Active Modules</span>
+                    </div>
+                </div>
+                <div class="kb-source-list" id="telemetry-source-list">
+                    <!-- Dynamic release state -->
+                </div>
+            </div>
+
+            <div class="back-to-smis">
+                <a href="/index.html" class="btn-back">
+                    <span>←</span> Return to Kwekwe Poly Portal
+                </a>
+            </div>
+        </div>
+
+        <!-- Android Device Bezel Wrapper -->
+        <div class="android-device">
+            <div class="device-speaker"></div>
+            <div class="device-screen-bezel">
+                <div class="device-screen">
+                    <!-- Phone Status Bar -->
+                    <div class="phone-status-bar">
+                        <div class="status-bar-left">
+                            <span id="phone-clock">10:42</span>
+                        </div>
+                        <div class="status-bar-center">
+                            <div class="camera-punch"></div>
+                        </div>
+                        <div class="status-bar-right">
+                            <span class="status-icon">📶</span>
+                            <span class="status-icon">🔋</span>
+                        </div>
+                    </div>
+
+                    <!-- Android App Shell -->
+                    <div class="app-body">
+
+                        <!-- 1. SPLASH SCREEN -->
+                        <div id="screen-splash" class="screen-layout active">
+                            <div class="splash-content">
+                                <div class="splash-logo-circle">
+                                    <span class="splash-logo-emoji">🤖</span>
+                                </div>
+                                <h1 class="splash-title">EduMentor</h1>
+                                <p class="splash-subtitle">Kwekwe Poly Academic AI</p>
+                                <div class="splash-loader-bar">
+                                    <div class="splash-loader-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. ONBOARDING CAROUSEL -->
+                        <div id="screen-onboarding" class="screen-layout">
+                            <div class="onboard-carousel">
+                                <div class="carousel-slides">
+                                    <div class="onboard-slide active" data-index="0">
+                                        <div class="slide-illustration">🎓</div>
+                                        <h3 class="slide-heading">Kwekwe Poly AI Tutor</h3>
+                                        <p class="slide-desc">Get accurate answers sourced directly from your official syllabus and course lecture notes.</p>
+                                    </div>
+                                    <div class="onboard-slide" data-index="1">
+                                        <div class="slide-illustration">⚡</div>
+                                        <h3 class="slide-heading">Cascading Intelligence</h3>
+                                        <p class="slide-desc">High reliability study support utilizing Gemini, Groq Llama, and OpenRouter fallback lines.</p>
+                                    </div>
+                                    <div class="onboard-slide" data-index="2">
+                                        <div class="slide-illustration">📅</div>
+                                        <h3 class="slide-heading">Smart Study Planner</h3>
+                                        <p class="slide-desc">Keep track of course topics, compile revision calendars, and complete customized daily checklists.</p>
+                                    </div>
+                                </div>
+                                <div class="carousel-controls">
+                                    <button class="btn-skip" onclick="edumentor.bypassOnboarding()">Skip</button>
+                                    <div class="carousel-dots">
+                                        <span class="carousel-dot active" data-index="0"></span>
+                                        <span class="carousel-dot" data-index="1"></span>
+                                        <span class="carousel-dot" data-index="2"></span>
+                                    </div>
+                                    <button class="btn-next" onclick="edumentor.nextOnboardingSlide()">Next</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. AUTHENTICATION (LOGIN / REGISTER) -->
+                        <div id="screen-auth" class="screen-layout">
+                            <div class="auth-card">
+                                <div class="auth-header">
+                                    <h2>EduMentor</h2>
+                                    <p>Academic AI Assistant • Kwekwe Poly</p>
+                                </div>
+
+                                <!-- Login Form -->
+                                <form id="login-form" class="auth-form active" onsubmit="edumentor.handleLogin(event)">
+                                    <div class="input-field-group">
+                                        <label>Email Address</label>
+                                        <input type="text" id="login-username" placeholder="joshwebsinfo@gmail.com" required>
+                                    </div>
+                                    <div class="input-field-group">
+                                        <label>Password</label>
+                                        <input type="password" id="login-password" placeholder="••••••••" required>
+                                    </div>
+                                    <div class="forgot-pwd-row">
+                                        <a href="#" onclick="edumentor.switchAuthForm('forgot')">Forgot Password?</a>
+                                    </div>
+                                    <button type="submit" class="btn-primary-auth">Login to Dashboard</button>
+                                    <div class="auth-switch-text">
+                                        Don't have an account? <a href="#" onclick="edumentor.switchAuthForm('register')">Register Now</a>
+                                    </div>
+                                </form>
+
+                                <!-- Register Form -->
+                                <form id="register-form" class="auth-form" onsubmit="edumentor.handleRegister(event)">
+                                    <div class="input-field-group">
+                                        <label>Full Name</label>
+                                        <input type="text" id="register-name" placeholder="John Doe" required>
+                                    </div>
+                                    <div class="input-field-group">
+                                        <label>Email Address</label>
+                                        <input type="email" id="register-email" placeholder="student@kwekwe.ac.zw" required>
+                                    </div>
+                                    <!-- REQUIRED Student Number Input -->
+                                    <div class="input-field-group">
+                                        <label>School Student Number</label>
+                                        <input type="text" id="register-student-no" placeholder="KP-2026-993F" required>
+                                    </div>
+                                    <div class="input-field-group">
+                                        <label>Password</label>
+                                        <input type="password" id="register-password" placeholder="••••••••" required>
+                                    </div>
+                                    <button type="submit" class="btn-primary-auth">Create Account</button>
+                                    <div class="auth-switch-text">
+                                        Already have an account? <a href="#" onclick="edumentor.switchAuthForm('login')">Login</a>
+                                    </div>
+                                </form>
+
+                                <!-- Forgot Form -->
+                                <form id="forgot-form" class="auth-form" onsubmit="edumentor.handleForgot(event)">
+                                    <p class="auth-help-desc">Enter your email and we'll send a code to reset your password.</p>
+                                    <div class="input-field-group">
+                                        <label>Email Address</label>
+                                        <input type="email" id="forgot-email" placeholder="student@kwekwe.ac.zw" required>
+                                    </div>
+                                    <button type="submit" class="btn-primary-auth">Send Reset Link</button>
+                                    <div class="auth-switch-text">
+                                        Back to <a href="#" onclick="edumentor.switchAuthForm('login')">Login</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- 4. MAIN NAV SHELL (HEADER + TAB VIEWS) -->
+                        <div id="screen-shell" class="screen-layout">
+                            <!-- Mobile Header -->
+                            <div class="app-header">
+                                <div class="header-left-group">
+                                    <span class="app-title-emoji">🤖</span>
+                                    <div>
+                                        <h3 class="header-title">EduMentor</h3>
+                                        <p class="header-subtitle" id="user-role-lbl">Student Portal</p>
+                                    </div>
+                                </div>
+                                <div class="header-right-group">
+                                    <!-- Notification Bell Toggle -->
+                                    <button class="header-icon-btn" onclick="edumentor.toggleNotifications()" title="Notifications">
+                                        🔔
+                                        <span class="icon-badge hidden" id="notif-badge">3</span>
+                                    </button>
+                                    <!-- Dark/Light Theme Toggle inside phone -->
+                                    <button class="header-icon-btn" onclick="edumentor.toggleSimulatorTheme()" title="Toggle Theme">
+                                        🌓
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Notification Pane Overlay inside device -->
+                            <div class="notifications-pane hidden" id="notif-pane">
+                                <div class="pane-header">
+                                    <h4>Notifications</h4>
+                                    <button onclick="edumentor.clearNotifications()">Clear All</button>
+                                </div>
+                                <div class="pane-list" id="notif-list">
+                                    <!-- Dynamic notifications list -->
+                                </div>
+                            </div>
+
+                            <!-- SCROLLABLE TAB VIEWS CONTAINER -->
+                            <div class="tab-views-container">
+
+                                <!-- VIEW A: DASHBOARD -->
+                                <div id="view-dashboard" class="tab-view active">
+                                    <!-- Premium Welcome / Student Greeting -->
+                                    <div class="it-student-greeting" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 16px; margin-bottom: 1rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                                        <div style="position: absolute; right: -10px; top: -10px; font-size: 80px; opacity: 0.1; font-weight: 900; color: var(--primary);">IT</div>
+                                        <h4 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff;">Welcome back, Student! 👋</h4>
+                                        <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.8);">Kwekwe Poly Information Technology • Division of CS & IS</p>
+                                        <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; font-size: 0.75rem; color: #a855f7; font-weight: 700; background: rgba(168, 85, 247, 0.1); width: fit-content; padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.2);">
+                                            <span>💻</span> <span>Focus Area: Database Systems & Software Engineering</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Streak counter widget -->
+                                    <div class="streak-card">
+                                        <div class="streak-info">
+                                            <span class="streak-fire-emoji">🔥</span>
+                                            <div>
+                                                <h4><span id="streak-num">5</span> Day Streak!</h4>
+                                                <p>Excellent study rhythm, keep it up!</p>
+                                            </div>
+                                        </div>
+                                        <span class="streak-badge">Active</span>
+                                    </div>
+
+                                    <!-- Quick Stat cards -->
+                                    <div class="stat-cards-row">
+                                        <div class="card stat-widget">
+                                            <span class="widget-icon">📚</span>
+                                            <h4 id="dash-courses-count">1 Course</h4>
+                                            <p>Database Systems</p>
+                                        </div>
+                                        <div class="card stat-widget">
+                                            <span class="widget-icon">⚡</span>
+                                            <h4 id="dash-queries-count">2 Queries</h4>
+                                            <p>Study questions</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- FEATURED VIDEO TUTORIALS FEED -->
+                                    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>🎥 Video Tutorials Hub</span>
+                                        <span style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Admin Verified</span>
+                                    </div>
+                                    <div class="tutorials-feed-container" id="dashboard-tutorials-list" style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
+                                        <!-- Tutorials dynamically inserted from DB -->
+                                    </div>
+
+                                    <!-- Recommendations -->
+                                    <div class="section-title">Recommended Topics</div>
+                                    <div class="topics-grid">
+                                        <div class="topic-chip" onclick="edumentor.prefillAndGoToChat('Explain First Normal Form (1NF)')">Relational Schemas</div>
+                                        <div class="topic-chip" onclick="edumentor.prefillAndGoToChat('Explain 3NF transitive dependencies')">3NF Normalization</div>
+                                        <div class="topic-chip" onclick="edumentor.prefillAndGoToChat('What is the difference between TCP and UDP?')">TCP vs UDP Handshake</div>
+                                    </div>
+
+                                    <!-- Upcoming Exams -->
+                                    <div class="section-title">Upcoming Milestones</div>
+                                    <div class="card exam-card">
+                                        <div class="exam-header-row">
+                                            <span class="exam-badge bg-primary">Midterm</span>
+                                            <span class="exam-countdown">4 Days Left</span>
+                                        </div>
+                                        <h4>CS301: Relational Schema & Normalization Exam</h4>
+                                        <p class="exam-meta">📅 July 21, 2026 • 09:00 AM • Kwekwe Main Hall</p>
+                                    </div>
+                                </div>
+
+                                <!-- VIEW B: AI TUTOR CHAT -->
+                                <div id="view-chat" class="tab-view">
+                                    <!-- RAG matching step logger -->
+                                    <div class="rag-flow-panel hidden" id="rag-flow-panel">
+                                        <div class="rag-header">
+                                            <span class="pulse-dot-purple"></span>
+                                            <strong>EduMentor RAG pipeline running:</strong>
+                                        </div>
+                                        <div class="rag-steps">
+                                            <div class="rag-step" id="rag-step-search">🔍 Scanning Kwekwe Poly syllabus vectors...</div>
+                                            <div class="rag-step" id="rag-step-retrieved">📄 Match found. Injecting context chunks...</div>
+                                            <div class="rag-step" id="rag-step-llm">🧠 Generating smart mentor synthesis...</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="chat-messages-box" id="chat-messages-box">
+                                        <!-- Messages dynamically appended -->
+                                    </div>
+
+                                    <!-- Typing Indicator -->
+                                    <div class="typing-indicator hidden" id="chat-typing-indicator">
+                                        <span class="typing-dot"></span>
+                                        <span class="typing-dot"></span>
+                                        <span class="typing-dot"></span>
+                                    </div>
+
+                                    <!-- Input and submit controls -->
+                                    <div class="chat-input-bar">
+                                        <textarea id="chat-input-textarea" placeholder="Ask academic tutor..." oninput="edumentor.autoGrowTextarea(this)"></textarea>
+                                        <button class="btn-send-message" onclick="edumentor.submitQuery()">➔</button>
+                                    </div>
+                                </div>
+
+                                <!-- VIEW C: COURSES -->
+                                <div id="view-courses" class="tab-view">
+                                    <div class="courses-curriculum-header">
+                                        <h4>Current Program</h4>
+                                        <p>Information Technology (Kwekwe Poly)</p>
+                                    </div>
+
+                                    <!-- Dynamic Course List -->
+                                    <div class="courses-accordion-list" id="courses-accordion-list">
+                                        <!-- Managed dynamic list (Admin adds modules here, and they sync across student screens!) -->
+                                    </div>
+                                </div>
+
+                                <!-- VIEW D: RESOURCES -->
+                                <div id="view-resources" class="tab-view">
+                                    <div class="resources-toolbar">
+                                        <input type="text" id="resource-search-input" placeholder="Search files, syllabus..." oninput="edumentor.filterResources()">
+                                        <div class="resource-tabs">
+                                            <button class="tab-pill active" onclick="edumentor.filterResourceCategory('all', this)">All</button>
+                                            <button class="tab-pill" onclick="edumentor.filterResourceCategory('syllabus', this)">Syllabi</button>
+                                            <button class="tab-pill" onclick="edumentor.filterResourceCategory('notes', this)">Notes</button>
+                                            <button class="tab-pill" onclick="edumentor.filterResourceCategory('papers', this)">Papers</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- FADE-RELEASED RESOURCES LIST -->
+                                    <div class="resources-grid-list" id="resources-grid-list">
+                                        <!-- Resources stay completely hidden until Admin releases (fades) them on Admin tab! -->
+                                    </div>
+                                </div>
+
+                                <!-- VIEW E: STUDY PLANNER -->
+                                <div id="view-planner" class="tab-view">
+                                    <div class="planner-header-card">
+                                        <h4>Study Planner</h4>
+                                        <p>Set daily goals and track exam countdowns</p>
+                                    </div>
+
+                                    <!-- ADDING PLANNER FORM (Requested features) -->
+                                    <div class="planner-add-card card">
+                                        <h5>➕ Add Planner Task</h5>
+                                        <form id="add-task-form" onsubmit="edumentor.addTask(event)">
+                                            <div class="input-field-group">
+                                                <input type="text" id="new-task-text" placeholder="Task description..." required style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 0.4rem; border-radius: 6px; width: 100%;">
+                                            </div>
+                                            <div class="planner-form-row" style="display: flex; gap: 0.5rem; margin-top: 0.4rem;">
+                                                <select id="new-task-priority" style="background: #1e293b; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 0.3rem; border-radius: 6px; flex: 1;">
+                                                    <option value="high">🔥 High Priority</option>
+                                                    <option value="medium" selected>⚡ Medium Priority</option>
+                                                    <option value="low">💤 Low Priority</option>
+                                                </select>
+                                                <button type="submit" class="btn-control" style="background: var(--primary); color:#fff; border:none; padding: 0.3rem 0.8rem; border-radius:6px; font-weight:700;">Add</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <!-- Task Checklist -->
+                                    <div class="checklist-header-row" style="margin-top: 1rem;">
+                                        <h5>My Daily Goals</h5>
+                                        <button class="btn-clear-tasks" onclick="edumentor.clearCompletedTasks()">Clear Completed</button>
+                                    </div>
+                                    <div class="task-checklist" id="task-checklist-box">
+                                        <!-- Dynamic checklist with checkboxes -->
+                                    </div>
+                                </div>
+
+                                <!-- VIEW F: PROFILE (USER AND ADMIN WORKFLOWS) -->
+                                <div id="view-profile" class="tab-view">
+                                    <div class="profile-card">
+                                        <div class="profile-avatar">👨‍🎓</div>
+                                        <h3 id="profile-user-name">Demo Student</h3>
+                                        <p id="profile-user-role">Student • Information Technology</p>
+                                        <!-- STUDENT NUMBER TELEMETRY -->
+                                        <p class="student-no-display" id="profile-student-no">ID: KP-2026-993F</p>
+                                    </div>
+
+                                    <div class="profile-actions-list">
+                                        <div class="profile-action-item" onclick="edumentor.showToast('My credentials details saved offline')">
+                                            <span>👤 Account Credentials</span>
+                                            <span class="arrow">➔</span>
+                                        </div>
+                                        <div class="profile-action-item" onclick="edumentor.showToast('Database offline sync completed!')">
+                                            <span>🛢️ SQLite Cache Settings</span>
+                                            <span class="arrow">➔</span>
+                                        </div>
+                                        <!-- ADMIN ROUTER CONSOLE CONTAINER -->
+                                        <div class="admin-console-box hidden" id="profile-admin-console-launcher">
+                                            <button class="btn-admin-launcher" onclick="edumentor.openAdminPanel()">
+                                                ⚙️ Open Administrator Panel
+                                            </button>
+                                        </div>
+                                        <div class="profile-action-item logout" onclick="edumentor.logout()">
+                                            <span>🚪 Logout Account</span>
+                                            <span class="arrow">➔</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PORTAL: ADMIN DASHBOARD PANEL -->
+                                <div id="view-admin" class="tab-view">
+                                    <div class="admin-console-header">
+                                        <h4>Administrator Portal</h4>
+                                        <p>Manage courses, released documents, and accounts</p>
+                                        <button class="btn-close-admin" onclick="edumentor.closeAdminPanel()">← Exit Portal</button>
+                                    </div>
+
+                                    <div class="resource-tabs" style="margin-bottom: 0.8rem;">
+                                        <button class="tab-pill active" id="btn-admin-tab-users" onclick="edumentor.switchAdminSubTab('users')">Users</button>
+                                        <button class="tab-pill" id="btn-admin-tab-departments" onclick="edumentor.switchAdminSubTab('departments')">Depts</button>
+                                        <button class="tab-pill" id="btn-admin-tab-documents" onclick="edumentor.switchAdminSubTab('documents')">Docs</button>
+                                    </div>
+
+                                    <!-- Admin view: User accounts management -->
+                                    <div class="admin-sub-view" id="admin-sub-view-users">
+                                        <div class="admin-form-box">
+                                            <h5>Provision New Account</h5>
+                                            <form onsubmit="edumentor.adminAddUser(event)">
+                                                <input type="text" id="admin-add-username" placeholder="Full Name" required>
+                                                <input type="text" id="admin-add-email" placeholder="Email (Unique)" required>
+                                                <select id="admin-add-role">
+                                                    <option value="Student">Student</option>
+                                                    <option value="Lecturer">Lecturer</option>
+                                                    <option value="Admin">Admin</option>
+                                                </select>
+                                                <button type="submit" class="btn-control" style="background:var(--primary); color:#fff; border:none; width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:6px; font-weight:700;">Create User</button>
+                                            </form>
+                                        </div>
+                                        <div class="section-title">Active User Accounts</div>
+                                        <div class="managed-list" id="admin-users-list">
+                                            <!-- Managed users list -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Admin view: Academic Departments -->
+                                    <div class="admin-sub-view hidden" id="admin-sub-view-departments">
+                                        <div class="admin-form-box">
+                                            <h5>Add Academic Department</h5>
+                                            <form onsubmit="edumentor.adminAddDept(event)">
+                                                <input type="text" id="admin-add-dept-name" placeholder="Department Name" required>
+                                                <input type="text" id="admin-add-dept-head" placeholder="Department Head" required>
+                                                <button type="submit" class="btn-control" style="background:var(--primary); color:#fff; border:none; width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:6px; font-weight:700;">Add Dept</button>
+                                            </form>
+                                        </div>
+                                        <div class="section-title">Academic Departments</div>
+                                        <div class="managed-list" id="admin-depts-list">
+                                            <!-- Managed depts list -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Admin view: Course Modules and Documents released (faded) -->
+                                    <div class="admin-sub-view hidden" id="admin-sub-view-documents">
+                                        <!-- DYNAMIC COURSE MODULE CREATOR (Added feature) -->
+                                        <div class="admin-form-box" style="margin-bottom: 0.8rem;">
+                                            <h5>➕ Add Course Module (Syncs to all users)</h5>
+                                            <form onsubmit="edumentor.adminAddModule(event)">
+                                                <input type="text" id="admin-add-module-title" placeholder="Module Title (e.g. Module 3: SQL)" required>
+                                                <input type="text" id="admin-add-module-topic" placeholder="Topic name (e.g. JOINs & Subqueries)" required>
+                                                <button type="submit" class="btn-control" style="background:var(--primary); color:#fff; border:none; width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:6px; font-weight:700;">Add & Sync Module</button>
+                                            </form>
+                                        </div>
+
+                                        <!-- DYNAMIC VIDEO TUTORIAL PUBLISHER -->
+                                        <div class="admin-form-box" style="margin-bottom: 0.8rem;">
+                                            <h5>📹 Publish Video Tutorial (Home Feed Link)</h5>
+                                            <form onsubmit="edumentor.adminAddVideo(event)">
+                                                <input type="text" id="admin-add-video-title" placeholder="Tutorial Title (e.g. schema mapping crash)" required>
+                                                <input type="text" id="admin-add-video-module" placeholder="Module Name (e.g. Module 1: Relational Algebra)" required>
+                                                <input type="text" id="admin-add-video-topic" placeholder="Topic Name (e.g. Schema mapping)" required>
+                                                <input type="url" id="admin-add-video-url" placeholder="Video Link URL" required>
+                                                <button type="submit" class="btn-control" style="background:var(--primary); color:#fff; border:none; width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:6px; font-weight:700;">Publish & Broadcast Video</button>
+                                            </form>
+                                        </div>
+
+                                        <div class="admin-form-box">
+                                            <h5>Document Release & Fade Controller</h5>
+                                            <p class="desc" style="font-size: 10px; color: var(--text-muted); margin-bottom: 0.5rem;">Click "Fade Release" to make documents visible on Student Resource screens with fade-in animations.</p>
+                                        </div>
+                                        <div class="section-title">Global Document Registry</div>
+                                        <div class="managed-list" id="admin-docs-list">
+                                            <!-- Managed docs controller -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Mobile Tab Bar (Navigation Icons) -->
+                            <div class="app-tab-bar">
+                                <button class="nav-tab active" id="tab-dashboard" onclick="edumentor.switchTab('dashboard')">
+                                    <span class="tab-icon">🏠</span>
+                                    <span class="tab-label">Home</span>
+                                </button>
+                                <button class="nav-tab" id="tab-chat" onclick="edumentor.switchTab('chat')">
+                                    <span class="tab-icon">🤖</span>
+                                    <span class="tab-label">AI Tutor</span>
+                                </button>
+                                <button class="nav-tab" id="tab-courses" onclick="edumentor.switchTab('courses')">
+                                    <span class="tab-icon">📚</span>
+                                    <span class="tab-label">Courses</span>
+                                </button>
+                                <button class="nav-tab" id="tab-resources" onclick="edumentor.switchTab('resources')">
+                                    <span class="tab-icon">📄</span>
+                                    <span class="tab-label">Files</span>
+                                </button>
+                                <button class="nav-tab" id="tab-planner" onclick="edumentor.switchTab('planner')">
+                                    <span class="tab-icon">📅</span>
+                                    <span class="tab-label">Planner</span>
+                                </button>
+                                <button class="nav-tab" id="tab-profile" onclick="edumentor.switchTab('profile')">
+                                    <span class="tab-icon">👤</span>
+                                    <span class="tab-label">Profile</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="device-home-button" onclick="edumentor.switchTab('dashboard')"></div>
+        </div>
+    </div>
+
+    <!-- Global Toast Alert box -->
+    <div id="toast-alert" class="toast-box hidden">
+        <span class="toast-icon">💡</span>
+        <span class="toast-message" id="toast-message-text">Notification Alert</span>
+    </div>
+
+    <!-- Main Controller script -->
+    <script src="edumentor.js"></script>
+</body>
+</html>
