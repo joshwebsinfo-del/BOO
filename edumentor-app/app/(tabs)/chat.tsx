@@ -64,7 +64,7 @@ export default function ChatScreen() {
 
       // POST to persist log dynamically
       try {
-        fetch('http://10.0.2.2:5000/api/save_chat', {
+        fetch('https://edumentor-backend-fbe9.onrender.com/api/save_chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

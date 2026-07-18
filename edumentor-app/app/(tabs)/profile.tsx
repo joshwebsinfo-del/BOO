@@ -25,7 +25,7 @@ export default function ProfileScreen() {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch('http://10.0.2.2:5000/api/profile');
+      const res = await fetch('https://edumentor-backend-fbe9.onrender.com/api/profile');
       if (res.ok) {
         const data = await res.json();
         setProfile({

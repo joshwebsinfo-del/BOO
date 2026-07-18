@@ -18,7 +18,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       // Connect to standalone production backend running on port 5000
-      const res = await fetch('http://10.0.2.2:5000/api/auth/login', {
+      const res = await fetch('https://edumentor-backend-fbe9.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

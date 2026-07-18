@@ -20,7 +20,7 @@ export default function PlannerScreen() {
 
   const fetchTasks = async () => {
     try {
-      const res = await fetch('http://10.0.2.2:5000/api/planner_tasks');
+      const res = await fetch('https://edumentor-backend-fbe9.onrender.com/api/planner_tasks');
       if (res.ok) {
         const data = await res.json();
         if (data && data.length > 0) {
@@ -52,7 +52,7 @@ export default function PlannerScreen() {
     const task = tasks.find(t => t.id === id);
     if (task) {
       try {
-        await fetch(`http://10.0.2.2:5000/api/planner_tasks/${id}`, {
+        await fetch(`https://edumentor-backend-fbe9.onrender.com/api/planner_tasks/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ completed: !task.checked ? 1 : 0 })
@@ -78,7 +78,7 @@ export default function PlannerScreen() {
     setNewTaskText('');
 
     try {
-      await fetch('http://10.0.2.2:5000/api/planner_tasks', {
+      await fetch('https://edumentor-backend-fbe9.onrender.com/api/planner_tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,7 +96,7 @@ export default function PlannerScreen() {
   const handleDeleteTask = async (id: string | number) => {
     setTasks(prev => prev.filter(t => t.id !== id));
     try {
-      await fetch(`http://10.0.2.2:5000/api/planner_tasks/${id}`, {
+      await fetch(`https://edumentor-backend-fbe9.onrender.com/api/planner_tasks/${id}`, {
         method: 'DELETE'
       });
     } catch (err) {
@@ -109,7 +109,7 @@ export default function PlannerScreen() {
     setTasks(prev => prev.filter(t => !t.checked));
     for (const t of completed) {
       try {
-        await fetch(`http://10.0.2.2:5000/api/planner_tasks/${t.id}`, {
+        await fetch(`https://edumentor-backend-fbe9.onrender.com/api/planner_tasks/${t.id}`, {
           method: 'DELETE'
         });
       } catch (e) {}

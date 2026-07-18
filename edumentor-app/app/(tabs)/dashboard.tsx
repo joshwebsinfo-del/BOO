@@ -22,7 +22,7 @@ export default function DashboardScreen() {
   const fetchTutorials = async () => {
     try {
       // Connect to local server IP or fallback list
-      const res = await fetch('http://10.0.2.2:5000/api/video_tutorials');
+      const res = await fetch('https://edumentor-backend-fbe9.onrender.com/api/video_tutorials');
       if (res.ok) {
         const data = await res.json();
         if (data && data.length > 0) {
