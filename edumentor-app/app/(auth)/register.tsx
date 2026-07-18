@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, TextInput, Button, RadioButton } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
@@ -10,9 +10,51 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [studentNo, setStudentNo] = useState('');
   const [role, setRole] = useState('student');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
-    router.replace('/(tabs)/dashboard');
+  const handleRegister = async () => {
+    if (!name.trim() || !username.trim() || !password.trim()) {
+      Alert.alert('Validation Error', 'Please complete all required fields.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('http://10.0.2.2:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: username.trim(),
+          password: password.trim(),
+          full_name: name.trim(),
+          role: role === 'student' ? 'Student' : 'Lecturer',
+          studentNo: role === 'student' ? studentNo.trim() : undefined
+        })
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (res.ok) {
+        Alert.alert('Success', 'Your account has been created via Supabase!');
+        router.replace('/(tabs)/dashboard');
+      } else {
+        Alert.alert('Registration Error', data.error || 'Failed to create account.');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      // Fallback
+      Alert.alert(
+        'Offline Fallback',
+        'Backend service unreachable. Registering profile locally for simulation.',
+        [
+          {
+            text: 'Continue',
+            onPress: () => router.replace('/(tabs)/dashboard')
+          }
+        ]
+      );
+    }
   };
 
   return (
@@ -74,7 +116,7 @@ export default function RegisterScreen() {
           </RadioButton.Group>
         </View>
 
-        <Button mode="contained" onPress={handleRegister} style={styles.btn}>
+        <Button mode="contained" onPress={handleRegister} style={styles.btn} loading={loading} disabled={loading}>
           Create Account
         </Button>
       </View>

@@ -6,7 +6,7 @@ async function register(req, res, next) {
     try {
         const { email, password, full_name, role, studentNo } = req.body;
 
-        // Register in Supabase auth
+        // Register in Supabase auth natively
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password
@@ -14,7 +14,9 @@ async function register(req, res, next) {
 
         if (authError) throw authError;
 
-        // Create profile in profiles table
+        const finalRole = role || 'Student';
+
+        // Create the real corresponding profile row in public schema database
         const { error: profileError } = await supabase
             .from('profiles')
             .upsert({
@@ -23,21 +25,24 @@ async function register(req, res, next) {
                 email,
                 course: 'Information Technology',
                 year_of_study: '2026',
-                profile_image: studentNo || 'KP-2026-993F'
+                role: finalRole,
+                student_no: studentNo || 'KP-2026-993F'
             });
 
-        // Also add role details to simulated users list
+        if (profileError) throw profileError;
+
         const payload = {
             id: authData.user?.id,
             email,
-            role: role || 'Student',
-            full_name
+            role: finalRole,
+            full_name,
+            studentNo: studentNo || 'KP-2026-993F'
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 
         res.status(201).json({
-            message: 'User registered successfully',
+            message: 'User registered successfully with authentic credentials',
             token,
             user: payload
         });
@@ -50,37 +55,37 @@ async function login(req, res, next) {
     try {
         const { email, password } = req.body;
 
+        // Authenticate strictly against real Supabase Auth
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
         });
 
-        if (error) {
-            // Elegant fallback if demo account is requested: joshwebsinfo@gmail.com
-            if (email === 'joshwebsinfo@gmail.com' && password === 'joshua#$#$') {
-                const payload = { id: 'admin-id-1111', email, role: 'Admin', full_name: 'Joshua Webs Administrator' };
-                const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
-                return res.json({ token, user: payload });
-            }
-            throw error;
-        }
+        if (error) throw error;
 
-        // Fetch user profile role
-        let role = 'Student';
-        if (email.includes('admin')) role = 'Admin';
-        if (email.includes('teacher')) role = 'Lecturer';
+        // Fetch corresponding profile role dynamically from live database
+        const { data: profile, error: profileErr } = await supabase
+            .from('profiles')
+            .select('role, full_name, student_no')
+            .eq('user_id', data.user?.id)
+            .maybeSingle();
+
+        const role = profile ? profile.role : 'Student';
+        const full_name = profile ? profile.full_name : (email.split('@')[0]);
+        const studentNo = profile ? profile.student_no : 'KP-2026-993F';
 
         const payload = {
             id: data.user?.id,
             email,
             role,
-            full_name: data.user?.email?.split('@')[0] || 'Kwekwe Student'
+            full_name,
+            studentNo
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 
         res.json({
-            message: 'Logged in successfully',
+            message: 'Logged in successfully against Supabase Auth',
             token,
             user: payload
         });
@@ -100,7 +105,6 @@ async function logout(req, res, next) {
 
 async function getCurrentUser(req, res, next) {
     try {
-        // req.user is populated by verifyToken middleware
         res.json({ user: req.user });
     } catch (err) {
         next(err);

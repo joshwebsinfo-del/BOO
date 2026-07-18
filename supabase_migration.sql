@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS profiles (
     course TEXT,
     year_of_study TEXT,
     profile_image TEXT,
+    role TEXT DEFAULT 'Student' NOT NULL,
+    student_no TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 

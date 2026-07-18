@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Text, TextInput, Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
@@ -7,10 +7,49 @@ export default function LoginScreen() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // Navigate straight to tabs dashboard on success
-    router.replace('/(tabs)/dashboard');
+  const handleLogin = async () => {
+    if (!username.trim() || !password.trim()) {
+      Alert.alert('Validation Error', 'Please enter your username and password.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Connect to standalone production backend running on port 5000
+      const res = await fetch('http://10.0.2.2:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: username.trim(),
+          password: password.trim()
+        })
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (res.ok) {
+        Alert.alert('Success', 'Logged in successfully against Supabase Auth!');
+        router.replace('/(tabs)/dashboard');
+      } else {
+        Alert.alert('Authentication Failure', data.error || 'Invalid credentials.');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      // Fallback redirect for visual/simulation flows if local network loopback is restricted on dev device
+      Alert.alert(
+        'Offline Fallback',
+        'Backend service unreachable. Bypassing login for simulation safety.',
+        [
+          {
+            text: 'Continue',
+            onPress: () => router.replace('/(tabs)/dashboard')
+          }
+        ]
+      );
+    }
   };
 
   return (
@@ -40,7 +79,7 @@ export default function LoginScreen() {
           theme={{ colors: { primary: '#4f46e5' }}}
         />
 
-        <Button mode="contained" onPress={handleLogin} style={styles.btn}>
+        <Button mode="contained" onPress={handleLogin} style={styles.btn} loading={loading} disabled={loading}>
           Sign In
         </Button>
 

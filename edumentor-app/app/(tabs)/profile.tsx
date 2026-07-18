@@ -1,21 +1,69 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Avatar, Card, List, Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
+interface ProfileData {
+  full_name: string;
+  email: string;
+  course: string;
+  studentNo: string;
+}
+
 export default function ProfileScreen() {
   const router = useRouter();
+  const [profile, setProfile] = useState<ProfileData>({
+    full_name: 'Loading Student...',
+    email: '',
+    course: 'Information Technology',
+    studentNo: 'KP-2026-993F'
+  });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch('http://10.0.2.2:5000/api/profile');
+      if (res.ok) {
+        const data = await res.json();
+        setProfile({
+          full_name: data.full_name || 'Kwekwe Poly Student',
+          email: data.email || 'student@kwekwe.ac.zw',
+          course: data.course || 'Information Technology',
+          studentNo: data.student_no || data.studentNo || 'KP-2026-993F'
+        });
+      }
+    } catch (err) {
+      // Fallback
+    }
+  };
 
   const handleLogout = () => {
-    router.replace('/(auth)/login');
+    Alert.alert('Logout', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: () => {
+          router.replace('/(auth)/login');
+        }
+      }
+    ]);
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Avatar.Text size={56} label="S" style={styles.avatar} labelStyle={{ fontWeight: 'bold' }} />
-        <Text style={styles.name}>Demo Student</Text>
-        <Text style={styles.meta}>BSc Information Technology • Semester 5</Text>
+        <Avatar.Text
+          size={56}
+          label={profile.full_name ? profile.full_name.charAt(0).toUpperCase() : 'S'}
+          style={styles.avatar}
+          labelStyle={{ fontWeight: 'bold' }}
+        />
+        <Text style={styles.name}>{profile.full_name}</Text>
+        <Text style={styles.meta}>{profile.course} • Semester 5</Text>
       </View>
 
       <Card style={styles.card}>
@@ -26,11 +74,11 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Student ID</Text>
-            <Text style={styles.val}>KP-2026-993F</Text>
+            <Text style={styles.val}>{profile.studentNo}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Cumulative GPA</Text>
-            <Text style={styles.val}>3.88 / 4.00</Text>
+            <Text style={styles.label}>Academic Email</Text>
+            <Text style={styles.val}>{profile.email || 'student@kwekwe.ac.zw'}</Text>
           </View>
         </Card.Content>
       </Card>
