@@ -1,0 +1,5842 @@
+[
+  {
+    "id": 1,
+    "title": "Daily Challenge 1",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 1,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 1."
+  },
+  {
+    "id": 2,
+    "title": "Daily Challenge 2",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 2,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 2."
+  },
+  {
+    "id": 3,
+    "title": "Daily Challenge 3",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 3,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 3."
+  },
+  {
+    "id": 4,
+    "title": "Daily Challenge 4",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 4,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 4."
+  },
+  {
+    "id": 5,
+    "title": "Daily Challenge 5",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 5,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 5."
+  },
+  {
+    "id": 6,
+    "title": "Daily Challenge 6",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 6,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 6."
+  },
+  {
+    "id": 7,
+    "title": "Daily Challenge 7",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 7,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 7."
+  },
+  {
+    "id": 8,
+    "title": "Daily Challenge 8",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 8,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 8."
+  },
+  {
+    "id": 9,
+    "title": "Daily Challenge 9",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 9,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 9."
+  },
+  {
+    "id": 10,
+    "title": "Daily Challenge 10",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 10,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 10."
+  },
+  {
+    "id": 11,
+    "title": "Daily Challenge 11",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 11,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 11."
+  },
+  {
+    "id": 12,
+    "title": "Daily Challenge 12",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 12,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 12."
+  },
+  {
+    "id": 13,
+    "title": "Daily Challenge 13",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 13,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 13."
+  },
+  {
+    "id": 14,
+    "title": "Daily Challenge 14",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 14,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 14."
+  },
+  {
+    "id": 15,
+    "title": "Daily Challenge 15",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 15,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 15."
+  },
+  {
+    "id": 16,
+    "title": "Daily Challenge 16",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 16,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 16."
+  },
+  {
+    "id": 17,
+    "title": "Daily Challenge 17",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 17,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 17."
+  },
+  {
+    "id": 18,
+    "title": "Daily Challenge 18",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 18,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 18."
+  },
+  {
+    "id": 19,
+    "title": "Daily Challenge 19",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 19,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 19."
+  },
+  {
+    "id": 20,
+    "title": "Daily Challenge 20",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 20,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 20."
+  },
+  {
+    "id": 21,
+    "title": "Daily Challenge 21",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 21,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 21."
+  },
+  {
+    "id": 22,
+    "title": "Daily Challenge 22",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 22,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 22."
+  },
+  {
+    "id": 23,
+    "title": "Daily Challenge 23",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 23,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 23."
+  },
+  {
+    "id": 24,
+    "title": "Daily Challenge 24",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 24,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 24."
+  },
+  {
+    "id": 25,
+    "title": "Daily Challenge 25",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 25,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 25."
+  },
+  {
+    "id": 26,
+    "title": "Daily Challenge 26",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 26,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 26."
+  },
+  {
+    "id": 27,
+    "title": "Daily Challenge 27",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 27,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 27."
+  },
+  {
+    "id": 28,
+    "title": "Daily Challenge 28",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 28,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 28."
+  },
+  {
+    "id": 29,
+    "title": "Daily Challenge 29",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 29,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 29."
+  },
+  {
+    "id": 30,
+    "title": "Daily Challenge 30",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 30,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 30."
+  },
+  {
+    "id": 31,
+    "title": "Daily Challenge 31",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 31,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 31."
+  },
+  {
+    "id": 32,
+    "title": "Daily Challenge 32",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 32,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 32."
+  },
+  {
+    "id": 33,
+    "title": "Daily Challenge 33",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 33,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 33."
+  },
+  {
+    "id": 34,
+    "title": "Daily Challenge 34",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 34,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 34."
+  },
+  {
+    "id": 35,
+    "title": "Daily Challenge 35",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 35,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 35."
+  },
+  {
+    "id": 36,
+    "title": "Daily Challenge 36",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 36,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 36."
+  },
+  {
+    "id": 37,
+    "title": "Daily Challenge 37",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 37,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 37."
+  },
+  {
+    "id": 38,
+    "title": "Daily Challenge 38",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 38,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 38."
+  },
+  {
+    "id": 39,
+    "title": "Daily Challenge 39",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 39,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 39."
+  },
+  {
+    "id": 40,
+    "title": "Daily Challenge 40",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 40,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 40."
+  },
+  {
+    "id": 41,
+    "title": "Daily Challenge 41",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 41,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 41."
+  },
+  {
+    "id": 42,
+    "title": "Daily Challenge 42",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 42,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 42."
+  },
+  {
+    "id": 43,
+    "title": "Daily Challenge 43",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 43,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 43."
+  },
+  {
+    "id": 44,
+    "title": "Daily Challenge 44",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 44,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 44."
+  },
+  {
+    "id": 45,
+    "title": "Daily Challenge 45",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 45,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 45."
+  },
+  {
+    "id": 46,
+    "title": "Daily Challenge 46",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 46,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 46."
+  },
+  {
+    "id": 47,
+    "title": "Daily Challenge 47",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 47,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 47."
+  },
+  {
+    "id": 48,
+    "title": "Daily Challenge 48",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 48,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 48."
+  },
+  {
+    "id": 49,
+    "title": "Daily Challenge 49",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 49,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 49."
+  },
+  {
+    "id": 50,
+    "title": "Daily Challenge 50",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 50,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 50."
+  },
+  {
+    "id": 51,
+    "title": "Daily Challenge 51",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 51,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 51."
+  },
+  {
+    "id": 52,
+    "title": "Daily Challenge 52",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 52,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 52."
+  },
+  {
+    "id": 53,
+    "title": "Daily Challenge 53",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 53,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 53."
+  },
+  {
+    "id": 54,
+    "title": "Daily Challenge 54",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 54,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 54."
+  },
+  {
+    "id": 55,
+    "title": "Daily Challenge 55",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 55,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 55."
+  },
+  {
+    "id": 56,
+    "title": "Daily Challenge 56",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 56,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 56."
+  },
+  {
+    "id": 57,
+    "title": "Daily Challenge 57",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 57,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 57."
+  },
+  {
+    "id": 58,
+    "title": "Daily Challenge 58",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 58,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 58."
+  },
+  {
+    "id": 59,
+    "title": "Daily Challenge 59",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 59,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 59."
+  },
+  {
+    "id": 60,
+    "title": "Daily Challenge 60",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 60,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 60."
+  },
+  {
+    "id": 61,
+    "title": "Daily Challenge 61",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 61,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 61."
+  },
+  {
+    "id": 62,
+    "title": "Daily Challenge 62",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 62,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 62."
+  },
+  {
+    "id": 63,
+    "title": "Daily Challenge 63",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 63,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 63."
+  },
+  {
+    "id": 64,
+    "title": "Daily Challenge 64",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 64,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 64."
+  },
+  {
+    "id": 65,
+    "title": "Daily Challenge 65",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 65,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 65."
+  },
+  {
+    "id": 66,
+    "title": "Daily Challenge 66",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 66,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 66."
+  },
+  {
+    "id": 67,
+    "title": "Daily Challenge 67",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 67,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 67."
+  },
+  {
+    "id": 68,
+    "title": "Daily Challenge 68",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 68,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 68."
+  },
+  {
+    "id": 69,
+    "title": "Daily Challenge 69",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 69,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 69."
+  },
+  {
+    "id": 70,
+    "title": "Daily Challenge 70",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 70,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 70."
+  },
+  {
+    "id": 71,
+    "title": "Daily Challenge 71",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 71,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 71."
+  },
+  {
+    "id": 72,
+    "title": "Daily Challenge 72",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 72,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 72."
+  },
+  {
+    "id": 73,
+    "title": "Daily Challenge 73",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 73,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 73."
+  },
+  {
+    "id": 74,
+    "title": "Daily Challenge 74",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 74,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 74."
+  },
+  {
+    "id": 75,
+    "title": "Daily Challenge 75",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 75,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 75."
+  },
+  {
+    "id": 76,
+    "title": "Daily Challenge 76",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 76,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 76."
+  },
+  {
+    "id": 77,
+    "title": "Daily Challenge 77",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 77,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 77."
+  },
+  {
+    "id": 78,
+    "title": "Daily Challenge 78",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 78,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 78."
+  },
+  {
+    "id": 79,
+    "title": "Daily Challenge 79",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 79,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 79."
+  },
+  {
+    "id": 80,
+    "title": "Daily Challenge 80",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 80,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 80."
+  },
+  {
+    "id": 81,
+    "title": "Daily Challenge 81",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 81,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 81."
+  },
+  {
+    "id": 82,
+    "title": "Daily Challenge 82",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 82,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 82."
+  },
+  {
+    "id": 83,
+    "title": "Daily Challenge 83",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 83,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 83."
+  },
+  {
+    "id": 84,
+    "title": "Daily Challenge 84",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 84,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 84."
+  },
+  {
+    "id": 85,
+    "title": "Daily Challenge 85",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 85,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 85."
+  },
+  {
+    "id": 86,
+    "title": "Daily Challenge 86",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 86,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 86."
+  },
+  {
+    "id": 87,
+    "title": "Daily Challenge 87",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 87,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 87."
+  },
+  {
+    "id": 88,
+    "title": "Daily Challenge 88",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 88,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 88."
+  },
+  {
+    "id": 89,
+    "title": "Daily Challenge 89",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 89,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 89."
+  },
+  {
+    "id": 90,
+    "title": "Daily Challenge 90",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 90,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 90."
+  },
+  {
+    "id": 91,
+    "title": "Daily Challenge 91",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 91,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 91."
+  },
+  {
+    "id": 92,
+    "title": "Daily Challenge 92",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 92,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 92."
+  },
+  {
+    "id": 93,
+    "title": "Daily Challenge 93",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 93,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 93."
+  },
+  {
+    "id": 94,
+    "title": "Daily Challenge 94",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 94,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 94."
+  },
+  {
+    "id": 95,
+    "title": "Daily Challenge 95",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 95,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 95."
+  },
+  {
+    "id": 96,
+    "title": "Daily Challenge 96",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 96,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 96."
+  },
+  {
+    "id": 97,
+    "title": "Daily Challenge 97",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 97,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 97."
+  },
+  {
+    "id": 98,
+    "title": "Daily Challenge 98",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 98,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 98."
+  },
+  {
+    "id": 99,
+    "title": "Daily Challenge 99",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 99,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 99."
+  },
+  {
+    "id": 100,
+    "title": "Daily Challenge 100",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 100,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 100."
+  },
+  {
+    "id": 101,
+    "title": "Daily Challenge 101",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 101,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 101."
+  },
+  {
+    "id": 102,
+    "title": "Daily Challenge 102",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 102,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 102."
+  },
+  {
+    "id": 103,
+    "title": "Daily Challenge 103",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 103,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 103."
+  },
+  {
+    "id": 104,
+    "title": "Daily Challenge 104",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 104,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 104."
+  },
+  {
+    "id": 105,
+    "title": "Daily Challenge 105",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 105,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 105."
+  },
+  {
+    "id": 106,
+    "title": "Daily Challenge 106",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 106,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 106."
+  },
+  {
+    "id": 107,
+    "title": "Daily Challenge 107",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 107,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 107."
+  },
+  {
+    "id": 108,
+    "title": "Daily Challenge 108",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 108,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 108."
+  },
+  {
+    "id": 109,
+    "title": "Daily Challenge 109",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 109,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 109."
+  },
+  {
+    "id": 110,
+    "title": "Daily Challenge 110",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 110,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 110."
+  },
+  {
+    "id": 111,
+    "title": "Daily Challenge 111",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 111,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 111."
+  },
+  {
+    "id": 112,
+    "title": "Daily Challenge 112",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 112,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 112."
+  },
+  {
+    "id": 113,
+    "title": "Daily Challenge 113",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 113,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 113."
+  },
+  {
+    "id": 114,
+    "title": "Daily Challenge 114",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 114,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 114."
+  },
+  {
+    "id": 115,
+    "title": "Daily Challenge 115",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 115,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 115."
+  },
+  {
+    "id": 116,
+    "title": "Daily Challenge 116",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 116,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 116."
+  },
+  {
+    "id": 117,
+    "title": "Daily Challenge 117",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 117,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 117."
+  },
+  {
+    "id": 118,
+    "title": "Daily Challenge 118",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 118,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 118."
+  },
+  {
+    "id": 119,
+    "title": "Daily Challenge 119",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 119,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 119."
+  },
+  {
+    "id": 120,
+    "title": "Daily Challenge 120",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 120,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 120."
+  },
+  {
+    "id": 121,
+    "title": "Daily Challenge 121",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 121,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 121."
+  },
+  {
+    "id": 122,
+    "title": "Daily Challenge 122",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 122,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 122."
+  },
+  {
+    "id": 123,
+    "title": "Daily Challenge 123",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 123,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 123."
+  },
+  {
+    "id": 124,
+    "title": "Daily Challenge 124",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 124,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 124."
+  },
+  {
+    "id": 125,
+    "title": "Daily Challenge 125",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 125,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 125."
+  },
+  {
+    "id": 126,
+    "title": "Daily Challenge 126",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 126,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 126."
+  },
+  {
+    "id": 127,
+    "title": "Daily Challenge 127",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 127,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 127."
+  },
+  {
+    "id": 128,
+    "title": "Daily Challenge 128",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 128,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 128."
+  },
+  {
+    "id": 129,
+    "title": "Daily Challenge 129",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 129,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 129."
+  },
+  {
+    "id": 130,
+    "title": "Daily Challenge 130",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 130,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 130."
+  },
+  {
+    "id": 131,
+    "title": "Daily Challenge 131",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 131,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 131."
+  },
+  {
+    "id": 132,
+    "title": "Daily Challenge 132",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 132,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 132."
+  },
+  {
+    "id": 133,
+    "title": "Daily Challenge 133",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 133,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 133."
+  },
+  {
+    "id": 134,
+    "title": "Daily Challenge 134",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 134,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 134."
+  },
+  {
+    "id": 135,
+    "title": "Daily Challenge 135",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 135,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 135."
+  },
+  {
+    "id": 136,
+    "title": "Daily Challenge 136",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 136,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 136."
+  },
+  {
+    "id": 137,
+    "title": "Daily Challenge 137",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 137,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 137."
+  },
+  {
+    "id": 138,
+    "title": "Daily Challenge 138",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 138,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 138."
+  },
+  {
+    "id": 139,
+    "title": "Daily Challenge 139",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 139,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 139."
+  },
+  {
+    "id": 140,
+    "title": "Daily Challenge 140",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 140,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 140."
+  },
+  {
+    "id": 141,
+    "title": "Daily Challenge 141",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 141,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 141."
+  },
+  {
+    "id": 142,
+    "title": "Daily Challenge 142",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 142,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 142."
+  },
+  {
+    "id": 143,
+    "title": "Daily Challenge 143",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 143,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 143."
+  },
+  {
+    "id": 144,
+    "title": "Daily Challenge 144",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 144,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 144."
+  },
+  {
+    "id": 145,
+    "title": "Daily Challenge 145",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 145,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 145."
+  },
+  {
+    "id": 146,
+    "title": "Daily Challenge 146",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 146,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 146."
+  },
+  {
+    "id": 147,
+    "title": "Daily Challenge 147",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 147,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 147."
+  },
+  {
+    "id": 148,
+    "title": "Daily Challenge 148",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 148,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 148."
+  },
+  {
+    "id": 149,
+    "title": "Daily Challenge 149",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 149,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 149."
+  },
+  {
+    "id": 150,
+    "title": "Daily Challenge 150",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 150,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 150."
+  },
+  {
+    "id": 151,
+    "title": "Daily Challenge 151",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 151,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 151."
+  },
+  {
+    "id": 152,
+    "title": "Daily Challenge 152",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 152,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 152."
+  },
+  {
+    "id": 153,
+    "title": "Daily Challenge 153",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 153,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 153."
+  },
+  {
+    "id": 154,
+    "title": "Daily Challenge 154",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 154,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 154."
+  },
+  {
+    "id": 155,
+    "title": "Daily Challenge 155",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 155,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 155."
+  },
+  {
+    "id": 156,
+    "title": "Daily Challenge 156",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 156,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 156."
+  },
+  {
+    "id": 157,
+    "title": "Daily Challenge 157",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 157,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 157."
+  },
+  {
+    "id": 158,
+    "title": "Daily Challenge 158",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 158,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 158."
+  },
+  {
+    "id": 159,
+    "title": "Daily Challenge 159",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 159,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 159."
+  },
+  {
+    "id": 160,
+    "title": "Daily Challenge 160",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 160,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 160."
+  },
+  {
+    "id": 161,
+    "title": "Daily Challenge 161",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 161,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 161."
+  },
+  {
+    "id": 162,
+    "title": "Daily Challenge 162",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 162,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 162."
+  },
+  {
+    "id": 163,
+    "title": "Daily Challenge 163",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 163,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 163."
+  },
+  {
+    "id": 164,
+    "title": "Daily Challenge 164",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 164,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 164."
+  },
+  {
+    "id": 165,
+    "title": "Daily Challenge 165",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 165,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 165."
+  },
+  {
+    "id": 166,
+    "title": "Daily Challenge 166",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 166,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 166."
+  },
+  {
+    "id": 167,
+    "title": "Daily Challenge 167",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 167,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 167."
+  },
+  {
+    "id": 168,
+    "title": "Daily Challenge 168",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 168,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 168."
+  },
+  {
+    "id": 169,
+    "title": "Daily Challenge 169",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 169,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 169."
+  },
+  {
+    "id": 170,
+    "title": "Daily Challenge 170",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 170,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 170."
+  },
+  {
+    "id": 171,
+    "title": "Daily Challenge 171",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 171,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 171."
+  },
+  {
+    "id": 172,
+    "title": "Daily Challenge 172",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 172,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 172."
+  },
+  {
+    "id": 173,
+    "title": "Daily Challenge 173",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 173,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 173."
+  },
+  {
+    "id": 174,
+    "title": "Daily Challenge 174",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 174,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 174."
+  },
+  {
+    "id": 175,
+    "title": "Daily Challenge 175",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 175,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 175."
+  },
+  {
+    "id": 176,
+    "title": "Daily Challenge 176",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 176,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 176."
+  },
+  {
+    "id": 177,
+    "title": "Daily Challenge 177",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 177,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 177."
+  },
+  {
+    "id": 178,
+    "title": "Daily Challenge 178",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 178,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 178."
+  },
+  {
+    "id": 179,
+    "title": "Daily Challenge 179",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 179,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 179."
+  },
+  {
+    "id": 180,
+    "title": "Daily Challenge 180",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 180,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 180."
+  },
+  {
+    "id": 181,
+    "title": "Daily Challenge 181",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 181,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 181."
+  },
+  {
+    "id": 182,
+    "title": "Daily Challenge 182",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 182,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 182."
+  },
+  {
+    "id": 183,
+    "title": "Daily Challenge 183",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 183,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 183."
+  },
+  {
+    "id": 184,
+    "title": "Daily Challenge 184",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 184,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 184."
+  },
+  {
+    "id": 185,
+    "title": "Daily Challenge 185",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 185,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 185."
+  },
+  {
+    "id": 186,
+    "title": "Daily Challenge 186",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 186,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 186."
+  },
+  {
+    "id": 187,
+    "title": "Daily Challenge 187",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 187,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 187."
+  },
+  {
+    "id": 188,
+    "title": "Daily Challenge 188",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 188,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 188."
+  },
+  {
+    "id": 189,
+    "title": "Daily Challenge 189",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 189,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 189."
+  },
+  {
+    "id": 190,
+    "title": "Daily Challenge 190",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 190,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 190."
+  },
+  {
+    "id": 191,
+    "title": "Daily Challenge 191",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 191,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 191."
+  },
+  {
+    "id": 192,
+    "title": "Daily Challenge 192",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 192,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 192."
+  },
+  {
+    "id": 193,
+    "title": "Daily Challenge 193",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 193,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 193."
+  },
+  {
+    "id": 194,
+    "title": "Daily Challenge 194",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 194,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 194."
+  },
+  {
+    "id": 195,
+    "title": "Daily Challenge 195",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 195,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 195."
+  },
+  {
+    "id": 196,
+    "title": "Daily Challenge 196",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 196,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 196."
+  },
+  {
+    "id": 197,
+    "title": "Daily Challenge 197",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 197,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 197."
+  },
+  {
+    "id": 198,
+    "title": "Daily Challenge 198",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 198,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 198."
+  },
+  {
+    "id": 199,
+    "title": "Daily Challenge 199",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 199,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 199."
+  },
+  {
+    "id": 200,
+    "title": "Daily Challenge 200",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 200,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 200."
+  },
+  {
+    "id": 201,
+    "title": "Daily Challenge 201",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 201,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 201."
+  },
+  {
+    "id": 202,
+    "title": "Daily Challenge 202",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 202,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 202."
+  },
+  {
+    "id": 203,
+    "title": "Daily Challenge 203",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 203,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 203."
+  },
+  {
+    "id": 204,
+    "title": "Daily Challenge 204",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 204,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 204."
+  },
+  {
+    "id": 205,
+    "title": "Daily Challenge 205",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 205,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 205."
+  },
+  {
+    "id": 206,
+    "title": "Daily Challenge 206",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 206,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 206."
+  },
+  {
+    "id": 207,
+    "title": "Daily Challenge 207",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 207,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 207."
+  },
+  {
+    "id": 208,
+    "title": "Daily Challenge 208",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 208,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 208."
+  },
+  {
+    "id": 209,
+    "title": "Daily Challenge 209",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 209,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 209."
+  },
+  {
+    "id": 210,
+    "title": "Daily Challenge 210",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 210,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 210."
+  },
+  {
+    "id": 211,
+    "title": "Daily Challenge 211",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 211,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 211."
+  },
+  {
+    "id": 212,
+    "title": "Daily Challenge 212",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 212,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 212."
+  },
+  {
+    "id": 213,
+    "title": "Daily Challenge 213",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 213,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 213."
+  },
+  {
+    "id": 214,
+    "title": "Daily Challenge 214",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 214,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 214."
+  },
+  {
+    "id": 215,
+    "title": "Daily Challenge 215",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 215,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 215."
+  },
+  {
+    "id": 216,
+    "title": "Daily Challenge 216",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 216,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 216."
+  },
+  {
+    "id": 217,
+    "title": "Daily Challenge 217",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 217,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 217."
+  },
+  {
+    "id": 218,
+    "title": "Daily Challenge 218",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 218,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 218."
+  },
+  {
+    "id": 219,
+    "title": "Daily Challenge 219",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 219,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 219."
+  },
+  {
+    "id": 220,
+    "title": "Daily Challenge 220",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 220,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 220."
+  },
+  {
+    "id": 221,
+    "title": "Daily Challenge 221",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 221,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 221."
+  },
+  {
+    "id": 222,
+    "title": "Daily Challenge 222",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 222,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 222."
+  },
+  {
+    "id": 223,
+    "title": "Daily Challenge 223",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 223,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 223."
+  },
+  {
+    "id": 224,
+    "title": "Daily Challenge 224",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 224,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 224."
+  },
+  {
+    "id": 225,
+    "title": "Daily Challenge 225",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 225,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 225."
+  },
+  {
+    "id": 226,
+    "title": "Daily Challenge 226",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 226,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 226."
+  },
+  {
+    "id": 227,
+    "title": "Daily Challenge 227",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 227,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 227."
+  },
+  {
+    "id": 228,
+    "title": "Daily Challenge 228",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 228,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 228."
+  },
+  {
+    "id": 229,
+    "title": "Daily Challenge 229",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 229,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 229."
+  },
+  {
+    "id": 230,
+    "title": "Daily Challenge 230",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 230,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 230."
+  },
+  {
+    "id": 231,
+    "title": "Daily Challenge 231",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 231,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 231."
+  },
+  {
+    "id": 232,
+    "title": "Daily Challenge 232",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 232,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 232."
+  },
+  {
+    "id": 233,
+    "title": "Daily Challenge 233",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 233,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 233."
+  },
+  {
+    "id": 234,
+    "title": "Daily Challenge 234",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 234,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 234."
+  },
+  {
+    "id": 235,
+    "title": "Daily Challenge 235",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 235,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 235."
+  },
+  {
+    "id": 236,
+    "title": "Daily Challenge 236",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 236,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 236."
+  },
+  {
+    "id": 237,
+    "title": "Daily Challenge 237",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 237,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 237."
+  },
+  {
+    "id": 238,
+    "title": "Daily Challenge 238",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 238,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 238."
+  },
+  {
+    "id": 239,
+    "title": "Daily Challenge 239",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 239,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 239."
+  },
+  {
+    "id": 240,
+    "title": "Daily Challenge 240",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 240,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 240."
+  },
+  {
+    "id": 241,
+    "title": "Daily Challenge 241",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 241,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 241."
+  },
+  {
+    "id": 242,
+    "title": "Daily Challenge 242",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 242,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 242."
+  },
+  {
+    "id": 243,
+    "title": "Daily Challenge 243",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 243,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 243."
+  },
+  {
+    "id": 244,
+    "title": "Daily Challenge 244",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 244,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 244."
+  },
+  {
+    "id": 245,
+    "title": "Daily Challenge 245",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 245,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 245."
+  },
+  {
+    "id": 246,
+    "title": "Daily Challenge 246",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 246,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 246."
+  },
+  {
+    "id": 247,
+    "title": "Daily Challenge 247",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 247,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 247."
+  },
+  {
+    "id": 248,
+    "title": "Daily Challenge 248",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 248,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 248."
+  },
+  {
+    "id": 249,
+    "title": "Daily Challenge 249",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 249,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 249."
+  },
+  {
+    "id": 250,
+    "title": "Daily Challenge 250",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 250,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 250."
+  },
+  {
+    "id": 251,
+    "title": "Daily Challenge 251",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 251,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 251."
+  },
+  {
+    "id": 252,
+    "title": "Daily Challenge 252",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 252,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 252."
+  },
+  {
+    "id": 253,
+    "title": "Daily Challenge 253",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 253,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 253."
+  },
+  {
+    "id": 254,
+    "title": "Daily Challenge 254",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 254,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 254."
+  },
+  {
+    "id": 255,
+    "title": "Daily Challenge 255",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 255,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 255."
+  },
+  {
+    "id": 256,
+    "title": "Daily Challenge 256",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 256,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 256."
+  },
+  {
+    "id": 257,
+    "title": "Daily Challenge 257",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 257,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 257."
+  },
+  {
+    "id": 258,
+    "title": "Daily Challenge 258",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 258,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 258."
+  },
+  {
+    "id": 259,
+    "title": "Daily Challenge 259",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 259,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 259."
+  },
+  {
+    "id": 260,
+    "title": "Daily Challenge 260",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 260,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 260."
+  },
+  {
+    "id": 261,
+    "title": "Daily Challenge 261",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 261,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 261."
+  },
+  {
+    "id": 262,
+    "title": "Daily Challenge 262",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 262,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 262."
+  },
+  {
+    "id": 263,
+    "title": "Daily Challenge 263",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 263,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 263."
+  },
+  {
+    "id": 264,
+    "title": "Daily Challenge 264",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 264,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 264."
+  },
+  {
+    "id": 265,
+    "title": "Daily Challenge 265",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 265,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 265."
+  },
+  {
+    "id": 266,
+    "title": "Daily Challenge 266",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 266,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 266."
+  },
+  {
+    "id": 267,
+    "title": "Daily Challenge 267",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 267,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 267."
+  },
+  {
+    "id": 268,
+    "title": "Daily Challenge 268",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 268,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 268."
+  },
+  {
+    "id": 269,
+    "title": "Daily Challenge 269",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 269,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 269."
+  },
+  {
+    "id": 270,
+    "title": "Daily Challenge 270",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 270,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 270."
+  },
+  {
+    "id": 271,
+    "title": "Daily Challenge 271",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 271,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 271."
+  },
+  {
+    "id": 272,
+    "title": "Daily Challenge 272",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 272,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 272."
+  },
+  {
+    "id": 273,
+    "title": "Daily Challenge 273",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 273,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 273."
+  },
+  {
+    "id": 274,
+    "title": "Daily Challenge 274",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 274,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 274."
+  },
+  {
+    "id": 275,
+    "title": "Daily Challenge 275",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 275,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 275."
+  },
+  {
+    "id": 276,
+    "title": "Daily Challenge 276",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 276,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 276."
+  },
+  {
+    "id": 277,
+    "title": "Daily Challenge 277",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 277,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 277."
+  },
+  {
+    "id": 278,
+    "title": "Daily Challenge 278",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 278,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 278."
+  },
+  {
+    "id": 279,
+    "title": "Daily Challenge 279",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 279,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 279."
+  },
+  {
+    "id": 280,
+    "title": "Daily Challenge 280",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 280,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 280."
+  },
+  {
+    "id": 281,
+    "title": "Daily Challenge 281",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 281,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 281."
+  },
+  {
+    "id": 282,
+    "title": "Daily Challenge 282",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 282,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 282."
+  },
+  {
+    "id": 283,
+    "title": "Daily Challenge 283",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 283,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 283."
+  },
+  {
+    "id": 284,
+    "title": "Daily Challenge 284",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 284,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 284."
+  },
+  {
+    "id": 285,
+    "title": "Daily Challenge 285",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 285,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 285."
+  },
+  {
+    "id": 286,
+    "title": "Daily Challenge 286",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 286,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 286."
+  },
+  {
+    "id": 287,
+    "title": "Daily Challenge 287",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 287,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 287."
+  },
+  {
+    "id": 288,
+    "title": "Daily Challenge 288",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 288,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 288."
+  },
+  {
+    "id": 289,
+    "title": "Daily Challenge 289",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 289,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 289."
+  },
+  {
+    "id": 290,
+    "title": "Daily Challenge 290",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 290,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 290."
+  },
+  {
+    "id": 291,
+    "title": "Daily Challenge 291",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 291,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 291."
+  },
+  {
+    "id": 292,
+    "title": "Daily Challenge 292",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 292,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 292."
+  },
+  {
+    "id": 293,
+    "title": "Daily Challenge 293",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 293,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 293."
+  },
+  {
+    "id": 294,
+    "title": "Daily Challenge 294",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 294,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 294."
+  },
+  {
+    "id": 295,
+    "title": "Daily Challenge 295",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 295,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 295."
+  },
+  {
+    "id": 296,
+    "title": "Daily Challenge 296",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 296,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 296."
+  },
+  {
+    "id": 297,
+    "title": "Daily Challenge 297",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 297,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 297."
+  },
+  {
+    "id": 298,
+    "title": "Daily Challenge 298",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 298,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 298."
+  },
+  {
+    "id": 299,
+    "title": "Daily Challenge 299",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 299,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 299."
+  },
+  {
+    "id": 300,
+    "title": "Daily Challenge 300",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 300,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 300."
+  },
+  {
+    "id": 301,
+    "title": "Daily Challenge 301",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 301,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 301."
+  },
+  {
+    "id": 302,
+    "title": "Daily Challenge 302",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 302,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 302."
+  },
+  {
+    "id": 303,
+    "title": "Daily Challenge 303",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 303,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 303."
+  },
+  {
+    "id": 304,
+    "title": "Daily Challenge 304",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 304,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 304."
+  },
+  {
+    "id": 305,
+    "title": "Daily Challenge 305",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 305,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 305."
+  },
+  {
+    "id": 306,
+    "title": "Daily Challenge 306",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 306,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 306."
+  },
+  {
+    "id": 307,
+    "title": "Daily Challenge 307",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 307,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 307."
+  },
+  {
+    "id": 308,
+    "title": "Daily Challenge 308",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 308,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 308."
+  },
+  {
+    "id": 309,
+    "title": "Daily Challenge 309",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 309,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 309."
+  },
+  {
+    "id": 310,
+    "title": "Daily Challenge 310",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 310,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 310."
+  },
+  {
+    "id": 311,
+    "title": "Daily Challenge 311",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 311,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 311."
+  },
+  {
+    "id": 312,
+    "title": "Daily Challenge 312",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 312,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 312."
+  },
+  {
+    "id": 313,
+    "title": "Daily Challenge 313",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 313,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 313."
+  },
+  {
+    "id": 314,
+    "title": "Daily Challenge 314",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 314,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 314."
+  },
+  {
+    "id": 315,
+    "title": "Daily Challenge 315",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 315,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 315."
+  },
+  {
+    "id": 316,
+    "title": "Daily Challenge 316",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 316,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 316."
+  },
+  {
+    "id": 317,
+    "title": "Daily Challenge 317",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 317,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 317."
+  },
+  {
+    "id": 318,
+    "title": "Daily Challenge 318",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 318,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 318."
+  },
+  {
+    "id": 319,
+    "title": "Daily Challenge 319",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 319,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 319."
+  },
+  {
+    "id": 320,
+    "title": "Daily Challenge 320",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 320,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 320."
+  },
+  {
+    "id": 321,
+    "title": "Daily Challenge 321",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 321,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 321."
+  },
+  {
+    "id": 322,
+    "title": "Daily Challenge 322",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 322,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 322."
+  },
+  {
+    "id": 323,
+    "title": "Daily Challenge 323",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 323,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 323."
+  },
+  {
+    "id": 324,
+    "title": "Daily Challenge 324",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 324,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 324."
+  },
+  {
+    "id": 325,
+    "title": "Daily Challenge 325",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 325,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 325."
+  },
+  {
+    "id": 326,
+    "title": "Daily Challenge 326",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 326,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 326."
+  },
+  {
+    "id": 327,
+    "title": "Daily Challenge 327",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 327,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 327."
+  },
+  {
+    "id": 328,
+    "title": "Daily Challenge 328",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 328,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 328."
+  },
+  {
+    "id": 329,
+    "title": "Daily Challenge 329",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 329,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 329."
+  },
+  {
+    "id": 330,
+    "title": "Daily Challenge 330",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 330,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 330."
+  },
+  {
+    "id": 331,
+    "title": "Daily Challenge 331",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 331,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 331."
+  },
+  {
+    "id": 332,
+    "title": "Daily Challenge 332",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 332,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 332."
+  },
+  {
+    "id": 333,
+    "title": "Daily Challenge 333",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 333,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 333."
+  },
+  {
+    "id": 334,
+    "title": "Daily Challenge 334",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 334,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 334."
+  },
+  {
+    "id": 335,
+    "title": "Daily Challenge 335",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 335,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 335."
+  },
+  {
+    "id": 336,
+    "title": "Daily Challenge 336",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 336,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 336."
+  },
+  {
+    "id": 337,
+    "title": "Daily Challenge 337",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 337,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 337."
+  },
+  {
+    "id": 338,
+    "title": "Daily Challenge 338",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 338,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 338."
+  },
+  {
+    "id": 339,
+    "title": "Daily Challenge 339",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 339,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 339."
+  },
+  {
+    "id": 340,
+    "title": "Daily Challenge 340",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 340,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 340."
+  },
+  {
+    "id": 341,
+    "title": "Daily Challenge 341",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 341,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 341."
+  },
+  {
+    "id": 342,
+    "title": "Daily Challenge 342",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 342,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 342."
+  },
+  {
+    "id": 343,
+    "title": "Daily Challenge 343",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 343,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 343."
+  },
+  {
+    "id": 344,
+    "title": "Daily Challenge 344",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 344,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 344."
+  },
+  {
+    "id": 345,
+    "title": "Daily Challenge 345",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 345,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 345."
+  },
+  {
+    "id": 346,
+    "title": "Daily Challenge 346",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 346,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 346."
+  },
+  {
+    "id": 347,
+    "title": "Daily Challenge 347",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 347,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 347."
+  },
+  {
+    "id": 348,
+    "title": "Daily Challenge 348",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 348,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 348."
+  },
+  {
+    "id": 349,
+    "title": "Daily Challenge 349",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 349,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 349."
+  },
+  {
+    "id": 350,
+    "title": "Daily Challenge 350",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 350,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 350."
+  },
+  {
+    "id": 351,
+    "title": "Daily Challenge 351",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 351,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 351."
+  },
+  {
+    "id": 352,
+    "title": "Daily Challenge 352",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 352,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 352."
+  },
+  {
+    "id": 353,
+    "title": "Daily Challenge 353",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 353,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 353."
+  },
+  {
+    "id": 354,
+    "title": "Daily Challenge 354",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 354,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 354."
+  },
+  {
+    "id": 355,
+    "title": "Daily Challenge 355",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 355,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 355."
+  },
+  {
+    "id": 356,
+    "title": "Daily Challenge 356",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 356,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 356."
+  },
+  {
+    "id": 357,
+    "title": "Daily Challenge 357",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 357,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 357."
+  },
+  {
+    "id": 358,
+    "title": "Daily Challenge 358",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 358,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 358."
+  },
+  {
+    "id": 359,
+    "title": "Daily Challenge 359",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 359,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 359."
+  },
+  {
+    "id": 360,
+    "title": "Daily Challenge 360",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 360,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 360."
+  },
+  {
+    "id": 361,
+    "title": "Daily Challenge 361",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 361,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 361."
+  },
+  {
+    "id": 362,
+    "title": "Daily Challenge 362",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 362,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 362."
+  },
+  {
+    "id": 363,
+    "title": "Daily Challenge 363",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 363,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 363."
+  },
+  {
+    "id": 364,
+    "title": "Daily Challenge 364",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 364,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 364."
+  },
+  {
+    "id": 365,
+    "title": "Daily Challenge 365",
+    "category": "Daily Communication",
+    "CEFR_level": "B2",
+    "lesson_number": 365,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "5 minutes",
+    "tags": [
+      "daily",
+      "routine"
+    ],
+    "challenge_type": "Record your speech response for 2 minutes using impeccable vocabulary.",
+    "instructions": "Describe your favorite personal goals for day 365."
+  }
+]

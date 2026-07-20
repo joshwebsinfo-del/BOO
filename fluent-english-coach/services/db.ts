@@ -8,7 +8,7 @@ export async function getDbConnection() {
 export async function initDatabase() {
   const db = await getDbConnection();
 
-  // Set up production SQLite tables with zero web/SMIS mock data and enable foreign keys
+  // Set up professional production-ready tables
   await db.execAsync(`
     PRAGMA foreign_keys = ON;
 
@@ -64,34 +64,11 @@ export async function initDatabase() {
       is_favorite INTEGER DEFAULT 0
     );
 
-    CREATE TABLE IF NOT EXISTS collocations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      phrase TEXT,
-      meaning TEXT,
-      example_sentence TEXT
-    );
-
     CREATE TABLE IF NOT EXISTS conversation_scenarios (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       category TEXT,
       title TEXT,
       dialogue_json TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS pronunciation_lessons (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      sound_name TEXT,
-      guide_sentence TEXT,
-      words_list TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS reading_articles (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      category TEXT,
-      title TEXT,
-      content TEXT,
-      questions_json TEXT,
-      is_bookmarked INTEGER DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS grammar_lessons (
@@ -111,7 +88,7 @@ export async function initDatabase() {
     );
   `);
 
-  // Seed default items if empty
+  // Seeding from the generated curriculum JSON files
   const rowCount = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM vocabulary');
   if (rowCount && rowCount.count === 0) {
     await seedDatabase(db);
@@ -119,63 +96,73 @@ export async function initDatabase() {
 }
 
 async function seedDatabase(db: SQLite.SQLiteDatabase) {
-  // Vocabulary Seed Entries
-  const vocabEntries = [
-    ['Business', 'Facilitate', '/fəˈsɪl.ɪ.teɪt/', 'To make an action or process easy or easier.', 'The new system will facilitate flawless offline synchronization.', 'Do not use as a direct synonym for simple "make".', 'Expedite, ease', 'Hinder, obstruct'],
-    ['Business', 'Leverage', '/ˈliː.vər.ɪdʒ/', 'To use something that you already have in order to achieve something new or better.', 'We must leverage our advanced fluency to close international deals.', 'Do not overuse; use when highlighting strategic advantage.', 'Utilize, exploit', 'Neglect, ignore'],
-    ['Travel', 'Itinerary', '/aɪˈtɪn.ər.ər.i/', 'A detailed plan or route of a journey.', 'Please review the official flight itinerary before checking in.', 'Watch the spelling - it is "itinerary", not "itinery".', 'Schedule, route', 'Disorganization'],
-    ['Daily Life', 'Impeccable', '/ɪmˈpek.ə.bəl/', 'Perfect, with no problems or bad parts.', 'Her English speaking pronunciation was impeccable.', 'Impeccable is already an absolute; do not say "very impeccable".', 'Flawless, perfect', 'Flawed, imperfect'],
-    ['Work', 'Collaborate', '/kəˈlæb.ə.reɪt/', 'To work jointly on an activity or project.', 'We will collaborate with senior developers on the new design.', 'Say "collaborate with", not "collaborate to".', 'Cooperate, team up', 'Compete, oppose']
-  ];
+  console.log('Seeding offline SQLite database from generated curriculum assets...');
 
-  for (const entry of vocabEntries) {
-    await db.runAsync(`
-      INSERT INTO vocabulary (category, word, pronunciation, meaning, example_sentence, common_mistakes, synonyms, antonyms)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, entry);
+  try {
+    // Import generated JSON data
+    const vocabularyData = require('../data/vocabulary.json');
+    const idiomsData = require('../data/idioms.json');
+    const phrasalVerbsData = require('../data/phrasal_verbs.json');
+    const grammarData = require('../data/grammar.json');
+    const conversationsData = require('../data/conversations.json');
+    const achievementsData = require('../data/achievements.json');
+
+    // Seed Vocabulary
+    for (const v of vocabularyData.slice(0, 100)) { // seed first 100 for fast mobile asset load, easily scalable
+      await db.runAsync(`
+        INSERT INTO vocabulary (category, word, pronunciation, meaning, example_sentence, common_mistakes, synonyms, antonyms)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `, [v.category, v.word, v.pronunciation, v.definition, v.example_sentence, v.common_mistake, v.synonyms, v.antonyms]);
+    }
+
+    // Seed Idioms
+    for (const idm of idiomsData.slice(0, 50)) {
+      await db.runAsync(`
+        INSERT INTO idioms (phrase, meaning, example_sentence)
+        VALUES (?, ?, ?)
+      `, [idm.idiom, idm.meaning, idm.example]);
+    }
+
+    // Seed Phrasal Verbs
+    for (const pv of phrasalVerbsData.slice(0, 50)) {
+      await db.runAsync(`
+        INSERT INTO phrasal_verbs (verb, meaning, example_sentence)
+        VALUES (?, ?, ?)
+      `, [pv.verb, pv.meaning, pv.examples]);
+    }
+
+    // Seed Conversation Scenarios
+    for (const conv of conversationsData.slice(0, 30)) {
+      await db.runAsync(`
+        INSERT INTO conversation_scenarios (category, title, dialogue_json)
+        VALUES (?, ?, ?)
+      `, [conv.category, conv.title, JSON.stringify(conv.dialogue)]);
+    }
+
+    // Seed Grammar Lessons
+    for (const g of grammarData.slice(0, 20)) {
+      await db.runAsync(`
+        INSERT INTO grammar_lessons (topic, explanation, examples_json, quiz_json)
+        VALUES (?, ?, ?, ?)
+      `, [g.category, g.explanation, JSON.stringify(g.examples), JSON.stringify({ question: g.quiz, answer: g.correct_answer })]);
+    }
+
+    // Seed achievements
+    for (const ach of achievementsData.slice(0, 20)) {
+      await db.runAsync(`
+        INSERT INTO achievements (title, description, badge_icon, is_unlocked)
+        VALUES (?, ?, ?, ?)
+      `, [ach.title, ach.description, ach.badge_icon, 0]);
+    }
+
+    // Default settings
+    await db.runAsync(`INSERT INTO settings (key, value) VALUES ('font_size', '16')`);
+    await db.runAsync(`INSERT INTO settings (key, value) VALUES ('notifications_enabled', '1')`);
+
+    console.log('Seeding finished successfully.');
+  } catch (err) {
+    console.error('Error seeding SQLite database from JSON files:', err);
   }
-
-  // Seed Phrasal Verbs
-  const phrasalVerbs = [
-    ['Carry on', 'To continue doing something.', 'Please carry on speaking for 2 minutes to complete the coach challenge.'],
-    ['Run into', 'To meet someone unexpectedly.', 'I hope to run into my mentor at the tech conference.'],
-    ['Work out', 'To solve a problem or plan something.', 'We will work out the details of the contract tomorrow.']
-  ];
-
-  for (const pv of phrasalVerbs) {
-    await db.runAsync(`
-      INSERT INTO phrasal_verbs (verb, meaning, example_sentence)
-      VALUES (?, ?, ?)
-    `, pv);
-  }
-
-  // Seed Idioms
-  const idiomsList = [
-    ['Break the ice', 'To make people feel more comfortable in a social situation.', 'Let us play a quick game to break the ice in the room.'],
-    ['Hit the books', 'To study intensively.', 'I must hit the books tonight to master Present Perfect grammar.']
-  ];
-
-  for (const idm of idiomsList) {
-    await db.runAsync(`
-      INSERT INTO idioms (phrase, meaning, example_sentence)
-      VALUES (?, ?, ?)
-    `, idm);
-  }
-
-  // Seed Conversation Scenarios
-  const dialogueSample = JSON.stringify([
-    { role: "coach", text: "Welcome to your mock interview. Let us discuss how you handle critical client situations." },
-    { role: "user", text: "In my previous role, I had to leverage immediate collaborative efforts to resolve critical bugs." }
-  ]);
-
-  await db.runAsync(`
-    INSERT INTO conversation_scenarios (category, title, dialogue_json)
-    VALUES (?, ?, ?)
-  `, ['Business', 'Mock Career Interview', dialogueSample]);
-
-  // Seed settings default values
-  await db.runAsync(`INSERT INTO settings (key, value) VALUES ('font_size', '16')`);
-  await db.runAsync(`INSERT INTO settings (key, value) VALUES ('notifications_enabled', '1')`);
 }
 
 // Actual SQLite query methods to use directly inside app screens:
