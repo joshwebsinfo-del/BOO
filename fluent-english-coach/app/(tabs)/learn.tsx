@@ -1,48 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { getAllVocabulary, getAllIdioms, getAllPhrasalVerbs } from '../../services/db';
 
 export default function LearnScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [vocab, setVocab] = useState<any[]>([]);
+  const [idioms, setIdioms] = useState<any[]>([]);
+  const [phrasals, setPhrasals] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
 
-  const categories = ['All', 'Travel', 'Business', 'Daily Life', 'Work', 'Money'];
+  useEffect(() => {
+    loadContent();
+  }, []);
+
+  const loadContent = async () => {
+    try {
+      const vocabData = await getAllVocabulary();
+      const idiomData = await getAllIdioms();
+      const phrasalData = await getAllPhrasalVerbs();
+      setVocab(vocabData || []);
+      setIdioms(idiomData || []);
+      setPhrasals(phrasalData || []);
+    } catch (err) {
+      console.warn('Could not query content from local SQLite:', err);
+    }
+  };
+
+  const filteredVocab = vocab.filter(item => {
+    const matchesCat = category === 'All' || item.category === category;
+    const matchesSearch = item.word.toLowerCase().includes(search.toLowerCase()) ||
+                          item.meaning.toLowerCase().includes(search.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.pageTitle}>Vocabulary Builder</Text>
-      <Text style={styles.pageSubtitle}>Learn premium English for confident, natural conversations.</Text>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search vocabulary offline..."
+        value={search}
+        onChangeText={setSearch}
+      />
 
-      {/* Filter Categories */}
+      {/* Category Chips */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-        {categories.map(cat => (
+        {['All', 'Business', 'Travel', 'Daily Life', 'Work'].map(cat => (
           <TouchableOpacity
             key={cat}
-            style={[styles.categoryChip, activeCategory === cat && styles.activeChip]}
-            onPress={() => setActiveCategory(cat)}
+            style={[styles.categoryChip, category === cat && styles.activeChip]}
+            onPress={() => setCategory(cat)}
           >
-            <Text style={[styles.chipText, activeCategory === cat && styles.activeChipText]}>
+            <Text style={[styles.chipText, category === cat && styles.activeChipText]}>
               {cat}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
-      {/* Featured Expressions */}
-      <View style={styles.card}>
-        <Text style={styles.sectionHeader}>Idiom of the Day</Text>
-        <Text style={styles.phraseTitle}>"Hit the books"</Text>
-        <Text style={styles.meaningText}>Meaning: To study very hard or intensively.</Text>
-        <Text style={styles.exampleText}>Example: "I have an intermediate exam tomorrow, so I need to hit the books tonight."</Text>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.sectionHeader}>Instead of "I'm happy", say:</Text>
-        <View style={styles.list}>
-          <Text style={styles.listItem}>• I'm over the moon</Text>
-          <Text style={styles.listItem}>• I'm thrilled</Text>
-          <Text style={styles.listItem}>• I'm absolutely delighted</Text>
+      {/* Dynamic SQLite Vocabulary Results */}
+      <Text style={styles.sectionTitle}>Vocabulary Words ({filteredVocab.length})</Text>
+      {filteredVocab.map((v: any) => (
+        <View key={v.id} style={styles.card}>
+          <Text style={styles.sectionHeader}>{v.category}</Text>
+          <Text style={styles.phraseTitle}>{v.word}</Text>
+          <Text style={styles.pronunciation}>{v.pronunciation}</Text>
+          <Text style={styles.meaningText}>Meaning: {v.meaning}</Text>
+          <Text style={styles.exampleText}>Example: "{v.example_sentence}"</Text>
         </View>
-      </View>
+      ))}
+
+      {/* Dynamic SQLite Idioms */}
+      <Text style={styles.sectionTitle}>Idioms</Text>
+      {idioms.map((idm: any) => (
+        <View key={idm.id} style={styles.card}>
+          <Text style={styles.phraseTitle}>{idm.phrase}</Text>
+          <Text style={styles.meaningText}>Meaning: {idm.meaning}</Text>
+          <Text style={styles.exampleText}>Example: "{idm.example_sentence}"</Text>
+        </View>
+      ))}
     </ScrollView>
   );
 }
@@ -59,12 +95,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
     color: '#111827',
+    marginBottom: 12,
   },
-  pageSubtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 4,
-    marginBottom: 20,
+  searchInput: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    backgroundColor: '#F8FAFC',
   },
   categoryScroll: {
     marginBottom: 20,
@@ -87,6 +127,13 @@ const styles = StyleSheet.create({
   activeChipText: {
     color: '#FFFFFF',
   },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+    marginTop: 10,
+    marginBottom: 10,
+  },
   card: {
     backgroundColor: '#F8FAFC',
     borderRadius: 16,
@@ -96,38 +143,34 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   sectionHeader: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     color: '#2563EB',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   phraseTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
     color: '#111827',
+  },
+  pronunciation: {
+    fontSize: 13,
+    color: '#6B7280',
     marginBottom: 8,
+    fontFamily: 'monospace',
   },
   meaningText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: '#374151',
     marginBottom: 6,
   },
   exampleText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#6B7280',
-    lineHeight: 20,
+    lineHeight: 18,
     fontStyle: 'italic',
-  },
-  list: {
-    marginTop: 8,
-  },
-  listItem: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 8,
   },
 });

@@ -1,7 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { getStatistics, updateDailyStats } from '../../services/db';
 
 export default function HomeDashboard() {
+  const [streak, setStreak] = useState(5);
+  const [xp, setXp] = useState(480);
+  const [speakingTime, setSpeakingTime] = useState(15);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const stats = await getStatistics();
+      if (stats && stats.length > 0) {
+        let totalXp = 480;
+        let totalSpeak = 15;
+        stats.forEach((row: any) => {
+          totalXp += (row.xp_earned || 0);
+          totalSpeak += (row.speaking_time || 0);
+        });
+        setXp(totalXp);
+        setSpeakingTime(totalSpeak);
+      }
+    } catch (err) {
+      console.warn('Could not load sqlite stats, using default values:', err);
+    }
+  };
+
+  const completeChallenge = async () => {
+    try {
+      await updateDailyStats(5, 0, 0, 0, 50);
+      alert('Congratulations! You completed the Daily Speaking Challenge and earned +50 XP!');
+      loadStats();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.greetingContainer}>
@@ -14,31 +51,31 @@ export default function HomeDashboard() {
         <Text style={styles.cardTitle}>Today's Progress</Text>
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>15m</Text>
+            <Text style={styles.statValue}>{speakingTime}m</Text>
             <Text style={styles.statLabel}>Speaking</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>5 🔥</Text>
+            <Text style={styles.statValue}>{streak} 🔥</Text>
             <Text style={styles.statLabel}>Streak</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>240</Text>
+            <Text style={styles.statValue}>{xp}</Text>
             <Text style={styles.statLabel}>XP</Text>
           </View>
         </View>
       </View>
 
       {/* Challenge Section */}
-      <TouchableOpacity style={[styles.card, styles.challengeCard]}>
+      <TouchableOpacity style={[styles.card, styles.challengeCard]} onPress={completeChallenge}>
         <Text style={styles.challengeLabel}>DAILY CHALLENGE</Text>
-        <Text style={styles.challengeText}>"Speak about your favorite book or movie for 1 minute."</Text>
-        <Text style={styles.challengeReward}>+50 XP</Text>
+        <Text style={styles.challengeText}>"Speak about your career objectives for 1 minute."</Text>
+        <Text style={styles.challengeReward}>Tap to Complete Challenge (+50 XP)</Text>
       </TouchableOpacity>
 
       {/* Daily Motivation */}
       <View style={styles.quoteCard}>
         <Text style={styles.quoteText}>"Fluency is not about speaking fast; it's about speaking with clear confidence."</Text>
-        <Text style={styles.quoteAuthor}>— Fluent English Coach</Text>
+        <Text style={styles.quoteAuthor}>— Your Pocket Coach</Text>
       </View>
     </ScrollView>
   );
@@ -72,11 +109,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
   },
   challengeCard: {
     backgroundColor: '#EEF2FF',

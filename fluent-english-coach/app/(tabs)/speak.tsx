@@ -1,43 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { getConversationScenarios, updateDailyStats } from '../../services/db';
 
 export default function SpeakScreen() {
   const [isRecording, setIsRecording] = useState(false);
+  const [scenarios, setScenarios] = useState<any[]>([]);
+  const [activeScenario, setActiveScenario] = useState<any>(null);
+  const [dialogueIndex, setDialogueIndex] = useState(1);
+
+  useEffect(() => {
+    loadScenarios();
+  }, []);
+
+  const loadScenarios = async () => {
+    try {
+      const data = await getConversationScenarios();
+      setScenarios(data || []);
+      if (data && data.length > 0) {
+        setActiveScenario(data[0]);
+      }
+    } catch (err) {
+      console.warn('Could not query conversations from SQLite:', err);
+    }
+  };
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop and save time stats
+      setIsRecording(false);
+      try {
+        await updateDailyStats(1, 0, 0, 0, 30);
+        alert('Challenge complete! Awarded +30 XP.');
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      setIsRecording(true);
+    }
+  };
+
+  const advanceDialogue = () => {
+    if (!activeScenario) return;
+    const parsed = JSON.parse(activeScenario.dialogue_json);
+    if (dialogueIndex < parsed.length) {
+      setDialogueIndex(dialogueIndex + 1);
+    } else {
+      alert('Scenario dialogue completed!');
+    }
+  };
+
+  const parsedDialogue = activeScenario ? JSON.parse(activeScenario.dialogue_json).slice(0, dialogueIndex) : [];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.pageTitle}>Speaking Coach</Text>
-      <Text style={styles.pageSubtitle}>Simulate standard conversation scenarios fully offline.</Text>
+      <Text style={styles.pageSubtitle}>Simulate conversation role-plays fully offline.</Text>
 
       {/* Challenge Card */}
       <View style={styles.card}>
-        <Text style={styles.accentLabel}>TODAY'S TOPIC</Text>
-        <Text style={styles.promptTitle}>"Describe your dream job and why it excites you."</Text>
-        <Text style={styles.durationTag}>Recommended: Speak for 1 minute</Text>
+        <Text style={styles.accentLabel}>TOPIC CHALLENGE</Text>
+        <Text style={styles.promptTitle}>"Describe your favorite travel journey in English."</Text>
+        <Text style={styles.durationTag}>Recommended speaking duration: 1 min</Text>
 
         <TouchableOpacity
           style={[styles.recordButton, isRecording && styles.recordingActive]}
-          onPress={() => setIsRecording(!isRecording)}
+          onPress={toggleRecording}
         >
           <Text style={styles.recordButtonText}>
-            {isRecording ? '⏹ Stop Recording' : '🎤 Start Challenge'}
+            {isRecording ? '⏹ Stop & Analyze' : '🎤 Record Response'}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Simulator Section */}
-      <Text style={styles.sectionTitle}>Conversation Simulators</Text>
-      <View style={styles.listContainer}>
-        {['Job Interview', 'Dating', 'Business Meeting', 'Ordering at Coffee Shop'].map(scenario => (
-          <TouchableOpacity key={scenario} style={styles.scenarioRow}>
-            <View>
-              <Text style={styles.scenarioName}>{scenario}</Text>
-              <Text style={styles.scenarioDesc}>Learn natural phrases and swap roles</Text>
-            </View>
-            <Text style={styles.goIcon}>➔</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <Text style={styles.sectionTitle}>Conversation Simulator</Text>
+      {activeScenario ? (
+        <View style={styles.simulatorCard}>
+          <Text style={styles.scenarioTitle}>{activeScenario.title}</Text>
+          <ScrollView style={styles.dialogueBox}>
+            {parsedDialogue.map((d: any, idx: number) => (
+              <View key={idx} style={[styles.bubble, d.role === 'coach' ? styles.coachBubble : styles.userBubble]}>
+                <Text style={styles.bubbleRole}>{d.role === 'coach' ? 'Coach' : 'You'}</Text>
+                <Text style={styles.bubbleText}>{d.text}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.advanceBtn} onPress={advanceDialogue}>
+              <Text style={styles.btnText}>Next Dialogue ➔</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <Text style={styles.emptyText}>No conversation scenarios available.</Text>
+      )}
     </ScrollView>
   );
 }
@@ -112,34 +168,66 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 12,
   },
-  listContainer: {
+  simulatorCard: {
     backgroundColor: '#F8FAFC',
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    overflow: 'hidden',
-  },
-  scenarioRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
-  scenarioName: {
+  scenarioTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#111827',
+    marginBottom: 12,
   },
-  scenarioDesc: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 2,
+  dialogueBox: {
+    maxHeight: 220,
+    marginBottom: 16,
   },
-  goIcon: {
-    fontSize: 16,
-    color: '#2563EB',
+  bubble: {
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    maxWidth: '85%',
+  },
+  coachBubble: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E2E8F0',
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  userBubble: {
+    backgroundColor: '#2563EB',
+    alignSelf: 'flex-end',
+  },
+  bubbleRole: {
+    fontSize: 11,
     fontWeight: '700',
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  bubbleText: {
+    fontSize: 14,
+    color: '#111827',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  advanceBtn: {
+    backgroundColor: '#2563EB',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  btnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  emptyText: {
+    color: '#6B7280',
+    fontStyle: 'italic',
   },
 });
