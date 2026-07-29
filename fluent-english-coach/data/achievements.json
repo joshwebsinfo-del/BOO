@@ -1,0 +1,1802 @@
+[
+  {
+    "id": 1,
+    "title": "Badge 1",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 1,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 1 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 1 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 2,
+    "title": "Badge 2",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 2,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 2 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 2 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 3,
+    "title": "Badge 3",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 3,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 3 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 3 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 4,
+    "title": "Badge 4",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 4,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 4 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 4 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 5,
+    "title": "Badge 5",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 5,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 5 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 5 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 6,
+    "title": "Badge 6",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 6,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 6 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 6 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 7,
+    "title": "Badge 7",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 7,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 7 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 7 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 8,
+    "title": "Badge 8",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 8,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 8 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 8 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 9,
+    "title": "Badge 9",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 9,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 9 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 9 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 10,
+    "title": "Badge 10",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 10,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 10 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 10 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 11,
+    "title": "Badge 11",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 11,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 11 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 11 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 12,
+    "title": "Badge 12",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 12,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 12 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 12 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 13,
+    "title": "Badge 13",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 13,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 13 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 13 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 14,
+    "title": "Badge 14",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 14,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 14 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 14 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 15,
+    "title": "Badge 15",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 15,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 15 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 15 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 16,
+    "title": "Badge 16",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 16,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 16 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 16 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 17,
+    "title": "Badge 17",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 17,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 17 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 17 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 18,
+    "title": "Badge 18",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 18,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 18 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 18 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 19,
+    "title": "Badge 19",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 19,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 19 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 19 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 20,
+    "title": "Badge 20",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 20,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 20 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 20 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 21,
+    "title": "Badge 21",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 21,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 21 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 21 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 22,
+    "title": "Badge 22",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 22,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 22 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 22 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 23,
+    "title": "Badge 23",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 23,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 23 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 23 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 24,
+    "title": "Badge 24",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 24,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 24 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 24 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 25,
+    "title": "Badge 25",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 25,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 25 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 25 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 26,
+    "title": "Badge 26",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 26,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 26 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 26 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 27,
+    "title": "Badge 27",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 27,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 27 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 27 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 28,
+    "title": "Badge 28",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 28,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 28 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 28 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 29,
+    "title": "Badge 29",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 29,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 29 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 29 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 30,
+    "title": "Badge 30",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 30,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 30 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 30 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 31,
+    "title": "Badge 31",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 31,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 31 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 31 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 32,
+    "title": "Badge 32",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 32,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 32 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 32 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 33,
+    "title": "Badge 33",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 33,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 33 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 33 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 34,
+    "title": "Badge 34",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 34,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 34 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 34 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 35,
+    "title": "Badge 35",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 35,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 35 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 35 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 36,
+    "title": "Badge 36",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 36,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 36 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 36 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 37,
+    "title": "Badge 37",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 37,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 37 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 37 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 38,
+    "title": "Badge 38",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 38,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 38 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 38 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 39,
+    "title": "Badge 39",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 39,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 39 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 39 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 40,
+    "title": "Badge 40",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 40,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 40 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 40 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 41,
+    "title": "Badge 41",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 41,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 41 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 41 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 42,
+    "title": "Badge 42",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 42,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 42 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 42 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 43,
+    "title": "Badge 43",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 43,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 43 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 43 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 44,
+    "title": "Badge 44",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 44,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 44 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 44 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 45,
+    "title": "Badge 45",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 45,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 45 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 45 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 46,
+    "title": "Badge 46",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 46,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 46 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 46 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 47,
+    "title": "Badge 47",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 47,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 47 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 47 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 48,
+    "title": "Badge 48",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 48,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 48 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 48 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 49,
+    "title": "Badge 49",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 49,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 49 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 49 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 50,
+    "title": "Badge 50",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 50,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 50 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 50 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 51,
+    "title": "Badge 51",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 51,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 51 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 51 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 52,
+    "title": "Badge 52",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 52,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 52 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 52 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 53,
+    "title": "Badge 53",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 53,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 53 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 53 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 54,
+    "title": "Badge 54",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 54,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 54 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 54 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 55,
+    "title": "Badge 55",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 55,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 55 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 55 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 56,
+    "title": "Badge 56",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 56,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 56 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 56 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 57,
+    "title": "Badge 57",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 57,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 57 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 57 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 58,
+    "title": "Badge 58",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 58,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 58 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 58 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 59,
+    "title": "Badge 59",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 59,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 59 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 59 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 60,
+    "title": "Badge 60",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 60,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 60 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 60 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 61,
+    "title": "Badge 61",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 61,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 61 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 61 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 62,
+    "title": "Badge 62",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 62,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 62 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 62 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 63,
+    "title": "Badge 63",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 63,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 63 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 63 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 64,
+    "title": "Badge 64",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 64,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 64 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 64 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 65,
+    "title": "Badge 65",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 65,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 65 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 65 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 66,
+    "title": "Badge 66",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 66,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 66 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 66 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 67,
+    "title": "Badge 67",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 67,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 67 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 67 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 68,
+    "title": "Badge 68",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 68,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 68 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 68 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 69,
+    "title": "Badge 69",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 69,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 69 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 69 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 70,
+    "title": "Badge 70",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 70,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 70 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 70 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 71,
+    "title": "Badge 71",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 71,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 71 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 71 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 72,
+    "title": "Badge 72",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 72,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 72 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 72 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 73,
+    "title": "Badge 73",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 73,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 73 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 73 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 74,
+    "title": "Badge 74",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 74,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 74 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 74 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 75,
+    "title": "Badge 75",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 75,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 75 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 75 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 76,
+    "title": "Badge 76",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 76,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 76 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 76 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 77,
+    "title": "Badge 77",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 77,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 77 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 77 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 78,
+    "title": "Badge 78",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 78,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 78 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 78 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 79,
+    "title": "Badge 79",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 79,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 79 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 79 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 80,
+    "title": "Badge 80",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 80,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 80 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 80 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 81,
+    "title": "Badge 81",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 81,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 81 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 81 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 82,
+    "title": "Badge 82",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 82,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 82 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 82 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 83,
+    "title": "Badge 83",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 83,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 83 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 83 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 84,
+    "title": "Badge 84",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 84,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 84 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 84 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 85,
+    "title": "Badge 85",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 85,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 85 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 85 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 86,
+    "title": "Badge 86",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 86,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 86 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 86 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 87,
+    "title": "Badge 87",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 87,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 87 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 87 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 88,
+    "title": "Badge 88",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 88,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 88 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 88 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 89,
+    "title": "Badge 89",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 89,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 89 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 89 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 90,
+    "title": "Badge 90",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 90,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 90 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 90 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 91,
+    "title": "Badge 91",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 91,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 91 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 91 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 92,
+    "title": "Badge 92",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 92,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 92 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 92 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 93,
+    "title": "Badge 93",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 93,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 93 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 93 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 94,
+    "title": "Badge 94",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 94,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 94 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 94 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 95,
+    "title": "Badge 95",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 95,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 95 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 95 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 96,
+    "title": "Badge 96",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 96,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 96 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 96 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 97,
+    "title": "Badge 97",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 97,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 97 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 97 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 98,
+    "title": "Badge 98",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 98,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 98 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 98 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 99,
+    "title": "Badge 99",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 99,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 99 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 99 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  },
+  {
+    "id": 100,
+    "title": "Badge 100",
+    "category": "Fluency",
+    "CEFR_level": "B2",
+    "lesson_number": 100,
+    "module": "Fluency",
+    "difficulty": "Intermediate",
+    "estimated_study_time": "0 minutes",
+    "tags": [
+      "badge",
+      "milestone"
+    ],
+    "description": "Awarded for completing level 100 offline milestones.",
+    "xp_value": 100,
+    "unlocking_conditions": "Complete lesson number 100 with 80% accuracy.",
+    "badge_icon": "\ud83c\udfc6"
+  }
+]

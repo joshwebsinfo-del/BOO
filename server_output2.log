@@ -1,0 +1,4 @@
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+⚠️ DATABASE_URL is not defined. Using mock PostgreSQL pool.
+⚠️ Mock pool – skipping DB initialization.
+Egles SMIS server running on port 3000
