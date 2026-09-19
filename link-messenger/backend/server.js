@@ -151,6 +151,19 @@ app.post('/api/link_users/signup', (req, res) => {
             'INSERT INTO link_users (user_id, name, avatar, status, online, last_seen) VALUES (?, ?, ?, ?, 1, ?)'
         ).run(userId, name, avatar || '⚡', status || 'Hey there! I am using Link.', 'Just now');
         user = db.prepare('SELECT * FROM link_users WHERE id = ?').get(result.lastInsertRowid);
+
+        // Auto-add new registered user to Campus Announcements group chat
+        const announcementsChat = db.prepare('SELECT * FROM link_chats WHERE chat_id = ?').get('chat_announcements');
+        if (announcementsChat) {
+            const members = announcementsChat.participants ? announcementsChat.participants.split(',') : [];
+            if (!members.includes(userId)) {
+                members.push(userId);
+                db.prepare('UPDATE link_chats SET participants = ? WHERE chat_id = ?').run(members.join(','), 'chat_announcements');
+                db.prepare('INSERT INTO link_messages (chat_id, sender_id, sender_name, content, timestamp) VALUES (?, ?, ?, ?, ?)').run(
+                    'chat_announcements', 'system', 'System', `${name} joined Link Messenger! 👋`, new Date().toISOString()
+                );
+            }
+        }
     }
 
     res.status(200).json(normUser(user));

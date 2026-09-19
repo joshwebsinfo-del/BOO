@@ -49,6 +49,9 @@ export default function App() {
   const [createGroupModalVisible, setCreateGroupModalVisible] = useState(false);
   const [groupMembersModalVisible, setGroupMembersModalVisible] = useState(false);
 
+  // Search queries
+  const [contactSearchQuery, setContactSearchQuery] = useState('');
+
   // Forms state
   const [signupName, setSignupName] = useState('');
   const [signupUserId, setSignupUserId] = useState('');
@@ -157,7 +160,12 @@ export default function App() {
       setSignupModalVisible(false);
       setDrawerVisible(false);
       await fetchUsers();
-      Alert.alert('Account Synced! 🎉', `Welcome ${syncedUser.name}! Your account is now synced across Link Messenger.`);
+      await fetchChats();
+
+      Alert.alert(
+        'Account Synced & Chat Ready! 🎉',
+        `Welcome ${syncedUser.name}! You are now registered in the database, automatically joined to Campus Announcements, and ready for searching and chatting!`
+      );
     } catch (e) {
       Alert.alert('Error', 'Failed to sync account');
     }
@@ -279,11 +287,18 @@ export default function App() {
     }
   };
 
+  // Filter contacts by search query
+  const filteredContacts = users.filter(u =>
+    u.userId !== currentUser.userId &&
+    (u.name.toLowerCase().includes(contactSearchQuery.toLowerCase()) ||
+     u.userId.toLowerCase().includes(contactSearchQuery.toLowerCase()))
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Reorganized Clean Top Header with Hamburger Button */}
+      {/* Top Header with Hamburger Button */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.hamburgerBtn} onPress={() => setDrawerVisible(true)}>
           <Text style={styles.hamburgerIcon}>☰</Text>
@@ -488,7 +503,7 @@ export default function App() {
             <Text style={styles.inputLabel}>Full Name:</Text>
             <TextInput
               style={styles.modalSingleInput}
-              placeholder="e.g. Joshua Web Master"
+              placeholder="e.g. Tapiwa Mukaro"
               placeholderTextColor="#94a3b8"
               value={signupName}
               onChangeText={setSignupName}
@@ -497,7 +512,7 @@ export default function App() {
             <Text style={styles.inputLabel}>Username / User ID:</Text>
             <TextInput
               style={styles.modalSingleInput}
-              placeholder="e.g. joshua_w"
+              placeholder="e.g. tapiwa_m"
               placeholderTextColor="#94a3b8"
               autoCapitalize="none"
               value={signupUserId}
@@ -507,7 +522,7 @@ export default function App() {
             <Text style={styles.inputLabel}>Status / Bio:</Text>
             <TextInput
               style={styles.modalSingleInput}
-              placeholder="e.g. Building awesome apps!"
+              placeholder="e.g. Ready for chatting!"
               placeholderTextColor="#94a3b8"
               value={signupStatus}
               onChangeText={setSignupStatus}
@@ -543,12 +558,20 @@ export default function App() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>💬 Start Direct Chat</Text>
-            <Text style={styles.modalSubtitle}>Pick a contact to message directly.</Text>
+            <Text style={styles.modalSubtitle}>Search & pick contacts registered in database.</Text>
+
+            <TextInput
+              style={styles.modalSingleInput}
+              placeholder="🔍 Search by name or username..."
+              placeholderTextColor="#94a3b8"
+              value={contactSearchQuery}
+              onChangeText={setContactSearchQuery}
+            />
 
             <FlatList
-              data={users.filter(u => u.userId !== currentUser.userId)}
+              data={filteredContacts}
               keyExtractor={item => item.userId}
-              style={{ maxHeight: 250, marginVertical: 10 }}
+              style={{ maxHeight: 220, marginVertical: 8 }}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.userPickRow}
@@ -557,7 +580,7 @@ export default function App() {
                   <Text style={styles.userPickAvatar}>{item.avatar}</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.userPickName}>{item.name}</Text>
-                    <Text style={styles.userPickStatus}>{item.status}</Text>
+                    <Text style={styles.userPickStatus}>@{item.userId} • {item.status}</Text>
                   </View>
                   <Text style={styles.startText}>Start 💬</Text>
                 </TouchableOpacity>
@@ -586,12 +609,20 @@ export default function App() {
               onChangeText={setGroupName}
             />
 
-            <Text style={styles.memberPickerLabel}>Select Members:</Text>
+            <TextInput
+              style={styles.modalSingleInput}
+              placeholder="🔍 Filter contacts..."
+              placeholderTextColor="#94a3b8"
+              value={contactSearchQuery}
+              onChangeText={setContactSearchQuery}
+            />
+
+            <Text style={styles.memberPickerLabel}>Select Members ({selectedMembers.length}):</Text>
 
             <FlatList
-              data={users.filter(u => u.userId !== currentUser.userId)}
+              data={filteredContacts}
               keyExtractor={item => item.userId}
-              style={{ maxHeight: 180, marginBottom: 15 }}
+              style={{ maxHeight: 180, marginBottom: 12 }}
               renderItem={({ item }) => {
                 const isSelected = selectedMembers.includes(item.userId);
                 return (
@@ -790,7 +821,7 @@ const styles = StyleSheet.create({
   drawerItemText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
   drawerFooter: { paddingTop: 15, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   drawerFooterText: { color: '#94a3b8', fontSize: 10, textAlign: 'center' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', alignItems: 'center', justifyContent: 'center', padding: 15 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', alignItems: 'center', justify: 'center', padding: 15 },
   modalCard: { width: '100%', backgroundColor: '#0a0f1e', borderRadius: 20, padding: 18, borderWidth: 1, borderColor: '#6366f1' },
   modalTitle: { color: '#ffffff', fontSize: 17, fontWeight: '800', textAlign: 'center' },
   modalSubtitle: { color: '#94a3b8', fontSize: 11, textAlign: 'center', marginBottom: 12 },
