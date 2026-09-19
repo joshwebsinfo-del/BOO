@@ -179,3 +179,54 @@ CREATE TABLE IF NOT EXISTS "users" (
     "role" VARCHAR(100),
     "name" VARCHAR(255)
 );
+
+CREATE TABLE IF NOT EXISTS "link_users" (
+    id SERIAL PRIMARY KEY,
+    "userId" VARCHAR(100) UNIQUE,
+    "name" VARCHAR(255),
+    "avatar" TEXT,
+    "status" TEXT DEFAULT 'Hey there! I am using Link.',
+    "online" INTEGER DEFAULT 1,
+    "lastSeen" VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS "link_chats" (
+    id SERIAL PRIMARY KEY,
+    "chatId" VARCHAR(100) UNIQUE,
+    "type" VARCHAR(50) DEFAULT 'direct',
+    "name" VARCHAR(255),
+    "participants" TEXT,
+    "lastMessage" TEXT,
+    "updatedAt" VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS "link_messages" (
+    id SERIAL PRIMARY KEY,
+    "chatId" VARCHAR(100),
+    "senderId" VARCHAR(100),
+    "senderName" VARCHAR(255),
+    "content" TEXT,
+    "attachment" TEXT,
+    "reaction" VARCHAR(50),
+    "timestamp" VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS "link_statuses" (
+    id SERIAL PRIMARY KEY,
+    "userId" VARCHAR(100),
+    "userName" VARCHAR(255),
+    "userAvatar" TEXT,
+    "content" TEXT,
+    "bgGradient" TEXT,
+    "mediaUrl" TEXT,
+    "createdAt" VARCHAR(100),
+    "expiresAt" VARCHAR(100),
+    "likes" INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS "link_status_views" (
+    id SERIAL PRIMARY KEY,
+    "statusId" INTEGER,
+    "viewerId" VARCHAR(100),
+    "viewedAt" VARCHAR(100)
+);

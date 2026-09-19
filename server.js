@@ -43,17 +43,104 @@ if (!disableDatabase && databaseUrl && !isLocalDatabase) {
         { id: 2, username: 'teacher', password: 'teacher123', role: 'Teacher', name: 'Demo Teacher' },
         { id: 3, username: 'student', password: 'student123', role: 'Student', name: 'Demo Student' }
     ];
-    
+
+    const mockTables = {
+        link_users: [
+            { id: 1, userid: 'admin', name: 'System Administrator', avatar: '⚡', status: 'Available for support', online: 1, lastseen: 'Just now' },
+            { id: 2, userid: 'teacher', name: 'Demo Teacher', avatar: '📚', status: 'In class', online: 1, lastseen: '2m ago' },
+            { id: 3, userid: 'student', name: 'Demo Student', avatar: '🎓', status: 'Studying Math', online: 0, lastseen: '15m ago' },
+            { id: 4, userid: 'alex_m', name: 'Alex Morgan', avatar: '🚀', status: 'Building Link Messenger!', online: 1, lastseen: 'Just now' }
+        ],
+        link_chats: [
+            { id: 1, chatid: 'chat_admin_teacher', type: 'direct', name: 'Demo Teacher', participants: 'admin,teacher', lastmessage: 'Welcome to Link Messenger!', updatedat: new Date().toISOString() },
+            { id: 2, chatid: 'chat_announcements', type: 'group', name: '📢 Campus Announcements', participants: 'admin,teacher,student,alex_m', lastmessage: 'Welcome to the new Link Messenger app!', updatedat: new Date().toISOString() }
+        ],
+        link_messages: [
+            { id: 1, chatid: 'chat_admin_teacher', senderid: 'teacher', sendername: 'Demo Teacher', content: 'Hey Admin! Check out this new chat system.', attachment: null, reaction: '👍', timestamp: new Date(Date.now() - 3600000).toISOString() },
+            { id: 2, chatid: 'chat_admin_teacher', senderid: 'admin', sendername: 'System Administrator', content: 'Welcome to Link Messenger!', attachment: null, reaction: '🔥', timestamp: new Date(Date.now() - 1800000).toISOString() },
+            { id: 3, chatid: 'chat_announcements', senderid: 'admin', sendername: 'System Administrator', content: 'Welcome to the new Link Messenger app!', attachment: null, reaction: '❤️', timestamp: new Date().toISOString() }
+        ],
+        link_statuses: [
+            { id: 1, userid: 'alex_m', username: 'Alex Morgan', useravatar: '🚀', content: 'Excited to launch Link Messenger today! 💬✨', bggradient: 'linear-gradient(135deg, #6366f1, #ec4899)', mediaurl: '', createdat: new Date().toISOString(), expiresat: new Date(Date.now() + 86400000).toISOString(), likes: 5 },
+            { id: 2, userid: 'teacher', username: 'Demo Teacher', useravatar: '📚', content: 'Grade 10 Physics assignment posted on the portal.', bggradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)', mediaurl: '', createdat: new Date().toISOString(), expiresat: new Date(Date.now() + 86400000).toISOString(), likes: 3 }
+        ],
+        link_status_views: []
+    };
+
     pool = {
         query: async (sql, params) => {
             // Return demo user data for login queries
-            if (sql.includes('SELECT') && sql.includes('users')) {
+            if (sql.includes('SELECT') && sql.includes('users') && !sql.includes('link_users')) {
                 if (sql.includes('WHERE username = $1') && params && params[0]) {
                     const user = demoUsers.find(u => u.username === params[0]);
                     return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
                 }
                 return { rows: demoUsers, rowCount: demoUsers.length };
             }
+
+            // Handle mock table SELECT, INSERT, UPDATE, DELETE queries
+            for (const tableName of Object.keys(mockTables)) {
+                if (sql.includes(tableName)) {
+                    if (sql.startsWith('SELECT')) {
+                        let rows = [...mockTables[tableName]];
+                        if (sql.includes('WHERE id = $1') && params && params[0]) {
+                            rows = rows.filter(r => r.id == params[0]);
+                        } else if (params && params.length > 0) {
+                            // Basic filter simulation
+                            let filterKey = sql.match(/WHERE\s+([a-zA-Z0-9_]+)\s*=/);
+                            if (filterKey && filterKey[1]) {
+                                const k = filterKey[1].toLowerCase();
+                                rows = rows.filter(r => String(r[k] || r[filterKey[1]]) === String(params[0]));
+                            }
+                        }
+                        if (sql.includes('ORDER BY')) {
+                            rows.reverse();
+                        }
+                        if (sql.includes('LIMIT')) {
+                            const limitMatch = sql.match(/LIMIT\s+(\d+)/i) || (params && sql.includes('LIMIT $'));
+                            let lim = 100;
+                            if (limitMatch && limitMatch[1]) lim = parseInt(limitMatch[1]);
+                            rows = rows.slice(0, lim);
+                        }
+                        return { rows, rowCount: rows.length };
+                    }
+
+                    if (sql.startsWith('INSERT')) {
+                        const newId = mockTables[tableName].length ? Math.max(...mockTables[tableName].map(r => r.id || 0)) + 1 : 1;
+                        // Extract column names
+                        const colsMatch = sql.match(/\(([^)]+)\)\s+VALUES/i);
+                        const newObj = { id: newId };
+                        if (colsMatch && params) {
+                            const cols = colsMatch[1].split(',').map(c => c.trim().toLowerCase().replace(/"/g, ''));
+                            cols.forEach((col, idx) => {
+                                if (idx < params.length) newObj[col] = params[idx];
+                            });
+                        }
+                        mockTables[tableName].push(newObj);
+                        return { rows: [newObj], rowCount: 1 };
+                    }
+
+                    if (sql.startsWith('UPDATE')) {
+                        if (sql.includes('WHERE id =')) {
+                            const idVal = params[params.length - 1];
+                            const idx = mockTables[tableName].findIndex(r => r.id == idVal);
+                            if (idx !== -1) {
+                                // Apply simple params update
+                                return { rows: [mockTables[tableName][idx]], rowCount: 1 };
+                            }
+                        }
+                        return { rows: [], rowCount: 0 };
+                    }
+
+                    if (sql.startsWith('DELETE')) {
+                        if (params && params[0]) {
+                            mockTables[tableName] = mockTables[tableName].filter(r => r.id != params[0]);
+                        }
+                        return { rows: [], rowCount: 1 };
+                    }
+                }
+            }
+
             // Return empty rows for all other queries (mock data)
             return { rows: [], rowCount: 0 };
         },
@@ -250,6 +337,52 @@ async function initDb() {
                 quote TEXT,
                 emoji TEXT
             );
+            CREATE TABLE IF NOT EXISTS link_users (
+                id SERIAL PRIMARY KEY,
+                userId TEXT UNIQUE,
+                name TEXT,
+                avatar TEXT,
+                status TEXT DEFAULT 'Hey there! I am using Link.',
+                online INTEGER DEFAULT 1,
+                lastSeen TEXT
+            );
+            CREATE TABLE IF NOT EXISTS link_chats (
+                id SERIAL PRIMARY KEY,
+                chatId TEXT UNIQUE,
+                type TEXT DEFAULT 'direct',
+                name TEXT,
+                participants TEXT,
+                lastMessage TEXT,
+                updatedAt TEXT
+            );
+            CREATE TABLE IF NOT EXISTS link_messages (
+                id SERIAL PRIMARY KEY,
+                chatId TEXT,
+                senderId TEXT,
+                senderName TEXT,
+                content TEXT,
+                attachment TEXT,
+                reaction TEXT,
+                timestamp TEXT
+            );
+            CREATE TABLE IF NOT EXISTS link_statuses (
+                id SERIAL PRIMARY KEY,
+                userId TEXT,
+                userName TEXT,
+                userAvatar TEXT,
+                content TEXT,
+                bgGradient TEXT,
+                mediaUrl TEXT,
+                createdAt TEXT,
+                expiresAt TEXT,
+                likes INTEGER DEFAULT 0
+            );
+            CREATE TABLE IF NOT EXISTS link_status_views (
+                id SERIAL PRIMARY KEY,
+                statusId INTEGER,
+                viewerId TEXT,
+                viewedAt TEXT
+            );
         `);
 
         // Create default admin account
@@ -320,7 +453,8 @@ const ALLOWED_TABLES = [
     'library', 'bookLoans', 'discipline', 'health', 'payroll',
     'expenses', 'notices', 'hostels', 'hostelAssignments', 'transport',
     'transportAssignments', 'notifications', 'users',
-    'public_settings', 'public_achievements', 'public_curriculum', 'public_testimonials'
+    'public_settings', 'public_achievements', 'public_curriculum', 'public_testimonials',
+    'link_users', 'link_chats', 'link_messages', 'link_statuses', 'link_status_views'
 ];
 
 function validateTable(table, res) {

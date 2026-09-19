@@ -273,6 +273,481 @@ const app = {
         `;
     },
 
+    // --- Link Instant Messenger Module ---
+    activeChatId: 'chat_announcements',
+    activeLinkTab: 'chats',
+    linkPollTimer: null,
+
+    async renderLinkMessenger() {
+        if (this.linkPollTimer) clearInterval(this.linkPollTimer);
+
+        const currentUserId = this.currentUser ? (this.currentUser.username || this.currentUser.studentId || 'admin') : 'admin';
+        const currentUserName = this.currentUser ? (this.currentUser.name || this.currentUser.username) : 'System Administrator';
+
+        const [users, chats, statuses] = await Promise.all([
+            db.linkUsers.toArray(),
+            db.linkChats.toArray(),
+            db.linkStatuses.toArray()
+        ]);
+
+        // Filter valid unexpired statuses (less than 24h old)
+        const now = new Date();
+        const activeStatuses = statuses.filter(s => {
+            if (!s.expiresAt && !s.expiresat) return true;
+            return new Date(s.expiresAt || s.expiresat) > now;
+        });
+
+        // Current active chat object
+        const currentChat = chats.find(c => c.chatId === this.activeChatId || c.chatid === this.activeChatId) || chats[0] || {
+            chatId: 'chat_announcements', name: '📢 Campus Announcements', type: 'group'
+        };
+
+        const activeChatIdVal = currentChat.chatId || currentChat.chatid;
+        this.activeChatId = activeChatIdVal;
+
+        const messages = await db.linkMessages.where('chatId').equals(activeChatIdVal).toArray();
+
+        this.container.innerHTML = `
+            <div class="link-app-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, #6366f1, #ec4899); display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 8px 20px rgba(99,102,241,0.4); color:white;">⚡</div>
+                    <div>
+                        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--primary-bright); font-weight:700;">Instant Messenger</div>
+                        <h1 style="margin:0; font-size:1.8rem; letter-spacing:-0.5px;">Link <span style="font-size:0.9rem; font-weight:600; padding:2px 8px; border-radius:20px; background:rgba(16,185,129,0.15); color:var(--success); border:1px solid rgba(16,185,129,0.3);">Live</span></h1>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.75rem; align-items:center;">
+                    <button class="btn-primary" onclick="app.openNewChatModal()" style="background:var(--primary-glow); border:1px solid var(--primary); font-size:0.85rem; padding:0.6rem 1.25rem;">+ New Chat</button>
+                    <button class="btn-primary" onclick="app.openStatusComposer()" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); font-size:0.85rem; padding:0.6rem 1.25rem;">✨ Post Status</button>
+                </div>
+            </div>
+
+            <!-- Top Stories / Status Tray -->
+            <div class="glass-panel" style="margin-bottom:1.5rem; padding:1.25rem; overflow-x:auto;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Recent Status Updates (24h)</span>
+                    <span style="font-size:0.75rem; color:var(--primary-bright);">${activeStatuses.length} active</span>
+                </div>
+                <div style="display:flex; gap:1.25rem; align-items:center; min-width:max-content; padding-bottom:0.25rem;">
+                    <!-- My Status Item -->
+                    <div onclick="app.openStatusComposer()" style="display:flex; flex-direction:column; align-items:center; cursor:pointer; gap:0.35rem; width:72px;">
+                        <div style="position:relative; width:56px; height:56px; border-radius:50%; background:var(--glass-bg); border:2px dashed var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+                            ➕
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--text); font-weight:600; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">Add Status</span>
+                    </div>
+
+                    ${activeStatuses.length === 0 ? `
+                        <div style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem 1rem;">No status updates yet. Be the first to share!</div>
+                    ` : activeStatuses.map(s => `
+                        <div onclick="app.viewStatus(${s.id})" style="display:flex; flex-direction:column; align-items:center; cursor:pointer; gap:0.35rem; width:72px;">
+                            <div class="status-ring-active" style="width:58px; height:58px; border-radius:50%; padding:3px; background:linear-gradient(45deg, #ec4899, #6366f1, #06b6d4); display:flex; align-items:center; justify-content:center;">
+                                <div style="width:100%; height:100%; border-radius:50%; background:var(--bg-card); display:flex; align-items:center; justify-content:center; font-size:1.5rem; overflow:hidden;">
+                                    ${s.userAvatar || s.useravatar || '👤'}
+                                </div>
+                            </div>
+                            <span style="font-size:0.75rem; color:var(--text); font-weight:600; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${s.userName || s.username || 'User'}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Main Dual Pane Layout -->
+            <div style="display:grid; grid-template-columns: 320px 1fr; gap:1.5rem; min-height:550px;" class="mobile-stack">
+
+                <!-- Left Pane: Conversations & Contacts -->
+                <div class="glass-panel" style="margin:0; display:flex; flex-direction:column; padding:1.25rem;">
+
+                    <!-- Search Box -->
+                    <div style="margin-bottom:1rem;">
+                        <input type="text" id="link-search-chat" placeholder="🔍 Search chats or people..." oninput="app.filterLinkChats(this.value)" style="width:100%; margin:0; padding:0.65rem 1rem; border-radius:12px; font-size:0.85rem;">
+                    </div>
+
+                    <!-- Chats List -->
+                    <div id="link-chat-list" style="display:flex; flex-direction:column; gap:0.5rem; overflow-y:auto; flex:1; max-height:480px;">
+                        ${chats.map(c => {
+                            const cId = c.chatId || c.chatid;
+                            const isActive = cId === this.activeChatId;
+                            return `
+                                <div onclick="app.selectLinkChat('${cId}')" style="display:flex; align-items:center; gap:0.85rem; padding:0.85rem; border-radius:14px; cursor:pointer; background:${isActive ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.02)'}; border:1px solid ${isActive ? 'var(--primary)' : 'var(--glass-border)'}; transition:all 0.2s;">
+                                    <div style="width:42px; height:42px; border-radius:12px; background:var(--primary-glow); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; color:white;">
+                                        ${c.type === 'group' ? '👥' : '💬'}
+                                    </div>
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
+                                            <strong style="font-size:0.9rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name || 'Chat'}</strong>
+                                        </div>
+                                        <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.lastMessage || c.lastmessage || 'No messages yet'}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Right Pane: Active Messaging Workspace -->
+                <div class="glass-panel" style="margin:0; display:flex; flex-direction:column; padding:0; overflow:hidden; border:1px solid var(--glass-border);">
+
+                    <!-- Chat Header -->
+                    <div style="padding:1rem 1.5rem; background:rgba(0,0,0,0.15); border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:0.85rem;">
+                            <div style="width:40px; height:40px; border-radius:12px; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:white;">
+                                ${currentChat.type === 'group' ? '👥' : '💬'}
+                            </div>
+                            <div>
+                                <h3 style="margin:0; font-size:1.1rem; color:var(--text);">${currentChat.name || 'Chat'}</h3>
+                                <div style="font-size:0.75rem; color:var(--success); font-weight:600; display:flex; align-items:center; gap:0.35rem;">
+                                    <span style="width:7px; height:7px; border-radius:50%; background:var(--success); display:inline-block;"></span> Active now
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button onclick="app.refreshLinkMessages()" style="background:none; border:1px solid var(--glass-border); padding:0.4rem 0.8rem; border-radius:8px; color:var(--text); cursor:pointer; font-size:0.85rem;" title="Refresh Chat">🔄</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Stream -->
+                    <div id="link-messages-stream" style="flex:1; padding:1.5rem; overflow-y:auto; display:flex; flex-direction:column; gap:1rem; max-height:400px; min-height:350px;">
+                        ${messages.length === 0 ? `
+                            <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+                                <div style="font-size:3rem; margin-bottom:0.5rem; opacity:0.6;">💬</div>
+                                <p style="margin:0; font-weight:600;">No messages yet in this conversation.</p>
+                                <p style="font-size:0.8rem; opacity:0.8;">Say hi to start the conversation!</p>
+                            </div>
+                        ` : messages.map(m => {
+                            const isMe = (m.senderId || m.senderid) === currentUserId || (m.senderName || m.sendername) === currentUserName;
+                            return `
+                                <div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'};">
+                                    <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.25rem; font-weight:600;">
+                                        ${m.senderName || m.sendername || 'User'}
+                                    </div>
+                                    <div style="max-width:70%; padding:0.85rem 1.15rem; border-radius:${isMe ? '18px 18px 2px 18px' : '18px 18px 18px 2px'}; background:${isMe ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(255,255,255,0.08)'}; color:white; border:${isMe ? 'none' : '1px solid var(--glass-border)'}; box-shadow:${isMe ? '0 4px 15px rgba(99,102,241,0.3)' : 'none'};">
+                                        <div style="font-size:0.95rem; line-height:1.4; word-break:break-word;">${m.content}</div>
+                                        ${m.attachment ? `<div style="margin-top:0.5rem; padding:0.5rem; background:rgba(0,0,0,0.2); border-radius:8px; font-size:0.8rem;">📎 ${m.attachment}</div>` : ''}
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.2rem;">
+                                        <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(m.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                        ${m.reaction ? `<span style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:1px 5px; border-radius:10px;">${m.reaction}</span>` : ''}
+                                        <button onclick="app.reactToMessage(${m.id}, '❤️')" style="background:none; border:none; cursor:pointer; font-size:0.75rem; opacity:0.6;">❤️</button>
+                                        <button onclick="app.reactToMessage(${m.id}, '👍')" style="background:none; border:none; cursor:pointer; font-size:0.75rem; opacity:0.6;">👍</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <!-- Chat Input Area -->
+                    <div style="padding:1rem 1.25rem; background:rgba(0,0,0,0.2); border-top:1px solid var(--glass-border);">
+                        <form onsubmit="app.handleSendLinkMessage(event)" style="display:flex; gap:0.75rem; align-items:center;">
+                            <button type="button" onclick="app.insertEmojiIntoInput('😊')" style="background:none; border:none; font-size:1.3rem; cursor:pointer;" title="Emoji">😊</button>
+                            <input type="text" id="link-message-input" placeholder="Type an instant message..." required style="flex:1; margin:0; padding:0.85rem 1.15rem; border-radius:24px; font-size:0.9rem;">
+                            <button type="submit" class="btn-primary" style="border-radius:24px; padding:0.85rem 1.5rem; background:linear-gradient(135deg, #6366f1, #ec4899); display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+                                Send 🚀
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Modals Container -->
+            <div id="link-modals-container"></div>
+        `;
+
+        // Auto-scroll stream to bottom
+        const stream = document.getElementById('link-messages-stream');
+        if (stream) stream.scrollTop = stream.scrollHeight;
+
+        // Start real-time polling every 3 seconds
+        this.linkPollTimer = setInterval(() => this.refreshLinkMessages(true), 3000);
+    },
+
+    async selectLinkChat(chatId) {
+        this.activeChatId = chatId;
+        await this.renderLinkMessenger();
+    },
+
+    async refreshLinkMessages(silent = false) {
+        if (!this.activeChatId) return;
+        const messages = await db.linkMessages.where('chatId').equals(this.activeChatId).toArray();
+        const currentUserId = this.currentUser ? (this.currentUser.username || this.currentUser.studentId || 'admin') : 'admin';
+        const currentUserName = this.currentUser ? (this.currentUser.name || this.currentUser.username) : 'System Administrator';
+
+        const stream = document.getElementById('link-messages-stream');
+        if (!stream) return;
+
+        const html = messages.length === 0 ? `
+            <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+                <div style="font-size:3rem; margin-bottom:0.5rem; opacity:0.6;">💬</div>
+                <p style="margin:0; font-weight:600;">No messages yet in this conversation.</p>
+                <p style="font-size:0.8rem; opacity:0.8;">Say hi to start the conversation!</p>
+            </div>
+        ` : messages.map(m => {
+            const isMe = (m.senderId || m.senderid) === currentUserId || (m.senderName || m.sendername) === currentUserName;
+            return `
+                <div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'};">
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.25rem; font-weight:600;">
+                        ${m.senderName || m.sendername || 'User'}
+                    </div>
+                    <div style="max-width:70%; padding:0.85rem 1.15rem; border-radius:${isMe ? '18px 18px 2px 18px' : '18px 18px 18px 2px'}; background:${isMe ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(255,255,255,0.08)'}; color:white; border:${isMe ? 'none' : '1px solid var(--glass-border)'}; box-shadow:${isMe ? '0 4px 15px rgba(99,102,241,0.3)' : 'none'};">
+                        <div style="font-size:0.95rem; line-height:1.4; word-break:break-word;">${m.content}</div>
+                        ${m.attachment ? `<div style="margin-top:0.5rem; padding:0.5rem; background:rgba(0,0,0,0.2); border-radius:8px; font-size:0.8rem;">📎 ${m.attachment}</div>` : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.2rem;">
+                        <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(m.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        ${m.reaction ? `<span style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:1px 5px; border-radius:10px;">${m.reaction}</span>` : ''}
+                        <button onclick="app.reactToMessage(${m.id}, '❤️')" style="background:none; border:none; cursor:pointer; font-size:0.75rem; opacity:0.6;">❤️</button>
+                        <button onclick="app.reactToMessage(${m.id}, '👍')" style="background:none; border:none; cursor:pointer; font-size:0.75rem; opacity:0.6;">👍</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (stream.innerHTML !== html) {
+            stream.innerHTML = html;
+            stream.scrollTop = stream.scrollHeight;
+        }
+    },
+
+    async handleSendLinkMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('link-message-input');
+        if (!input || !input.value.trim()) return;
+
+        const content = input.value.trim();
+        input.value = '';
+
+        const currentUserId = this.currentUser ? (this.currentUser.username || this.currentUser.studentId || 'admin') : 'admin';
+        const currentUserName = this.currentUser ? (this.currentUser.name || this.currentUser.username) : 'System Administrator';
+
+        await db.linkMessages.add({
+            chatId: this.activeChatId,
+            senderId: currentUserId,
+            senderName: currentUserName,
+            content: content,
+            timestamp: new Date().toISOString()
+        });
+
+        // Update chat last message
+        const chats = await db.linkChats.toArray();
+        const chat = chats.find(c => (c.chatId || c.chatid) === this.activeChatId);
+        if (chat) {
+            await db.linkChats.update(chat.id, {
+                lastMessage: `${currentUserName}: ${content}`,
+                updatedAt: new Date().toISOString()
+            });
+        }
+
+        await this.refreshLinkMessages();
+    },
+
+    insertEmojiIntoInput(emoji) {
+        const input = document.getElementById('link-message-input');
+        if (input) {
+            input.value += emoji;
+            input.focus();
+        }
+    },
+
+    async reactToMessage(msgId, reactionEmoji) {
+        await db.linkMessages.update(msgId, { reaction: reactionEmoji });
+        await this.refreshLinkMessages();
+    },
+
+    openStatusComposer() {
+        const container = document.getElementById('link-modals-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="modal-backdrop" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+                <div class="glass-panel" style="width:90%; max-width:480px; padding:2rem; background:var(--bg-main); border:1px solid var(--primary); border-radius:24px;">
+                    <h2 style="margin-top:0; text-align:center;">✨ Share a Status Post</h2>
+                    <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Status updates disappear automatically after 24 hours.</p>
+
+                    <form onsubmit="app.handleCreateStatus(event)">
+                        <div id="status-preview-box" style="height:180px; border-radius:18px; background:linear-gradient(135deg, #6366f1, #ec4899); display:flex; align-items:center; justify-content:center; padding:1.5rem; text-align:center; color:white; font-size:1.2rem; font-weight:700; margin-bottom:1.25rem; box-shadow:0 8px 25px rgba(0,0,0,0.3); transition:all 0.3s;">
+                            <span id="status-preview-text">Type your status thoughts...</span>
+                        </div>
+
+                        <textarea id="status-content-input" placeholder="What's on your mind?..." required oninput="document.getElementById('status-preview-text').textContent = this.value || 'Type your status thoughts...'" style="width:100%; min-height:80px; margin-bottom:1rem; padding:0.85rem; border-radius:12px; font-size:0.95rem;"></textarea>
+
+                        <div style="margin-bottom:1.5rem;">
+                            <label style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Background Gradient</label>
+                            <div style="display:flex; gap:0.5rem;">
+                                <div onclick="app.setStatusGradient('linear-gradient(135deg, #6366f1, #ec4899)')" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #6366f1, #ec4899); cursor:pointer; border:2px solid white;"></div>
+                                <div onclick="app.setStatusGradient('linear-gradient(135deg, #06b6d4, #3b82f6)')" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #06b6d4, #3b82f6); cursor:pointer;"></div>
+                                <div onclick="app.setStatusGradient('linear-gradient(135deg, #10b981, #059669)')" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); cursor:pointer;"></div>
+                                <div onclick="app.setStatusGradient('linear-gradient(135deg, #f59e0b, #ef4444)')" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #f59e0b, #ef4444); cursor:pointer;"></div>
+                                <div onclick="app.setStatusGradient('linear-gradient(135deg, #8b5cf6, #d946ef)')" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #8b5cf6, #d946ef); cursor:pointer;"></div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="status-gradient-val" value="linear-gradient(135deg, #6366f1, #ec4899)">
+
+                        <div style="display:flex; gap:1rem;">
+                            <button type="submit" class="btn-primary" style="flex:1; background:linear-gradient(135deg, #ec4899, #8b5cf6);">Post Status</button>
+                            <button type="button" class="btn-primary" onclick="this.closest('.modal-backdrop').remove()" style="flex:1; background:var(--glass-bg); color:var(--text); border:1px solid var(--glass-border); box-shadow:none;">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+    },
+
+    setStatusGradient(grad) {
+        const preview = document.getElementById('status-preview-box');
+        const input = document.getElementById('status-gradient-val');
+        if (preview && input) {
+            preview.style.background = grad;
+            input.value = grad;
+        }
+    },
+
+    async handleCreateStatus(e) {
+        e.preventDefault();
+        const content = document.getElementById('status-content-input').value;
+        const bgGradient = document.getElementById('status-gradient-val').value;
+
+        const currentUserId = this.currentUser ? (this.currentUser.username || this.currentUser.studentId || 'admin') : 'admin';
+        const currentUserName = this.currentUser ? (this.currentUser.name || this.currentUser.username) : 'System Administrator';
+
+        await db.linkStatuses.add({
+            userId: currentUserId,
+            userName: currentUserName,
+            userAvatar: '⚡',
+            content: content,
+            bgGradient: bgGradient,
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 86400000).toISOString(),
+            likes: 0
+        });
+
+        e.target.closest('.modal-backdrop').remove();
+        await this.renderLinkMessenger();
+    },
+
+    async viewStatus(statusId) {
+        const status = await db.linkStatuses.get(statusId);
+        if (!status) return;
+
+        const container = document.getElementById('link-modals-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="modal-backdrop" style="position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:3500; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem;">
+                <div style="width:100%; max-width:420px; position:relative; display:flex; flex-direction:column; height:600px; border-radius:24px; overflow:hidden; background:${status.bgGradient || status.bggradient || 'linear-gradient(135deg, #6366f1, #ec4899)'}; padding:2rem; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+
+                    <!-- Progress bar -->
+                    <div style="height:4px; width:100%; background:rgba(255,255,255,0.3); border-radius:4px; overflow:hidden; margin-bottom:1.5rem;">
+                        <div style="height:100%; background:white; width:100%; animation: statusProgress 5s linear forwards;"></div>
+                    </div>
+
+                    <!-- User Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; color:white;">
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                                ${status.userAvatar || status.useravatar || '👤'}
+                            </div>
+                            <div>
+                                <strong style="display:block; font-size:1rem;">${status.userName || status.username || 'User'}</strong>
+                                <span style="font-size:0.75rem; opacity:0.8;">${new Date(status.createdAt || status.createdat || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            </div>
+                        </div>
+                        <button onclick="this.closest('.modal-backdrop').remove()" style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.2rem; cursor:pointer;">✕</button>
+                    </div>
+
+                    <!-- Status Text Content -->
+                    <div style="flex:1; display:flex; align-items:center; justify-content:center; text-align:center; color:white; font-size:1.6rem; font-weight:800; line-height:1.4; padding:1rem;">
+                        "${status.content}"
+                    </div>
+
+                    <!-- Interaction Footer -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; color:white; font-size:0.9rem; font-weight:600;">
+                        <button onclick="app.likeStatus(${status.id})" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:0.6rem 1.25rem; border-radius:20px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+                            ❤️ Like (${status.likes || 0})
+                        </button>
+                        <span style="font-size:0.8rem; opacity:0.8;">Expires in 24h</span>
+                    </div>
+
+                </div>
+            </div>
+            <style>
+                @keyframes statusProgress {
+                    from { width: 0%; }
+                    to { width: 100%; }
+                }
+            </style>
+        `;
+
+        // Automatically close after 5 seconds
+        setTimeout(() => {
+            const backdrop = container.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+        }, 5000);
+    },
+
+    async likeStatus(statusId) {
+        const status = await db.linkStatuses.get(statusId);
+        if (status) {
+            await db.linkStatuses.update(statusId, { likes: (status.likes || 0) + 1 });
+            alert('Status liked! ❤️');
+        }
+    },
+
+    openNewChatModal() {
+        const container = document.getElementById('link-modals-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="modal-backdrop" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+                <div class="glass-panel" style="width:90%; max-width:420px; padding:2rem; background:var(--bg-main); border:1px solid var(--primary); border-radius:24px;">
+                    <h2 style="margin-top:0; text-align:center;">Start New Conversation</h2>
+                    <form onsubmit="app.handleCreateNewChat(event)">
+                        <input type="text" id="new-chat-name" placeholder="Contact or Group Name" required style="width:100%; margin-bottom:1rem; padding:0.85rem; border-radius:12px;">
+                        <select id="new-chat-type" style="width:100%; margin-bottom:1.5rem; padding:0.85rem; border-radius:12px; border:1px solid var(--glass-border); background:var(--glass-bg); color:var(--text);">
+                            <option value="direct">Direct Message</option>
+                            <option value="group">Group Channel</option>
+                        </select>
+                        <div style="display:flex; gap:1rem;">
+                            <button type="submit" class="btn-primary" style="flex:1;">Create Chat</button>
+                            <button type="button" class="btn-primary" onclick="this.closest('.modal-backdrop').remove()" style="flex:1; background:var(--glass-bg); color:var(--text); border:1px solid var(--glass-border); box-shadow:none;">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+    },
+
+    async handleCreateNewChat(e) {
+        e.preventDefault();
+        const name = document.getElementById('new-chat-name').value;
+        const type = document.getElementById('new-chat-type').value;
+
+        const newChatId = `chat_${Date.now()}`;
+        await db.linkChats.add({
+            chatId: newChatId,
+            type: type,
+            name: name,
+            lastMessage: 'Chat created.',
+            updatedAt: new Date().toISOString()
+        });
+
+        e.target.closest('.modal-backdrop').remove();
+        this.activeChatId = newChatId;
+        await this.renderLinkMessenger();
+    },
+
+    filterLinkChats(query) {
+        const list = document.getElementById('link-chat-list');
+        if (!list) return;
+
+        const items = list.children;
+        for (let item of items) {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query.toLowerCase()) ? 'flex' : 'none';
+        }
+    },
+
     showStudentLogin() {
         document.querySelector('.sidebar').style.display = 'none';
         document.querySelector('.top-bar').style.display = 'none';
@@ -621,6 +1096,7 @@ const app = {
             },
             {
                 label: 'Communication', items: [
+                    { id: 'link', name: 'Link Messenger', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
                     { id: 'notices', name: 'Notice Board', roles: ['Admin', 'Teacher', 'Parent', 'Student'] },
                     { id: 'resources', name: 'Resources', roles: ['Admin', 'Teacher', 'Parent', 'Student'] }
                 ]
@@ -926,6 +1402,9 @@ const app = {
                 break;
             case 'resources':
                 await this.renderResources();
+                break;
+            case 'link':
+                await this.renderLinkMessenger();
                 break;
             default:
                 this.container.innerHTML = '<div class="glass-panel"><h1>404 Page Not Found</h1></div>';
@@ -2540,7 +3019,8 @@ const app = {
             'hostels': ['Admin', 'Parent'],
             'transport': ['Admin', 'Parent'],
             'notices': ['Admin', 'Teacher', 'Parent', 'Student'],
-            'resources': ['Admin', 'Teacher', 'Parent', 'Student']
+            'resources': ['Admin', 'Teacher', 'Parent', 'Student'],
+            'link': ['Admin', 'Teacher', 'Parent', 'Student']
         };
         return (matrix[page] || []).includes(role);
     },

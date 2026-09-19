@@ -137,6 +137,20 @@ class TableProxy {
         if (row.hostelid !== undefined && row.hostelId === undefined) row.hostelId = row.hostelid;
         if (row.routeid !== undefined && row.routeId === undefined) row.routeId = row.routeid;
         if (row.parentcontact !== undefined && row.parentContact === undefined) row.parentContact = row.parentcontact;
+
+        // Link Messenger normalizing
+        if (row.userid !== undefined && row.userId === undefined) row.userId = row.userid;
+        if (row.chatid !== undefined && row.chatId === undefined) row.chatId = row.chatid;
+        if (row.senderid !== undefined && row.senderId === undefined) row.senderId = row.senderid;
+        if (row.sendername !== undefined && row.senderName === undefined) row.senderName = row.sendername;
+        if (row.bggradient !== undefined && row.bgGradient === undefined) row.bgGradient = row.bggradient;
+        if (row.mediaurl !== undefined && row.mediaUrl === undefined) row.mediaUrl = row.mediaurl;
+        if (row.createdat !== undefined && row.createdAt === undefined) row.createdAt = row.createdat;
+        if (row.expiresat !== undefined && row.expiresAt === undefined) row.expiresAt = row.expiresat;
+        if (row.lastseen !== undefined && row.lastSeen === undefined) row.lastSeen = row.lastseen;
+        if (row.updatedat !== undefined && row.updatedAt === undefined) row.updatedAt = row.updatedat;
+        if (row.username !== undefined && row.userName === undefined) row.userName = row.username;
+        if (row.useravatar !== undefined && row.userAvatar === undefined) row.userAvatar = row.useravatar;
         
         return row;
     }
@@ -220,7 +234,12 @@ const db = {
     publicSettings: new TableProxy('public_settings'),
     publicAchievements: new TableProxy('public_achievements'),
     publicCurriculum: new TableProxy('public_curriculum'),
-    publicTestimonials: new TableProxy('public_testimonials')
+    publicTestimonials: new TableProxy('public_testimonials'),
+    linkUsers: new TableProxy('link_users'),
+    linkChats: new TableProxy('link_chats'),
+    linkMessages: new TableProxy('link_messages'),
+    linkStatuses: new TableProxy('link_statuses'),
+    linkStatusViews: new TableProxy('link_status_views')
 };
 
 console.log("PostgreSQL SMIS DB initialized");
