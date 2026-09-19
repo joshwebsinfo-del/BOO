@@ -1,16 +1,11 @@
 {
-  "name": "server",
+  "name": "link-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Standalone Link Instant Chat Messenger Backend with Persisted Storage",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
     "better-sqlite3": "^12.6.2",
