@@ -1,14 +1,16 @@
 {
   "name": "link-backend",
   "version": "1.0.0",
-  "description": "Standalone Link Instant Chat Messenger Backend",
+  "description": "Standalone Link Instant Chat Messenger Backend with Persisted Storage",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "better-sqlite3": "^12.6.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
   }
 }

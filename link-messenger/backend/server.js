@@ -1,5 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const Database = require('better-sqlite3');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 6070;
@@ -7,103 +10,263 @@ const port = process.env.PORT || 6070;
 app.use(cors());
 app.use(express.json());
 
-// In-memory data store for standalone Link Messenger
-const db = {
-    users: [
-        { id: 1, userId: 'admin', name: 'System Administrator', avatar: '⚡', status: 'Available for support', online: 1, lastSeen: 'Just now' },
-        { id: 2, userId: 'teacher', name: 'Demo Teacher', avatar: '📚', status: 'In class', online: 1, lastSeen: '2m ago' },
-        { id: 3, userId: 'student', name: 'Demo Student', avatar: '🎓', status: 'Studying Math', online: 0, lastSeen: '15m ago' },
-        { id: 4, userId: 'alex_m', name: 'Alex Morgan', avatar: '🚀', status: 'Building Link Messenger!', online: 1, lastSeen: 'Just now' }
-    ],
-    chats: [
-        { id: 1, chatId: 'chat_admin_teacher', type: 'direct', name: 'Demo Teacher', participants: 'admin,teacher', lastMessage: 'Welcome to Link Messenger!', updatedAt: new Date().toISOString() },
-        { id: 2, chatId: 'chat_announcements', type: 'group', name: '📢 Campus Announcements', participants: 'admin,teacher,student,alex_m', lastMessage: 'Welcome to the new Link Messenger app!', updatedAt: new Date().toISOString() }
-    ],
-    messages: [
-        { id: 1, chatId: 'chat_admin_teacher', senderId: 'teacher', senderName: 'Demo Teacher', content: 'Hey Admin! Check out this new chat system.', attachment: null, reaction: '👍', timestamp: new Date(Date.now() - 3600000).toISOString() },
-        { id: 2, chatId: 'chat_admin_teacher', senderId: 'admin', senderName: 'System Administrator', content: 'Welcome to Link Messenger!', attachment: null, reaction: '🔥', timestamp: new Date(Date.now() - 1800000).toISOString() },
-        { id: 3, chatId: 'chat_announcements', senderId: 'admin', senderName: 'System Administrator', content: 'Welcome to the new Link Messenger app!', attachment: null, reaction: '❤️', timestamp: new Date().toISOString() }
-    ],
-    statuses: [
-        { id: 1, userId: 'alex_m', userName: 'Alex Morgan', userAvatar: '🚀', content: 'Excited to launch Link Messenger today! 💬✨', bgGradient: 'linear-gradient(135deg, #6366f1, #ec4899)', mediaUrl: '', createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 86400000).toISOString(), likes: 5 },
-        { id: 2, userId: 'teacher', userName: 'Demo Teacher', userAvatar: '📚', content: 'Grade 10 Physics assignment posted on the portal.', bgGradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)', mediaUrl: '', createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 86400000).toISOString(), likes: 3 }
-    ],
-    statusViews: []
-};
+// SQLite database persistence
+const dbPath = path.join(__dirname, 'link_database.sqlite');
+const db = new Database(dbPath);
 
-// GET endpoints
-app.get('/api/link_users', (req, res) => res.json(db.users));
-app.get('/api/link_chats', (req, res) => res.json(db.chats));
+db.pragma('journal_mode = WAL');
+
+// Initialize database tables
+db.exec(`
+    CREATE TABLE IF NOT EXISTS link_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        avatar TEXT DEFAULT '⚡',
+        status TEXT DEFAULT 'Hey there! I am using Link.',
+        online INTEGER DEFAULT 1,
+        last_seen TEXT DEFAULT 'Just now'
+    );
+
+    CREATE TABLE IF NOT EXISTS link_chats (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        chat_id TEXT UNIQUE NOT NULL,
+        type TEXT DEFAULT 'direct',
+        name TEXT NOT NULL,
+        participants TEXT NOT NULL,
+        last_message TEXT DEFAULT 'Chat started',
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS link_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        chat_id TEXT NOT NULL,
+        sender_id TEXT NOT NULL,
+        sender_name TEXT NOT NULL,
+        content TEXT NOT NULL,
+        attachment TEXT,
+        reaction TEXT,
+        timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS link_statuses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        user_name TEXT NOT NULL,
+        user_avatar TEXT DEFAULT '⚡',
+        content TEXT NOT NULL,
+        bg_gradient TEXT DEFAULT 'linear-gradient(135deg, #6366f1, #ec4899)',
+        media_url TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        expires_at TEXT NOT NULL,
+        likes INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS link_status_views (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        status_id INTEGER NOT NULL,
+        viewer_id TEXT NOT NULL,
+        viewed_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+`);
+
+// Seed initial users if empty
+const userCount = db.prepare('SELECT COUNT(*) as count FROM link_users').get().count;
+if (userCount === 0) {
+    const insertUser = db.prepare('INSERT INTO link_users (user_id, name, avatar, status, online, last_seen) VALUES (?, ?, ?, ?, ?, ?)');
+    const seedUsers = [
+        ['admin', 'System Administrator', '⚡', 'Available for support', 1, 'Just now'],
+        ['teacher', 'Demo Teacher', '📚', 'In class', 1, '2m ago'],
+        ['student', 'Demo Student', '🎓', 'Studying Math', 0, '15m ago'],
+        ['alex_m', 'Alex Morgan', '🚀', 'Building Link Messenger!', 1, 'Just now'],
+        ['sarah_j', 'Sarah Jenkins', '🎨', 'Designing UI', 1, '5m ago']
+    ];
+    for (const u of seedUsers) {
+        insertUser.run(...u);
+    }
+}
+
+// Seed initial group chat
+const chatCount = db.prepare('SELECT COUNT(*) as count FROM link_chats').get().count;
+if (chatCount === 0) {
+    db.prepare('INSERT INTO link_chats (chat_id, type, name, participants, last_message, updated_at) VALUES (?, ?, ?, ?, ?, ?)').run(
+        'chat_announcements', 'group', '📢 Campus Announcements', 'admin,teacher,student,alex_m,sarah_j', 'Welcome to Link Messenger!', new Date().toISOString()
+    );
+    db.prepare('INSERT INTO link_messages (chat_id, sender_id, sender_name, content, timestamp) VALUES (?, ?, ?, ?, ?)').run(
+        'chat_announcements', 'admin', 'System Administrator', 'Welcome to Link Messenger with persisted storage! 🎉', new Date().toISOString()
+    );
+}
+
+// Normalizers
+const normUser = r => ({ id: r.id, userId: r.user_id, name: r.name, avatar: r.avatar, status: r.status, online: r.online, lastSeen: r.last_seen });
+const normChat = r => ({ id: r.id, chatId: r.chat_id, type: r.type, name: r.name, participants: r.participants, lastMessage: r.last_message, updatedAt: r.updated_at });
+const normMsg = r => ({ id: r.id, chatId: r.chat_id, senderId: r.sender_id, senderName: r.sender_name, content: r.content, attachment: r.attachment, reaction: r.reaction, timestamp: r.timestamp });
+const normStatus = r => ({ id: r.id, userId: r.user_id, userName: r.user_name, userAvatar: r.user_avatar, content: r.content, bgGradient: r.bg_gradient, mediaUrl: r.media_url, createdAt: r.created_at, expiresAt: r.expires_at, likes: r.likes });
+
+// GET Endpoints
+app.get('/api/link_users', (req, res) => {
+    const rows = db.prepare('SELECT * FROM link_users ORDER BY id ASC').all();
+    res.json(rows.map(normUser));
+});
+
+app.get('/api/link_chats', (req, res) => {
+    const rows = db.prepare('SELECT * FROM link_chats ORDER BY updated_at DESC').all();
+    res.json(rows.map(normChat));
+});
 
 app.get('/api/link_messages', (req, res) => {
     const { chatId } = req.query;
+    let rows;
     if (chatId) {
-        return res.json(db.messages.filter(m => m.chatId === chatId));
+        rows = db.prepare('SELECT * FROM link_messages WHERE chat_id = ? ORDER BY id ASC').all(chatId);
+    } else {
+        rows = db.prepare('SELECT * FROM link_messages ORDER BY id ASC').all();
     }
-    res.json(db.messages);
+    res.json(rows.map(normMsg));
 });
 
 app.get('/api/link_statuses', (req, res) => {
-    const now = new Date();
-    const active = db.statuses.filter(s => new Date(s.expiresAt) > now);
-    res.json(active);
+    const now = new Date().toISOString();
+    const rows = db.prepare('SELECT * FROM link_statuses WHERE expires_at > ? ORDER BY id DESC').all(now);
+    res.json(rows.map(normStatus));
 });
 
-// POST endpoints
-app.post('/api/link_messages', (req, res) => {
-    const newMsg = {
-        id: db.messages.length ? Math.max(...db.messages.map(m => m.id)) + 1 : 1,
-        chatId: req.body.chatId,
-        senderId: req.body.senderId || 'admin',
-        senderName: req.body.senderName || 'System Administrator',
-        content: req.body.content,
-        attachment: req.body.attachment || null,
-        reaction: req.body.reaction || null,
-        timestamp: req.body.timestamp || new Date().toISOString()
-    };
-    db.messages.push(newMsg);
-
-    // Update lastMessage on chat
-    const chat = db.chats.find(c => c.chatId === req.body.chatId);
-    if (chat) {
-        chat.lastMessage = `${newMsg.senderName}: ${newMsg.content}`;
-        chat.updatedAt = new Date().toISOString();
+// WhatsApp Direct Chat Endpoint
+app.post('/api/link_chats/direct', (req, res) => {
+    const { currentUserId, targetUserId } = req.body;
+    if (!currentUserId || !targetUserId) {
+        return res.status(400).json({ error: 'currentUserId and targetUserId are required' });
     }
 
-    res.status(201).json(newMsg);
+    const targetUser = db.prepare('SELECT * FROM link_users WHERE user_id = ?').get(targetUserId);
+    if (!targetUser) {
+        return res.status(404).json({ error: 'Target user not found' });
+    }
+
+    const existingChat = db.prepare(
+        "SELECT * FROM link_chats WHERE type = 'direct' AND (participants = ? OR participants = ?)"
+    ).get(`${currentUserId},${targetUserId}`, `${targetUserId},${currentUserId}`);
+
+    if (existingChat) {
+        return res.json(normChat(existingChat));
+    }
+
+    const chatId = `chat_${currentUserId}_${targetUserId}`;
+    const name = targetUser.name;
+    const participants = `${currentUserId},${targetUserId}`;
+    const updatedAt = new Date().toISOString();
+
+    const result = db.prepare(
+        'INSERT INTO link_chats (chat_id, type, name, participants, last_message, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(chatId, 'direct', name, participants, 'Chat started', updatedAt);
+
+    const newChat = db.prepare('SELECT * FROM link_chats WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(normChat(newChat));
 });
 
-app.post('/api/link_chats', (req, res) => {
-    const newChat = {
-        id: db.chats.length ? Math.max(...db.chats.map(c => c.id)) + 1 : 1,
-        chatId: req.body.chatId || `chat_${Date.now()}`,
-        type: req.body.type || 'direct',
-        name: req.body.name,
-        participants: req.body.participants || 'admin',
-        lastMessage: req.body.lastMessage || 'Chat created',
-        updatedAt: new Date().toISOString()
-    };
-    db.chats.push(newChat);
-    res.status(201).json(newChat);
+// Group Creation Endpoint
+app.post('/api/link_chats/group', (req, res) => {
+    const { name, creatorId, participantIds } = req.body;
+    if (!name || !creatorId || !participantIds || !Array.isArray(participantIds)) {
+        return res.status(400).json({ error: 'Group name, creatorId, and participantIds array are required' });
+    }
+
+    const allParticipants = Array.from(new Set([creatorId, ...participantIds])).join(',');
+    const chatId = `group_${Date.now()}`;
+    const updatedAt = new Date().toISOString();
+
+    const result = db.prepare(
+        'INSERT INTO link_chats (chat_id, type, name, participants, last_message, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(chatId, 'group', `👥 ${name}`, allParticipants, 'Group created', updatedAt);
+
+    db.prepare('INSERT INTO link_messages (chat_id, sender_id, sender_name, content, timestamp) VALUES (?, ?, ?, ?, ?)').run(
+        chatId, creatorId, 'System', `Group "${name}" was created.`, updatedAt
+    );
+
+    const groupChat = db.prepare('SELECT * FROM link_chats WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(normChat(groupChat));
 });
 
+// Add Members into Group
+app.post('/api/link_chats/:chatId/members', (req, res) => {
+    const { chatId } = req.params;
+    const { newParticipantIds } = req.body;
+
+    if (!newParticipantIds || !Array.isArray(newParticipantIds) || newParticipantIds.length === 0) {
+        return res.status(400).json({ error: 'newParticipantIds array is required' });
+    }
+
+    const chat = db.prepare('SELECT * FROM link_chats WHERE chat_id = ?').get(chatId);
+    if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+    }
+
+    const currentMembers = chat.participants ? chat.participants.split(',') : [];
+    const updatedMembers = Array.from(new Set([...currentMembers, ...newParticipantIds]));
+    const updatedParticipantsStr = updatedMembers.join(',');
+    const updatedAt = new Date().toISOString();
+
+    db.prepare('UPDATE link_chats SET participants = ?, updated_at = ? WHERE chat_id = ?').run(
+        updatedParticipantsStr, updatedAt, chatId
+    );
+
+    const placeholders = newParticipantIds.map(() => '?').join(',');
+    const addedUsers = db.prepare(`SELECT name FROM link_users WHERE user_id IN (${placeholders})`).all(...newParticipantIds);
+    const addedNames = addedUsers.map(u => u.name).join(', ') || newParticipantIds.join(', ');
+
+    db.prepare('INSERT INTO link_messages (chat_id, sender_id, sender_name, content, timestamp) VALUES (?, ?, ?, ?, ?)').run(
+        chatId, 'system', 'System', `${addedNames} added to the group.`, updatedAt
+    );
+
+    const updatedChat = db.prepare('SELECT * FROM link_chats WHERE chat_id = ?').get(chatId);
+    res.json(normChat(updatedChat));
+});
+
+// Get Group Members
+app.get('/api/link_chats/:chatId/members', (req, res) => {
+    const { chatId } = req.params;
+    const chat = db.prepare('SELECT * FROM link_chats WHERE chat_id = ?').get(chatId);
+    if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+    }
+
+    const memberIds = chat.participants ? chat.participants.split(',') : [];
+    const placeholders = memberIds.map(() => '?').join(',');
+    const members = memberIds.length > 0 ? db.prepare(`SELECT * FROM link_users WHERE user_id IN (${placeholders})`).all(...memberIds) : [];
+
+    res.json(members.map(normUser));
+});
+
+// Send Message
+app.post('/api/link_messages', (req, res) => {
+    const { chatId, senderId, senderName, content, attachment, reaction } = req.body;
+    const timestamp = req.body.timestamp || new Date().toISOString();
+
+    const result = db.prepare(
+        'INSERT INTO link_messages (chat_id, sender_id, sender_name, content, attachment, reaction, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).run(chatId, senderId || 'admin', senderName || 'System Administrator', content, attachment || null, reaction || null, timestamp);
+
+    const lastMsgStr = `${senderName || 'System Administrator'}: ${content}`;
+    db.prepare('UPDATE link_chats SET last_message = ?, updated_at = ? WHERE chat_id = ?').run(lastMsgStr, timestamp, chatId);
+
+    const newMsg = db.prepare('SELECT * FROM link_messages WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(normMsg(newMsg));
+});
+
+// Post Status
 app.post('/api/link_statuses', (req, res) => {
-    const newStatus = {
-        id: db.statuses.length ? Math.max(...db.statuses.map(s => s.id)) + 1 : 1,
-        userId: req.body.userId || 'admin',
-        userName: req.body.userName || 'System Administrator',
-        userAvatar: req.body.userAvatar || '⚡',
-        content: req.body.content,
-        bgGradient: req.body.bgGradient || 'linear-gradient(135deg, #6366f1, #ec4899)',
-        mediaUrl: req.body.mediaUrl || '',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 86400000).toISOString(),
-        likes: 0
-    };
-    db.statuses.push(newStatus);
-    res.status(201).json(newStatus);
+    const { userId, userName, userAvatar, content, bgGradient, mediaUrl } = req.body;
+    const createdAt = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 86400000).toISOString();
+
+    const result = db.prepare(
+        'INSERT INTO link_statuses (user_id, user_name, user_avatar, content, bg_gradient, media_url, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(userId || 'admin', userName || 'System Administrator', userAvatar || '⚡', content, bgGradient || '#6366f1', mediaUrl || '', createdAt, expiresAt);
+
+    const newStatus = db.prepare('SELECT * FROM link_statuses WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(normStatus(newStatus));
 });
 
-app.listen(port, "0.0.0.0", () => {
-    console.log(`⚡ Link Instant Messenger Backend running on port ${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`⚡ Link Messenger Backend active on port ${port} with persisted database storage`);
 });

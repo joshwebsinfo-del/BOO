@@ -13,13 +13,12 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
-// Helper to sanitize gradient strings to solid hex colors for React Native views
+// Helper to sanitize color strings for React Native views
 const getSolidColor = (colorOrGrad) => {
   if (!colorOrGrad) return '#6366f1';
   if (colorOrGrad.startsWith('#') || colorOrGrad.startsWith('rgb')) {
     return colorOrGrad;
   }
-  // Extract first hex color from linear-gradient string if present
   const match = colorOrGrad.match(/#[a-fA-F0-9]{6}/);
   return match ? match[0] : '#6366f1';
 };
@@ -27,21 +26,31 @@ const getSolidColor = (colorOrGrad) => {
 const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:6070/api';
 
 export default function App() {
+  const [users, setUsers] = useState([]);
   const [chats, setChats] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
 
-  // Status Posting Modal
+  // Modals visibility
   const [statusModalVisible, setStatusModalVisible] = useState(false);
-  const [statusText, setStatusText] = useState('');
-  const [selectedGradient, setSelectedGradient] = useState('#6366f1');
+  const [newChatModalVisible, setNewChatModalVisible] = useState(false);
+  const [createGroupModalVisible, setCreateGroupModalVisible] = useState(false);
+  const [groupMembersModalVisible, setGroupMembersModalVisible] = useState(false);
 
-  // Status Story Viewer
+  // Forms state
+  const [statusText, setStatusText] = useState('');
+  const [selectedColor, setSelectedColor] = useState('#6366f1');
+  const [groupName, setGroupName] = useState('');
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [groupMembersList, setGroupMembersList] = useState([]);
+
+  // Viewing status
   const [viewingStatus, setViewingStatus] = useState(null);
 
   useEffect(() => {
+    fetchUsers();
     fetchChats();
     fetchStatuses();
   }, []);
@@ -54,6 +63,16 @@ export default function App() {
     }
     return () => clearInterval(timer);
   }, [activeChat]);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/link_users`);
+      const data = await res.json();
+      setUsers(data);
+    } catch (e) {
+      console.log('Error fetching users:', e);
+    }
+  };
 
   const fetchChats = async () => {
     try {
@@ -85,6 +104,79 @@ export default function App() {
       setMessages(data);
     } catch (e) {
       console.log('Error fetching messages:', e);
+    }
+  };
+
+  const fetchGroupMembers = async (chatId) => {
+    try {
+      const res = await fetch(`${API_BASE}/link_chats/${chatId}/members`);
+      const data = await res.json();
+      setGroupMembersList(data);
+    } catch (e) {
+      console.log('Error fetching members:', e);
+    }
+  };
+
+  const handleStartDirectChat = async (targetUser) => {
+    try {
+      const res = await fetch(`${API_BASE}/link_chats/direct`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentUserId: 'admin',
+          targetUserId: targetUser.userId
+        })
+      });
+      const newChat = await res.json();
+      setNewChatModalVisible(false);
+      await fetchChats();
+      setActiveChat(newChat);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to start chat');
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    if (!groupName.trim() || selectedMembers.length === 0) {
+      Alert.alert('Group Error', 'Please enter a group name and select at least 1 member');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/link_chats/group`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: groupName.trim(),
+          creatorId: 'admin',
+          participantIds: selectedMembers
+        })
+      });
+      const newGroup = await res.json();
+      setGroupName('');
+      setSelectedMembers([]);
+      setCreateGroupModalVisible(false);
+      await fetchChats();
+      setActiveChat(newGroup);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to create group');
+    }
+  };
+
+  const handleAddMembersToGroup = async (userToAdd) => {
+    if (!activeChat) return;
+    try {
+      await fetch(`${API_BASE}/link_chats/${activeChat.chatId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newParticipantIds: [userToAdd.userId]
+        })
+      });
+      fetchGroupMembers(activeChat.chatId);
+      fetchMessages(activeChat.chatId);
+      Alert.alert('Member Added', `${userToAdd.name} was added to the group!`);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to add member');
     }
   };
 
@@ -122,7 +214,7 @@ export default function App() {
           userName: 'System Administrator',
           userAvatar: '⚡',
           content: statusText,
-          bgGradient: selectedGradient
+          bgGradient: selectedColor
         })
       });
       setStatusText('');
@@ -133,22 +225,35 @@ export default function App() {
     }
   };
 
+  const toggleMemberSelection = (userId) => {
+    if (selectedMembers.includes(userId)) {
+      setSelectedMembers(selectedMembers.filter(id => id !== userId));
+    } else {
+      setSelectedMembers([...selectedMembers, userId]);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Header */}
+      {/* Brand Header */}
       <View style={styles.header}>
         <View style={styles.brandRow}>
           <Text style={styles.brandLogo}>⚡</Text>
           <Text style={styles.brandTitle}>Link Messenger</Text>
         </View>
-        <TouchableOpacity
-          style={styles.postStatusBtn}
-          onPress={() => setStatusModalVisible(true)}
-        >
-          <Text style={styles.postStatusText}>+ Status</Text>
-        </TouchableOpacity>
+        <View style={styles.headerBtnGroup}>
+          <TouchableOpacity style={styles.newChatHeaderBtn} onPress={() => setNewChatModalVisible(true)}>
+            <Text style={styles.headerBtnText}>💬 Chat</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.newGroupHeaderBtn} onPress={() => setCreateGroupModalVisible(true)}>
+            <Text style={styles.headerBtnText}>👥 Group</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.postStatusBtn} onPress={() => setStatusModalVisible(true)}>
+            <Text style={styles.postStatusText}>+ Status</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Top Status Story Tray */}
@@ -176,7 +281,7 @@ export default function App() {
         </ScrollView>
       </View>
 
-      {/* Chat List / Message Stream Workspace */}
+      {/* Main Chat Workspace */}
       <View style={styles.mainWorkspace}>
         {/* Chat Selector Horizontal Pills */}
         <View style={styles.chatPickerContainer}>
@@ -202,8 +307,23 @@ export default function App() {
         {activeChat ? (
           <View style={styles.chatWindow}>
             <View style={styles.chatHeader}>
-              <Text style={styles.chatHeaderTitle}>{activeChat.name}</Text>
-              <Text style={styles.chatHeaderSub}>Active now</Text>
+              <View>
+                <Text style={styles.chatHeaderTitle}>{activeChat.name}</Text>
+                <Text style={styles.chatHeaderSub}>
+                  {activeChat.type === 'group' ? 'Group Chat' : 'Direct Message'}
+                </Text>
+              </View>
+              {activeChat.type === 'group' && (
+                <TouchableOpacity
+                  style={styles.groupInfoBtn}
+                  onPress={() => {
+                    fetchGroupMembers(activeChat.chatId);
+                    setGroupMembersModalVisible(true);
+                  }}
+                >
+                  <Text style={styles.groupInfoText}>👥 Members</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <FlatList
@@ -223,7 +343,7 @@ export default function App() {
               }}
             />
 
-            {/* Chat Input Bar */}
+            {/* Input Bar */}
             <View style={styles.inputBar}>
               <TextInput
                 style={styles.textInput}
@@ -244,6 +364,127 @@ export default function App() {
         )}
       </View>
 
+      {/* Start Direct Chat Modal */}
+      <Modal visible={newChatModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>💬 Start Direct Chat</Text>
+            <Text style={styles.modalSubtitle}>Pick a contact to message directly.</Text>
+
+            <FlatList
+              data={users.filter(u => u.userId !== 'admin')}
+              keyExtractor={item => item.userId}
+              style={{ maxHeight: 250, marginVertical: 10 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.userPickRow}
+                  onPress={() => handleStartDirectChat(item)}
+                >
+                  <Text style={styles.userPickAvatar}>{item.avatar}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.userPickName}>{item.name}</Text>
+                    <Text style={styles.userPickStatus}>{item.status}</Text>
+                  </View>
+                  <Text style={styles.startText}>Start 💬</Text>
+                </TouchableOpacity>
+              )}
+            />
+
+            <TouchableOpacity style={[styles.modalBtn, styles.modalBtnCancel]} onPress={() => setNewChatModalVisible(false)}>
+              <Text style={styles.modalBtnCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Create Group Chat Modal */}
+      <Modal visible={createGroupModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>👥 Create WhatsApp Group</Text>
+            <Text style={styles.modalSubtitle}>Enter group name & select members.</Text>
+
+            <TextInput
+              style={styles.modalSingleInput}
+              placeholder="Group Subject / Title..."
+              placeholderTextColor="#94a3b8"
+              value={groupName}
+              onChangeText={setGroupName}
+            />
+
+            <Text style={styles.memberPickerLabel}>Select Members:</Text>
+
+            <FlatList
+              data={users.filter(u => u.userId !== 'admin')}
+              keyExtractor={item => item.userId}
+              style={{ maxHeight: 180, marginBottom: 15 }}
+              renderItem={({ item }) => {
+                const isSelected = selectedMembers.includes(item.userId);
+                return (
+                  <TouchableOpacity
+                    style={[styles.userPickRow, isSelected && styles.userPickRowSelected]}
+                    onPress={() => toggleMemberSelection(item.userId)}
+                  >
+                    <Text style={styles.userPickAvatar}>{item.avatar}</Text>
+                    <Text style={[styles.userPickName, { flex: 1 }]}>{item.name}</Text>
+                    <Text style={{ color: isSelected ? '#10b981' : '#94a3b8', fontWeight: '700' }}>
+                      {isSelected ? '✓ Added' : '+ Add'}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+
+            <View style={styles.modalActionRow}>
+              <TouchableOpacity style={[styles.modalBtn, styles.modalBtnPost]} onPress={handleCreateGroup}>
+                <Text style={styles.modalBtnText}>Create Group</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalBtn, styles.modalBtnCancel]} onPress={() => setCreateGroupModalVisible(false)}>
+                <Text style={styles.modalBtnCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Group Members & Add People Drawer Modal */}
+      <Modal visible={groupMembersModalVisible} animationType="fade" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>👥 Group Members</Text>
+            <Text style={styles.modalSubtitle}>{activeChat?.name}</Text>
+
+            <Text style={styles.memberPickerLabel}>Current Members ({groupMembersList.length}):</Text>
+            <ScrollView style={{ maxHeight: 120, marginBottom: 15 }}>
+              {groupMembersList.map(m => (
+                <View key={m.userId} style={styles.memberRow}>
+                  <Text style={styles.memberAvatar}>{m.avatar}</Text>
+                  <Text style={styles.memberName}>{m.name}</Text>
+                  <Text style={styles.memberBadge}>{m.userId === 'admin' ? 'Admin' : 'Member'}</Text>
+                </View>
+              ))}
+            </ScrollView>
+
+            <Text style={styles.memberPickerLabel}>Add New People:</Text>
+            <ScrollView style={{ maxHeight: 120, marginBottom: 15 }}>
+              {users
+                .filter(u => !groupMembersList.some(m => m.userId === u.userId))
+                .map(u => (
+                  <TouchableOpacity key={u.userId} style={styles.userPickRow} onPress={() => handleAddMembersToGroup(u)}>
+                    <Text style={styles.userPickAvatar}>{u.avatar}</Text>
+                    <Text style={[styles.userPickName, { flex: 1 }]}>{u.name}</Text>
+                    <Text style={{ color: '#6366f1', fontWeight: '700' }}>+ Add</Text>
+                  </TouchableOpacity>
+                ))}
+            </ScrollView>
+
+            <TouchableOpacity style={[styles.modalBtn, styles.modalBtnCancel]} onPress={() => setGroupMembersModalVisible(false)}>
+              <Text style={styles.modalBtnCancelText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* Status Composer Modal */}
       <Modal visible={statusModalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
@@ -251,7 +492,7 @@ export default function App() {
             <Text style={styles.modalTitle}>✨ Share a Status Post</Text>
             <Text style={styles.modalSubtitle}>Disappears automatically after 24 hours.</Text>
 
-            <View style={[styles.previewCard, { backgroundColor: getSolidColor(selectedGradient) }]}>
+            <View style={[styles.previewCard, { backgroundColor: getSolidColor(selectedColor) }]}>
               <Text style={styles.previewText}>{statusText || 'Type your status thoughts...'}</Text>
             </View>
 
@@ -264,13 +505,12 @@ export default function App() {
               onChangeText={setStatusText}
             />
 
-            {/* Gradient / Solid Color Picker */}
             <View style={styles.gradientRow}>
               {['#6366f1', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'].map((color) => (
                 <TouchableOpacity
                   key={color}
-                  style={[styles.colorCircle, { backgroundColor: color }, selectedGradient === color && styles.colorCircleActive]}
-                  onPress={() => setSelectedGradient(color)}
+                  style={[styles.colorCircle, { backgroundColor: color }, selectedColor === color && styles.colorCircleActive]}
+                  onPress={() => setSelectedColor(color)}
                 />
               ))}
             </View>
@@ -315,351 +555,88 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0a0f1e'
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)'
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  brandLogo: {
-    fontSize: 24,
-    marginRight: 8
-  },
-  brandTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#ffffff'
-  },
-  postStatusBtn: {
-    backgroundColor: '#ec4899',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20
-  },
-  postStatusText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13
-  },
-  statusTrayContainer: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)'
-  },
-  statusTray: {
-    paddingHorizontal: 15,
-    alignItems: 'center'
-  },
-  myStatusItem: {
-    alignItems: 'center',
-    marginRight: 15,
-    width: 65
-  },
-  myStatusAddCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: '#6366f1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4
-  },
-  addPlus: {
-    color: '#6366f1',
-    fontSize: 24,
-    fontWeight: '700'
-  },
-  statusItem: {
-    alignItems: 'center',
-    marginRight: 15,
-    width: 65
-  },
-  statusRing: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    borderWidth: 2,
-    padding: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0a0f1e',
-    marginBottom: 4
-  },
-  statusAvatar: {
-    fontSize: 22
-  },
-  statusLabel: {
-    color: '#94a3b8',
-    fontSize: 11,
-    textAlign: 'center'
-  },
-  mainWorkspace: {
-    flex: 1
-  },
-  chatPickerContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 15
-  },
-  chatPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)'
-  },
-  chatPillActive: {
-    backgroundColor: '#6366f1',
-    borderColor: '#818cf8'
-  },
-  chatPillText: {
-    color: '#94a3b8',
-    fontWeight: '600',
-    fontSize: 13
-  },
-  chatPillTextActive: {
-    color: '#ffffff'
-  },
-  chatWindow: {
-    flex: 1,
-    marginHorizontal: 15,
-    marginBottom: 10,
-    borderRadius: 18,
-    backgroundColor: 'rgba(15,22,45,0.8)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    overflow: 'hidden'
-  },
-  chatHeader: {
-    padding: 12,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    borderBottomWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)'
-  },
-  chatHeaderTitle: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '700'
-  },
-  chatHeaderSub: {
-    color: '#10b981',
-    fontSize: 11,
-    fontWeight: '600'
-  },
-  messageList: {
-    padding: 12
-  },
-  msgRow: {
-    marginBottom: 12,
-    maxWidth: '80%'
-  },
-  msgRowLeft: {
-    alignSelf: 'flex-start'
-  },
-  msgRowRight: {
-    alignSelf: 'flex-end'
-  },
-  msgSender: {
-    color: '#94a3b8',
-    fontSize: 10,
-    marginBottom: 2
-  },
-  msgBubble: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 16
-  },
-  msgBubbleSent: {
-    backgroundColor: '#6366f1'
-  },
-  msgBubbleReceived: {
-    backgroundColor: 'rgba(255,255,255,0.1)'
-  },
-  msgText: {
-    color: '#ffffff',
-    fontSize: 14,
-    lineHeight: 20
-  },
-  inputBar: {
-    flexDirection: 'row',
-    padding: 10,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    alignItems: 'center'
-  },
-  textInput: {
-    flex: 1,
-    height: 42,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 21,
-    paddingHorizontal: 16,
-    color: '#ffffff',
-    marginRight: 8
-  },
-  sendButton: {
-    backgroundColor: '#6366f1',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 21
-  },
-  sendButtonText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  emptyText: {
-    color: '#94a3b8'
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20
-  },
-  modalCard: {
-    width: '100%',
-    backgroundColor: '#0a0f1e',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#6366f1'
-  },
-  modalTitle: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '800',
-    textAlign: 'center'
-  },
-  modalSubtitle: {
-    color: '#94a3b8',
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 15
-  },
-  previewCard: {
-    height: 120,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    marginBottom: 15
-  },
-  previewText: {
-    color: '#ffffff',
-    fontWeight: '800',
-    fontSize: 16,
-    textAlign: 'center'
-  },
-  modalInput: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 12,
-    padding: 12,
-    color: '#ffffff',
-    height: 70,
-    textAlignVertical: 'top',
-    marginBottom: 15
-  },
-  gradientRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20
-  },
-  colorCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16
-  },
-  colorCircleActive: {
-    borderWidth: 2,
-    borderColor: '#ffffff'
-  },
-  modalActionRow: {
-    flexDirection: 'row',
-    gap: 10
-  },
-  modalBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center'
-  },
-  modalBtnPost: {
-    backgroundColor: '#ec4899'
-  },
-  modalBtnCancel: {
-    backgroundColor: 'rgba(255,255,255,0.08)'
-  },
-  modalBtnText: {
-    color: '#ffffff',
-    fontWeight: '700'
-  },
-  modalBtnCancelText: {
-    color: '#94a3b8'
-  },
-  storyFullscreen: {
-    flex: 1
-  },
-  closeStoryBtn: {
-    alignSelf: 'flex-end',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  closeStoryText: {
-    color: '#ffffff',
-    fontSize: 18
-  },
-  storyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20
-  },
-  storyAvatar: {
-    fontSize: 28,
-    marginRight: 10
-  },
-  storyUser: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '800'
-  },
-  storyBody: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  storyContent: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: '800',
-    textAlign: 'center'
-  },
-  storyFooter: {
-    color: 'rgba(255,255,255,0.7)',
-    textAlign: 'center',
-    fontSize: 12,
-    marginBottom: 20
-  }
+  container: { flex: 1, backgroundColor: '#0a0f1e' },
+  header: { paddingHorizontal: 15, paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  brandRow: { flexDirection: 'row', alignItems: 'center' },
+  brandLogo: { fontSize: 22, marginRight: 6 },
+  brandTitle: { fontSize: 18, fontWeight: '800', color: '#ffffff' },
+  headerBtnGroup: { flexDirection: 'row', gap: 6 },
+  newChatHeaderBtn: { backgroundColor: '#6366f1', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
+  newGroupHeaderBtn: { backgroundColor: '#06b6d4', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
+  postStatusBtn: { backgroundColor: '#ec4899', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
+  headerBtnText: { color: '#ffffff', fontWeight: '700', fontSize: 11 },
+  postStatusText: { color: '#ffffff', fontWeight: '700', fontSize: 11 },
+  statusTrayContainer: { paddingVertical: 10, borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  statusTray: { paddingHorizontal: 15, alignItems: 'center' },
+  myStatusItem: { alignItems: 'center', marginRight: 15, width: 60 },
+  myStatusAddCircle: { width: 48, height: 48, borderRadius: 24, borderWidth: 2, borderStyle: 'dashed', borderColor: '#6366f1', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  addPlus: { color: '#6366f1', fontSize: 22, fontWeight: '700' },
+  statusItem: { alignItems: 'center', marginRight: 15, width: 60 },
+  statusRing: { width: 50, height: 50, borderRadius: 25, borderWidth: 2, padding: 2, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0a0f1e', marginBottom: 4 },
+  statusAvatar: { fontSize: 20 },
+  statusLabel: { color: '#94a3b8', fontSize: 10, textAlign: 'center' },
+  mainWorkspace: { flex: 1 },
+  chatPickerContainer: { paddingVertical: 8, paddingHorizontal: 15 },
+  chatPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)', marginRight: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  chatPillActive: { backgroundColor: '#6366f1', borderColor: '#818cf8' },
+  chatPillText: { color: '#94a3b8', fontWeight: '600', fontSize: 12 },
+  chatPillTextActive: { color: '#ffffff' },
+  chatWindow: { flex: 1, marginHorizontal: 12, marginBottom: 10, borderRadius: 16, backgroundColor: 'rgba(15,22,45,0.8)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' },
+  chatHeader: { padding: 10, backgroundColor: 'rgba(0,0,0,0.2)', borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.08)', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  chatHeaderTitle: { color: '#ffffff', fontSize: 15, fontWeight: '700' },
+  chatHeaderSub: { color: '#10b981', fontSize: 11, fontWeight: '600' },
+  groupInfoBtn: { backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  groupInfoText: { color: '#ffffff', fontSize: 11, fontWeight: '700' },
+  messageList: { padding: 12 },
+  msgRow: { marginBottom: 10, maxWidth: '80%' },
+  msgRowLeft: { alignSelf: 'flex-start' },
+  msgRowRight: { alignSelf: 'flex-end' },
+  msgSender: { color: '#94a3b8', fontSize: 10, marginBottom: 2 },
+  msgBubble: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14 },
+  msgBubbleSent: { backgroundColor: '#6366f1' },
+  msgBubbleReceived: { backgroundColor: 'rgba(255,255,255,0.1)' },
+  msgText: { color: '#ffffff', fontSize: 13, lineHeight: 18 },
+  inputBar: { flexDirection: 'row', padding: 8, backgroundColor: 'rgba(0,0,0,0.3)', alignItems: 'center' },
+  textInput: { flex: 1, height: 38, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 19, paddingHorizontal: 14, color: '#ffffff', marginRight: 6 },
+  sendButton: { backgroundColor: '#6366f1', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 19 },
+  sendButtonText: { color: '#ffffff', fontWeight: '700', fontSize: 12 },
+  emptyContainer: { flex: 1, alignItems: 'center', justify: 'center' },
+  emptyText: { color: '#94a3b8' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', alignItems: 'center', justifyContent: 'center', padding: 15 },
+  modalCard: { width: '100%', backgroundColor: '#0a0f1e', borderRadius: 20, padding: 18, borderWidth: 1, borderColor: '#6366f1' },
+  modalTitle: { color: '#ffffff', fontSize: 17, fontWeight: '800', textAlign: 'center' },
+  modalSubtitle: { color: '#94a3b8', fontSize: 11, textAlign: 'center', marginBottom: 12 },
+  modalSingleInput: { backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: 12, color: '#ffffff', marginBottom: 12 },
+  memberPickerLabel: { color: '#ffffff', fontSize: 12, fontWeight: '700', marginBottom: 6 },
+  userPickRow: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, marginBottom: 6 },
+  userPickRowSelected: { backgroundColor: 'rgba(16,185,129,0.15)', borderWidth: 1, borderColor: '#10b981' },
+  userPickAvatar: { fontSize: 20, marginRight: 10 },
+  userPickName: { color: '#ffffff', fontWeight: '700', fontSize: 13 },
+  userPickStatus: { color: '#94a3b8', fontSize: 10 },
+  startText: { color: '#6366f1', fontWeight: '700', fontSize: 12 },
+  memberRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  memberAvatar: { fontSize: 18, marginRight: 8 },
+  memberName: { color: '#ffffff', flex: 1, fontSize: 12, fontWeight: '600' },
+  memberBadge: { color: '#10b981', fontSize: 10, fontWeight: '700' },
+  previewCard: { height: 100, borderRadius: 14, alignItems: 'center', justifyContent: 'center', padding: 12, marginBottom: 12 },
+  previewText: { color: '#ffffff', fontWeight: '800', fontSize: 15, textAlign: 'center' },
+  modalInput: { backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: 10, color: '#ffffff', height: 60, textAlignVertical: 'top', marginBottom: 12 },
+  gradientRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 15 },
+  colorCircle: { width: 28, height: 28, borderRadius: 14 },
+  colorCircleActive: { borderWidth: 2, borderColor: '#ffffff' },
+  modalActionRow: { flexDirection: 'row', gap: 8 },
+  modalBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+  modalBtnPost: { backgroundColor: '#ec4899' },
+  modalBtnCancel: { backgroundColor: 'rgba(255,255,255,0.08)' },
+  modalBtnText: { color: '#ffffff', fontWeight: '700' },
+  modalBtnCancelText: { color: '#94a3b8', fontWeight: '700' },
+  storyFullscreen: { flex: 1 },
+  closeStoryBtn: { alignSelf: 'flex-end', width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(0,0,0,0.3)', alignItems: 'center', justifyContent: 'center' },
+  closeStoryText: { color: '#ffffff', fontSize: 16 },
+  storyHeader: { flexDirection: 'row', alignItems: 'center', marginTop: 15 },
+  storyAvatar: { fontSize: 26, marginRight: 8 },
+  storyUser: { color: '#ffffff', fontSize: 16, fontWeight: '800' },
+  storyBody: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  storyContent: { color: '#ffffff', fontSize: 22, fontWeight: '800', textAlign: 'center' },
+  storyFooter: { color: 'rgba(255,255,255,0.7)', textAlign: 'center', fontSize: 11, marginBottom: 15 }
 });
