@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: link-messenger-backend
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 6070
+      - key: SUPABASE_URL
+        value: https://dvyvcqztgmkklswbuqje.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2eXZjcXp0Z21ra2xzd2J1cWplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTgyMTE5OCwiZXhwIjoyMTA1Mzk3MTk4fQ.nSnKuiloDVvALgmVi7bTOwWrL-LNXRBSGBTi2rN_A9I

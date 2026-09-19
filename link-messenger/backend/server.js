@@ -11,17 +11,17 @@ const port = process.env.PORT || 6070;
 app.use(cors());
 app.use(express.json());
 
-// Supabase client setup
+// Supabase client credentials configured from environment variables or direct bindings
 const supabaseUrl = process.env.SUPABASE_URL || 'https://dvyvcqztgmkklswbuqje.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2eXZjcXp0Z21ra2xzd2J1cWplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTgyMTE5OCwiZXhwIjoyMTA1Mzk3MTk4fQ.nSnKuiloDVvALgmVi7bTOwWrL-LNXRBSGBTi2rN_A9I';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Local SQLite fallback persistence
+// Local SQLite database engine for instant zero-latency fallback persistence
 const dbPath = path.join(__dirname, 'link_database.sqlite');
 const sqlite = new Database(dbPath);
 sqlite.pragma('journal_mode = WAL');
 
-// Initialize local SQLite tables
+// Initialize local database tables automatically
 sqlite.exec(`
     CREATE TABLE IF NOT EXISTS link_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,7 +90,7 @@ if (sqlite.prepare('SELECT COUNT(*) as count FROM link_chats').get().count === 0
     );
 }
 
-// Normalizers
+// Data Normalizers
 const normUser = r => ({ id: r.id, userId: r.user_id || r.userId, name: r.name, avatar: r.avatar, status: r.status, online: r.online, lastSeen: r.last_seen || r.lastSeen });
 const normChat = r => ({ id: r.id, chatId: r.chat_id || r.chatId, type: r.type, name: r.name, participants: r.participants, lastMessage: r.last_message || r.lastMessage, updatedAt: r.updated_at || r.updatedAt });
 const normMsg = r => ({ id: r.id, chatId: r.chat_id || r.chatId, senderId: r.sender_id || r.senderId, senderName: r.sender_name || r.senderName, content: r.content, attachment: r.attachment, reaction: r.reaction, timestamp: r.timestamp });
@@ -149,7 +149,7 @@ app.get('/api/link_statuses', async (req, res) => {
     res.json(rows.map(normStatus));
 });
 
-// Signup / Account Sync
+// Signup / Account Sync Endpoint
 app.post('/api/link_users/signup', async (req, res) => {
     const { userId, name, avatar, status } = req.body;
     if (!userId || !name) {
@@ -165,11 +165,10 @@ app.post('/api/link_users/signup', async (req, res) => {
         last_seen: 'Just now'
     };
 
-    // Try Supabase first
+    // Attempt Supabase REST sync first
     try {
         const { data, error } = await supabase.from('link_users').upsert(userData, { onConflict: 'user_id' }).select().single();
         if (!error && data) {
-            // Auto-add to announcements
             try {
                 const { data: chatData } = await supabase.from('link_chats').select('*').eq('chat_id', 'chat_announcements').single();
                 if (chatData) {
@@ -185,7 +184,7 @@ app.post('/api/link_users/signup', async (req, res) => {
         }
     } catch (e) {}
 
-    // Fallback SQLite
+    // Zero-config SQLite persistence fallback
     const existingUser = sqlite.prepare('SELECT * FROM link_users WHERE user_id = ?').get(userId);
     let user;
     if (existingUser) {
@@ -258,7 +257,7 @@ app.post('/api/link_chats/direct', async (req, res) => {
     res.status(201).json(normChat(newChat));
 });
 
-// Create Group
+// Create Group Chat
 app.post('/api/link_chats/group', async (req, res) => {
     const { name, creatorId, participantIds } = req.body;
     if (!name || !creatorId || !participantIds) return res.status(400).json({ error: 'Invalid parameters' });
@@ -290,7 +289,7 @@ app.post('/api/link_chats/group', async (req, res) => {
     res.status(201).json(normChat(newGroup));
 });
 
-// Add Members
+// Add Members to Group
 app.post('/api/link_chats/:chatId/members', async (req, res) => {
     const { chatId } = req.params;
     const { newParticipantIds } = req.body;
@@ -318,7 +317,7 @@ app.post('/api/link_chats/:chatId/members', async (req, res) => {
     res.json(normChat(updatedChat));
 });
 
-// Send Message
+// Send Instant Message
 app.post('/api/link_messages', async (req, res) => {
     const { chatId, senderId, senderName, content } = req.body;
     const timestamp = new Date().toISOString();
@@ -339,7 +338,7 @@ app.post('/api/link_messages', async (req, res) => {
     res.status(201).json(normMsg(newMsg));
 });
 
-// Post Status
+// Share 24-Hour Status Story
 app.post('/api/link_statuses', async (req, res) => {
     const { userId, userName, userAvatar, content, bgGradient } = req.body;
     const createdAt = new Date().toISOString();
