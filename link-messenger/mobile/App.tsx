@@ -26,6 +26,14 @@ const getSolidColor = (colorOrGrad) => {
 const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:6070/api';
 
 export default function App() {
+  // Current dynamic active user state (synced profile)
+  const [currentUser, setCurrentUser] = useState({
+    userId: 'admin',
+    name: 'System Administrator',
+    avatar: '⚡',
+    status: 'Available for support'
+  });
+
   const [users, setUsers] = useState([]);
   const [chats, setChats] = useState([]);
   const [statuses, setStatuses] = useState([]);
@@ -33,13 +41,20 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
 
-  // Modals visibility
+  // Modals & Hamburger Navigation Drawer visibility
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [signupModalVisible, setSignupModalVisible] = useState(false);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [newChatModalVisible, setNewChatModalVisible] = useState(false);
   const [createGroupModalVisible, setCreateGroupModalVisible] = useState(false);
   const [groupMembersModalVisible, setGroupMembersModalVisible] = useState(false);
 
   // Forms state
+  const [signupName, setSignupName] = useState('');
+  const [signupUserId, setSignupUserId] = useState('');
+  const [signupStatus, setSignupStatus] = useState('');
+  const [signupAvatar, setSignupAvatar] = useState('👑');
+
   const [statusText, setStatusText] = useState('');
   const [selectedColor, setSelectedColor] = useState('#6366f1');
   const [groupName, setGroupName] = useState('');
@@ -117,13 +132,44 @@ export default function App() {
     }
   };
 
+  const handleSignupAndSync = async () => {
+    if (!signupName.trim() || !signupUserId.trim()) {
+      Alert.alert('Sign Up Error', 'Please enter both your Full Name and User ID/Username.');
+      return;
+    }
+
+    const cleanUserId = signupUserId.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+
+    try {
+      const res = await fetch(`${API_BASE}/link_users/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: cleanUserId,
+          name: signupName.trim(),
+          avatar: signupAvatar,
+          status: signupStatus.trim() || 'Active on Link Messenger'
+        })
+      });
+
+      const syncedUser = await res.json();
+      setCurrentUser(syncedUser);
+      setSignupModalVisible(false);
+      setDrawerVisible(false);
+      await fetchUsers();
+      Alert.alert('Account Synced! 🎉', `Welcome ${syncedUser.name}! Your account is now synced across Link Messenger.`);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to sync account');
+    }
+  };
+
   const handleStartDirectChat = async (targetUser) => {
     try {
       const res = await fetch(`${API_BASE}/link_chats/direct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          currentUserId: 'admin',
+          currentUserId: currentUser.userId,
           targetUserId: targetUser.userId
         })
       });
@@ -147,7 +193,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: groupName.trim(),
-          creatorId: 'admin',
+          creatorId: currentUser.userId,
           participantIds: selectedMembers
         })
       });
@@ -191,8 +237,8 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chatId: activeChat.chatId,
-          senderId: 'admin',
-          senderName: 'System Administrator',
+          senderId: currentUser.userId,
+          senderName: currentUser.name,
           content: text
         })
       });
@@ -210,9 +256,9 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: 'admin',
-          userName: 'System Administrator',
-          userAvatar: '⚡',
+          userId: currentUser.userId,
+          userName: currentUser.name,
+          userAvatar: currentUser.avatar,
           content: statusText,
           bgGradient: selectedColor
         })
@@ -237,23 +283,21 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Brand Header */}
+      {/* Reorganized Clean Top Header with Hamburger Button */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.hamburgerBtn} onPress={() => setDrawerVisible(true)}>
+          <Text style={styles.hamburgerIcon}>☰</Text>
+        </TouchableOpacity>
+
         <View style={styles.brandRow}>
           <Text style={styles.brandLogo}>⚡</Text>
-          <Text style={styles.brandTitle}>Link Messenger</Text>
+          <Text style={styles.brandTitle}>Link</Text>
         </View>
-        <View style={styles.headerBtnGroup}>
-          <TouchableOpacity style={styles.newChatHeaderBtn} onPress={() => setNewChatModalVisible(true)}>
-            <Text style={styles.headerBtnText}>💬 Chat</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.newGroupHeaderBtn} onPress={() => setCreateGroupModalVisible(true)}>
-            <Text style={styles.headerBtnText}>👥 Group</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.postStatusBtn} onPress={() => setStatusModalVisible(true)}>
-            <Text style={styles.postStatusText}>+ Status</Text>
-          </TouchableOpacity>
-        </View>
+
+        <TouchableOpacity style={styles.activeUserChip} onPress={() => setSignupModalVisible(true)}>
+          <Text style={styles.activeUserAvatar}>{currentUser.avatar}</Text>
+          <Text style={styles.activeUserName} numberOfLines={1}>{currentUser.name.split(' ')[0]}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Top Status Story Tray */}
@@ -331,7 +375,7 @@ export default function App() {
               keyExtractor={(item) => String(item.id)}
               contentContainerStyle={styles.messageList}
               renderItem={({ item }) => {
-                const isMe = item.senderId === 'admin';
+                const isMe = item.senderId === currentUser.userId;
                 return (
                   <View style={[styles.msgRow, isMe ? styles.msgRowRight : styles.msgRowLeft]}>
                     <Text style={styles.msgSender}>{item.senderName}</Text>
@@ -364,6 +408,136 @@ export default function App() {
         )}
       </View>
 
+      {/* Hamburger Navigation Drawer Modal */}
+      <Modal visible={drawerVisible} animationType="fade" transparent>
+        <TouchableOpacity style={styles.drawerOverlay} activeOpacity={1} onPress={() => setDrawerVisible(false)}>
+          <View style={styles.drawerContent} onStartShouldSetResponder={() => true}>
+            <View style={styles.drawerHeader}>
+              <Text style={styles.drawerUserAvatar}>{currentUser.avatar}</Text>
+              <View>
+                <Text style={styles.drawerUserName}>{currentUser.name}</Text>
+                <Text style={styles.drawerUserSub}>@{currentUser.userId}</Text>
+              </View>
+              <TouchableOpacity style={styles.drawerCloseBtn} onPress={() => setDrawerVisible(false)}>
+                <Text style={styles.drawerCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.drawerSection}>
+              <Text style={styles.drawerSectionLabel}>NAVIGATION & ACTIONS</Text>
+
+              <TouchableOpacity
+                style={styles.drawerItem}
+                onPress={() => {
+                  setDrawerVisible(false);
+                  setSignupModalVisible(true);
+                }}
+              >
+                <Text style={styles.drawerItemIcon}>👤</Text>
+                <Text style={styles.drawerItemText}>Sign Up / Sync Account</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.drawerItem}
+                onPress={() => {
+                  setDrawerVisible(false);
+                  setNewChatModalVisible(true);
+                }}
+              >
+                <Text style={styles.drawerItemIcon}>💬</Text>
+                <Text style={styles.drawerItemText}>Start Direct Chat</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.drawerItem}
+                onPress={() => {
+                  setDrawerVisible(false);
+                  setCreateGroupModalVisible(true);
+                }}
+              >
+                <Text style={styles.drawerItemIcon}>👥</Text>
+                <Text style={styles.drawerItemText}>Create WhatsApp Group</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.drawerItem}
+                onPress={() => {
+                  setDrawerVisible(false);
+                  setStatusModalVisible(true);
+                }}
+              >
+                <Text style={styles.drawerItemIcon}>✨</Text>
+                <Text style={styles.drawerItemText}>Share Status Story</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.drawerFooter}>
+              <Text style={styles.drawerFooterText}>Link Messenger • Persisted Sync v2.0</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Sign Up / Account Sync Modal */}
+      <Modal visible={signupModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>👤 Sign Up & Sync Account</Text>
+            <Text style={styles.modalSubtitle}>Create or sync your profile across Link Messenger.</Text>
+
+            <Text style={styles.inputLabel}>Full Name:</Text>
+            <TextInput
+              style={styles.modalSingleInput}
+              placeholder="e.g. Joshua Web Master"
+              placeholderTextColor="#94a3b8"
+              value={signupName}
+              onChangeText={setSignupName}
+            />
+
+            <Text style={styles.inputLabel}>Username / User ID:</Text>
+            <TextInput
+              style={styles.modalSingleInput}
+              placeholder="e.g. joshua_w"
+              placeholderTextColor="#94a3b8"
+              autoCapitalize="none"
+              value={signupUserId}
+              onChangeText={setSignupUserId}
+            />
+
+            <Text style={styles.inputLabel}>Status / Bio:</Text>
+            <TextInput
+              style={styles.modalSingleInput}
+              placeholder="e.g. Building awesome apps!"
+              placeholderTextColor="#94a3b8"
+              value={signupStatus}
+              onChangeText={setSignupStatus}
+            />
+
+            <Text style={styles.inputLabel}>Choose Avatar Emoji:</Text>
+            <View style={styles.emojiPickerRow}>
+              {['👑', '⚡', '🚀', '🎨', '📚', '🎓', '🔥', '💻', '🌟'].map(emoji => (
+                <TouchableOpacity
+                  key={emoji}
+                  style={[styles.emojiCircle, signupAvatar === emoji && styles.emojiCircleSelected]}
+                  onPress={() => setSignupAvatar(emoji)}
+                >
+                  <Text style={{ fontSize: 20 }}>{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.modalActionRow}>
+              <TouchableOpacity style={[styles.modalBtn, styles.modalBtnPost]} onPress={handleSignupAndSync}>
+                <Text style={styles.modalBtnText}>Sign Up & Sync</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalBtn, styles.modalBtnCancel]} onPress={() => setSignupModalVisible(false)}>
+                <Text style={styles.modalBtnCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Start Direct Chat Modal */}
       <Modal visible={newChatModalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
@@ -372,7 +546,7 @@ export default function App() {
             <Text style={styles.modalSubtitle}>Pick a contact to message directly.</Text>
 
             <FlatList
-              data={users.filter(u => u.userId !== 'admin')}
+              data={users.filter(u => u.userId !== currentUser.userId)}
               keyExtractor={item => item.userId}
               style={{ maxHeight: 250, marginVertical: 10 }}
               renderItem={({ item }) => (
@@ -415,7 +589,7 @@ export default function App() {
             <Text style={styles.memberPickerLabel}>Select Members:</Text>
 
             <FlatList
-              data={users.filter(u => u.userId !== 'admin')}
+              data={users.filter(u => u.userId !== currentUser.userId)}
               keyExtractor={item => item.userId}
               style={{ maxHeight: 180, marginBottom: 15 }}
               renderItem={({ item }) => {
@@ -460,7 +634,7 @@ export default function App() {
                 <View key={m.userId} style={styles.memberRow}>
                   <Text style={styles.memberAvatar}>{m.avatar}</Text>
                   <Text style={styles.memberName}>{m.name}</Text>
-                  <Text style={styles.memberBadge}>{m.userId === 'admin' ? 'Admin' : 'Member'}</Text>
+                  <Text style={styles.memberBadge}>{m.userId === currentUser.userId ? 'You' : 'Member'}</Text>
                 </View>
               ))}
             </ScrollView>
@@ -557,15 +731,14 @@ export default function App() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0a0f1e' },
   header: { paddingHorizontal: 15, paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  hamburgerBtn: { padding: 6, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 10 },
+  hamburgerIcon: { color: '#ffffff', fontSize: 20, fontWeight: '700' },
   brandRow: { flexDirection: 'row', alignItems: 'center' },
-  brandLogo: { fontSize: 22, marginRight: 6 },
+  brandLogo: { fontSize: 20, marginRight: 4 },
   brandTitle: { fontSize: 18, fontWeight: '800', color: '#ffffff' },
-  headerBtnGroup: { flexDirection: 'row', gap: 6 },
-  newChatHeaderBtn: { backgroundColor: '#6366f1', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
-  newGroupHeaderBtn: { backgroundColor: '#06b6d4', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
-  postStatusBtn: { backgroundColor: '#ec4899', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16 },
-  headerBtnText: { color: '#ffffff', fontWeight: '700', fontSize: 11 },
-  postStatusText: { color: '#ffffff', fontWeight: '700', fontSize: 11 },
+  activeUserChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(99,102,241,0.2)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, borderBottomWidth: 0, borderWidth: 1, borderColor: '#6366f1' },
+  activeUserAvatar: { fontSize: 14, marginRight: 4 },
+  activeUserName: { color: '#ffffff', fontSize: 11, fontWeight: '700', maxWidth: 70 },
   statusTrayContainer: { paddingVertical: 10, borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   statusTray: { paddingHorizontal: 15, alignItems: 'center' },
   myStatusItem: { alignItems: 'center', marginRight: 15, width: 60 },
@@ -602,11 +775,30 @@ const styles = StyleSheet.create({
   sendButtonText: { color: '#ffffff', fontWeight: '700', fontSize: 12 },
   emptyContainer: { flex: 1, alignItems: 'center', justify: 'center' },
   emptyText: { color: '#94a3b8' },
+  drawerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', flexDirection: 'row' },
+  drawerContent: { width: 280, backgroundColor: '#0a0f1e', height: '100%', padding: 20, borderRightWidth: 1, borderColor: '#6366f1' },
+  drawerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, paddingBottom: 15, borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  drawerUserAvatar: { fontSize: 32, marginRight: 12 },
+  drawerUserName: { color: '#ffffff', fontSize: 16, fontWeight: '800' },
+  drawerUserSub: { color: '#6366f1', fontSize: 12, fontWeight: '700' },
+  drawerCloseBtn: { marginLeft: 'auto', padding: 6 },
+  drawerCloseText: { color: '#94a3b8', fontSize: 18, fontWeight: '700' },
+  drawerSection: { flex: 1 },
+  drawerSectionLabel: { color: '#94a3b8', fontSize: 10, fontWeight: '700', letterSpacing: 1, marginBottom: 12 },
+  drawerItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 10, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.04)', marginBottom: 8 },
+  drawerItemIcon: { fontSize: 18, marginRight: 12 },
+  drawerItemText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
+  drawerFooter: { paddingTop: 15, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  drawerFooterText: { color: '#94a3b8', fontSize: 10, textAlign: 'center' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', alignItems: 'center', justifyContent: 'center', padding: 15 },
   modalCard: { width: '100%', backgroundColor: '#0a0f1e', borderRadius: 20, padding: 18, borderWidth: 1, borderColor: '#6366f1' },
   modalTitle: { color: '#ffffff', fontSize: 17, fontWeight: '800', textAlign: 'center' },
   modalSubtitle: { color: '#94a3b8', fontSize: 11, textAlign: 'center', marginBottom: 12 },
-  modalSingleInput: { backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: 12, color: '#ffffff', marginBottom: 12 },
+  inputLabel: { color: '#ffffff', fontSize: 11, fontWeight: '700', marginBottom: 4 },
+  modalSingleInput: { backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: 10, color: '#ffffff', marginBottom: 10, fontSize: 13 },
+  emojiPickerRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: 10, justifyContent: 'center' },
+  emojiCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' },
+  emojiCircleSelected: { backgroundColor: '#6366f1', borderWidth: 2, borderColor: '#ffffff' },
   memberPickerLabel: { color: '#ffffff', fontSize: 12, fontWeight: '700', marginBottom: 6 },
   userPickRow: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, marginBottom: 6 },
   userPickRowSelected: { backgroundColor: 'rgba(16,185,129,0.15)', borderWidth: 1, borderColor: '#10b981' },
@@ -618,7 +810,7 @@ const styles = StyleSheet.create({
   memberAvatar: { fontSize: 18, marginRight: 8 },
   memberName: { color: '#ffffff', flex: 1, fontSize: 12, fontWeight: '600' },
   memberBadge: { color: '#10b981', fontSize: 10, fontWeight: '700' },
-  previewCard: { height: 100, borderRadius: 14, alignItems: 'center', justifyContent: 'center', padding: 12, marginBottom: 12 },
+  previewCard: { height: 90, borderRadius: 14, alignItems: 'center', justifyContent: 'center', padding: 12, marginBottom: 12 },
   previewText: { color: '#ffffff', fontWeight: '800', fontSize: 15, textAlign: 'center' },
   modalInput: { backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: 10, color: '#ffffff', height: 60, textAlignVertical: 'top', marginBottom: 12 },
   gradientRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 15 },

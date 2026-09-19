@@ -131,6 +131,31 @@ app.get('/api/link_statuses', (req, res) => {
     res.json(rows.map(normStatus));
 });
 
+// User Signup / Account Sync Endpoint
+app.post('/api/link_users/signup', (req, res) => {
+    const { userId, name, avatar, status } = req.body;
+    if (!userId || !name) {
+        return res.status(400).json({ error: 'userId and name are required' });
+    }
+
+    const existingUser = db.prepare('SELECT * FROM link_users WHERE user_id = ?').get(userId);
+    let user;
+
+    if (existingUser) {
+        db.prepare('UPDATE link_users SET name = ?, avatar = ?, status = ?, online = 1, last_seen = ? WHERE user_id = ?').run(
+            name, avatar || existingUser.avatar || '⚡', status || existingUser.status || 'Active on Link', 'Just now', userId
+        );
+        user = db.prepare('SELECT * FROM link_users WHERE user_id = ?').get(userId);
+    } else {
+        const result = db.prepare(
+            'INSERT INTO link_users (user_id, name, avatar, status, online, last_seen) VALUES (?, ?, ?, ?, 1, ?)'
+        ).run(userId, name, avatar || '⚡', status || 'Hey there! I am using Link.', 'Just now');
+        user = db.prepare('SELECT * FROM link_users WHERE id = ?').get(result.lastInsertRowid);
+    }
+
+    res.status(200).json(normUser(user));
+});
+
 // WhatsApp Direct Chat Endpoint
 app.post('/api/link_chats/direct', (req, res) => {
     const { currentUserId, targetUserId } = req.body;
