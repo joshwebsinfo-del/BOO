@@ -43,7 +43,7 @@ if (!disableDatabase && databaseUrl && !isLocalDatabase) {
         { id: 2, username: 'teacher', password: 'teacher123', role: 'Teacher', name: 'Demo Teacher' },
         { id: 3, username: 'student', password: 'student123', role: 'Student', name: 'Demo Student' }
     ];
-    
+
     pool = {
         query: async (sql, params) => {
             // Return demo user data for login queries

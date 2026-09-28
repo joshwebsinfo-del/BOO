@@ -1,0 +1,32 @@
+{
+  "name": "link-messenger-app",
+  "slug": "link-messenger-app",
+  "version": "1.0.0",
+  "orientation": "portrait",
+  "icon": "./assets/icon.png",
+  "userInterfaceStyle": "dark",
+  "splash": {
+    "image": "./assets/splash.png",
+    "resizeMode": "contain",
+    "backgroundColor": "#0a0f1e"
+  },
+  "ios": {
+    "supportsTablet": true
+  },
+  "android": {
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/adaptive-icon.png",
+      "backgroundColor": "#0a0f1e"
+    },
+    "package": "com.joshwebs.linkmessenger"
+  },
+  "web": {
+    "favicon": "./assets/favicon.png"
+  },
+  "owner": "joshwebs1",
+  "extra": {
+    "eas": {
+      "projectId": "1ba1e04f-1233-4373-970b-d914d1dbae2d"
+    }
+  }
+}
