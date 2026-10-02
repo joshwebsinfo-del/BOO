@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Messenger — Offline Local LAN Communication</title>
+    <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body>
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="brand-container">
+            <div class="brand-logo">💬</div>
+            <div>
+                <h1 class="brand-title">WiFi Messenger</h1>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Offline Local Network Application</div>
+            </div>
+        </div>
+        <div class="network-badge" id="network-badge">
+            <span class="dot">🟢</span>
+            <span id="network-status-text">LAN Connected</span>
+        </div>
+    </header>
+
+    <!-- App Body -->
+    <div class="app-body">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <button class="nav-tab active" data-tab="dashboard">📊 Board</button>
+                <button class="nav-tab" data-tab="chats">💬 Chats</button>
+                <button class="nav-tab" data-tab="peers">📱 Nearby</button>
+                <button class="nav-tab" data-tab="settings">⚙ Settings</button>
+            </nav>
+
+            <div class="sidebar-search" style="display: flex; gap: 8px;">
+                <input type="text" class="search-input" id="search-input" placeholder="🔍 Search...">
+                <button onclick="createNewGroupChat()" style="padding: 0 12px; background: var(--accent-primary); color: #fff; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 1.1rem;" title="New Group Chat">👥+</button>
+            </div>
+
+            <!-- List Containers -->
+            <div class="chat-list" id="sidebar-list">
+                <!-- Dynamically loaded list cards -->
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="chat-area" id="main-content">
+            <!-- Dynamic Content Rendered Here (Dashboard, ChatWindow, Settings, etc.) -->
+        </main>
+    </div>
+
+    <!-- Footer Branding -->
+    <footer class="app-footer">
+        WiFi Messenger &bull; <strong>Developed by JoshWebs</strong>
+    </footer>
+
+    <script src="/components/group_chat.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>

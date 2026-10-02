@@ -1,5 +1,13 @@
 node_modules/
 .env
 egles.db
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+database/*.db*
+database/wifi_messenger.db*
+uploads/*
+!uploads/.gitkeep
 .DS_Store
 
