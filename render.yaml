@@ -1,16 +1,13 @@
 services:
   - type: web
-    name: egles-smis
+    name: wifi-messenger-backend
     env: node
-    plan: free
-    branch: main
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node server.js
     envVars:
+      - key: PORT
+        value: 5000
       - key: NODE_ENV
         value: production
-      - key: DISABLE_DATABASE
-        value: "true"
-      - key: DATABASE_URL
-        value: ""
-    healthCheckPath: /
+      - key: DEVELOPER_LABEL
+        value: Developed by JoshWebs
